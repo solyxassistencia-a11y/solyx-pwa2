@@ -1,0 +1,733 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Solyx Fidelidade</title>
+
+    <meta name="description" content="Solyx Fidelidade - Escolha seu tipo de acesso.">
+
+  <link rel="manifest" href="./manifest.json">
+
+<meta name="theme-color" content="#B51217">
+
+<link rel="apple-touch-icon" href="./icon-192.png">
+  
+    <style>
+        /* =========================================================
+           SOLYX FIDELIDADE
+           Tela de abertura / seleção de acesso
+           HTML5 + CSS3
+           ========================================================= */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            width: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            min-height: 100dvh;
+
+            font-family:
+                Inter,
+                "Segoe UI",
+                Roboto,
+                Helvetica,
+                Arial,
+                sans-serif;
+
+            color: #ffffff;
+
+            background:
+                radial-gradient(
+                    circle at 50% 20%,
+                    rgba(181, 18, 23, 0.18),
+                    transparent 34%
+                ),
+                radial-gradient(
+                    circle at 10% 90%,
+                    rgba(181, 18, 23, 0.10),
+                    transparent 30%
+                ),
+                linear-gradient(
+                    145deg,
+                    #080808 0%,
+                    #101010 48%,
+                    #050505 100%
+                );
+
+            overflow-x: hidden;
+        }
+
+
+        /* =========================================================
+           FUNDO DECORATIVO
+           ========================================================= */
+
+        body::before {
+            content: "";
+            position: fixed;
+            width: 420px;
+            height: 420px;
+
+            top: -180px;
+            right: -150px;
+
+            border-radius: 50%;
+
+            background: rgba(181, 18, 23, 0.08);
+
+            filter: blur(10px);
+
+            pointer-events: none;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            width: 350px;
+            height: 350px;
+
+            bottom: -180px;
+            left: -150px;
+
+            border-radius: 50%;
+
+            background: rgba(181, 18, 23, 0.06);
+
+            filter: blur(15px);
+
+            pointer-events: none;
+        }
+
+
+        /* =========================================================
+           CONTAINER PRINCIPAL
+           ========================================================= */
+
+        .splash-page {
+            position: relative;
+            z-index: 1;
+
+            width: 100%;
+            min-height: 100vh;
+            min-height: 100dvh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 30px 20px;
+        }
+
+
+        /* =========================================================
+           CARD
+           ========================================================= */
+
+        .splash-card {
+            width: 100%;
+            max-width: 480px;
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            padding: 46px 36px 40px;
+
+            border: 1px solid rgba(255, 255, 255, 0.08);
+
+            border-radius: 28px;
+
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255, 255, 255, 0.055),
+                    rgba(255, 255, 255, 0.018)
+                );
+
+            box-shadow:
+                0 30px 80px rgba(0, 0, 0, 0.55),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+
+        /* =========================================================
+           LOGO
+           ========================================================= */
+
+        .logo-wrapper {
+            width: 100%;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            margin-bottom: 28px;
+        }
+
+        .logo {
+            display: block;
+
+            width: auto;
+            max-width: 300px;
+            max-height: 150px;
+
+            height: auto;
+
+            object-fit: contain;
+
+            filter:
+                drop-shadow(0 12px 25px rgba(0, 0, 0, 0.35));
+        }
+
+
+        /* =========================================================
+           TEXTO
+           ========================================================= */
+
+        .welcome-text {
+            margin-bottom: 28px;
+
+            color: rgba(255, 255, 255, 0.72);
+
+            font-size: 15px;
+            font-weight: 400;
+
+            line-height: 1.5;
+
+            text-align: center;
+
+            letter-spacing: 0.2px;
+        }
+
+
+        /* =========================================================
+           ÁREA DOS BOTÕES
+           ========================================================= */
+
+        .access-list {
+            width: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            gap: 15px;
+        }
+
+
+        /* =========================================================
+           BOTÕES
+           ========================================================= */
+
+        .access-button {
+            position: relative;
+
+            width: 100%;
+            min-height: 66px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 14px 22px;
+
+            border-radius: 16px;
+
+            border: 1px solid rgba(255, 255, 255, 0.10);
+
+            color: #ffffff;
+
+            text-decoration: none;
+
+            font-size: 16px;
+            font-weight: 600;
+
+            letter-spacing: 0.2px;
+
+            overflow: hidden;
+
+            transition:
+                transform 0.25s ease,
+                box-shadow 0.25s ease,
+                border-color 0.25s ease,
+                background 0.25s ease;
+        }
+
+
+        /* brilho discreto */
+        .access-button::before {
+            content: "";
+
+            position: absolute;
+
+            top: 0;
+            left: -120%;
+
+            width: 80%;
+            height: 100%;
+
+            background:
+                linear-gradient(
+                    90deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.10),
+                    transparent
+                );
+
+            transform: skewX(-20deg);
+
+            transition: left 0.55s ease;
+
+            pointer-events: none;
+        }
+
+
+        /* =========================================================
+           LOJISTA
+           ========================================================= */
+
+        .merchant-button {
+            background:
+                linear-gradient(
+                    135deg,
+                    #b51217 0%,
+                    #d51b21 100%
+                );
+
+            border-color: rgba(255, 255, 255, 0.12);
+
+            box-shadow:
+                0 10px 28px rgba(181, 18, 23, 0.25);
+        }
+
+
+        /* =========================================================
+           CLIENTE
+           ========================================================= */
+
+        .customer-button {
+            background:
+                linear-gradient(
+                    135deg,
+                    #202020 0%,
+                    #151515 100%
+                );
+
+            border-color: rgba(255, 255, 255, 0.13);
+
+            box-shadow:
+                0 10px 28px rgba(0, 0, 0, 0.30);
+        }
+
+
+        /* =========================================================
+           HOVER
+           ========================================================= */
+
+        @media (hover: hover) {
+
+            .access-button:hover {
+                transform: translateY(-3px);
+            }
+
+            .access-button:hover::before {
+                left: 130%;
+            }
+
+            .merchant-button:hover {
+                box-shadow:
+                    0 16px 35px rgba(181, 18, 23, 0.38);
+            }
+
+            .customer-button:hover {
+                border-color: rgba(255, 255, 255, 0.24);
+
+                background:
+                    linear-gradient(
+                        135deg,
+                        #292929 0%,
+                        #1a1a1a 100%
+                    );
+
+                box-shadow:
+                    0 16px 35px rgba(0, 0, 0, 0.45);
+            }
+        }
+
+
+        /* =========================================================
+           ACTIVE
+           ========================================================= */
+
+        .access-button:active {
+            transform: translateY(1px) scale(0.985);
+            transition-duration: 0.08s;
+        }
+
+
+        /* =========================================================
+           FOCO / ACESSIBILIDADE
+           ========================================================= */
+
+        .access-button:focus-visible {
+            outline: 3px solid rgba(255, 255, 255, 0.90);
+            outline-offset: 4px;
+        }
+
+
+        /* =========================================================
+           RODAPÉ
+           ========================================================= */
+
+        .footer {
+            margin-top: 30px;
+
+            color: rgba(255, 255, 255, 0.34);
+
+            font-size: 11px;
+
+            text-align: center;
+
+            letter-spacing: 0.5px;
+        }
+
+
+        /* =========================================================
+           TABLETS
+           ========================================================= */
+
+        @media (max-width: 600px) {
+
+            .splash-page {
+                padding: 22px 16px;
+            }
+
+            .splash-card {
+                max-width: 440px;
+
+                padding:
+                    38px
+                    24px
+                    32px;
+
+                border-radius: 24px;
+            }
+
+            .logo {
+                max-width: 270px;
+                max-height: 135px;
+            }
+
+            .logo-wrapper {
+                margin-bottom: 24px;
+            }
+
+            .welcome-text {
+                margin-bottom: 24px;
+                font-size: 14px;
+            }
+
+            .access-button {
+                min-height: 64px;
+                font-size: 15.5px;
+                border-radius: 15px;
+            }
+        }
+
+
+        /* =========================================================
+           SMARTPHONES PEQUENOS
+           ========================================================= */
+
+        @media (max-width: 380px) {
+
+            .splash-page {
+                padding: 18px 13px;
+            }
+
+            .splash-card {
+                padding:
+                    30px
+                    18px
+                    27px;
+
+                border-radius: 21px;
+            }
+
+            .logo {
+                max-width: 235px;
+                max-height: 115px;
+            }
+
+            .logo-wrapper {
+                margin-bottom: 20px;
+            }
+
+            .welcome-text {
+                margin-bottom: 21px;
+                font-size: 13.5px;
+            }
+
+            .access-list {
+                gap: 12px;
+            }
+
+            .access-button {
+                min-height: 60px;
+                padding: 12px 16px;
+                font-size: 15px;
+                border-radius: 14px;
+            }
+
+            .footer {
+                margin-top: 24px;
+            }
+        }
+
+
+        /* =========================================================
+           TELAS MUITO ALTAS / DESKTOP
+           ========================================================= */
+
+        @media (min-width: 1000px) {
+
+            .splash-card {
+                max-width: 500px;
+
+                padding:
+                    52px
+                    42px
+                    44px;
+            }
+
+            .logo {
+                max-width: 320px;
+                max-height: 160px;
+            }
+        }
+
+
+        /* =========================================================
+           REDUÇÃO DE MOVIMENTO
+           ========================================================= */
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .access-button,
+            .access-button::before {
+                transition: none;
+            }
+        }
+
+      .install-button {
+    width: 100%;
+    min-height: 58px;
+
+    margin-top: 20px;
+
+    padding: 12px 20px;
+
+    border: 1px solid rgba(255, 255, 255, 0.15);
+
+    border-radius: 15px;
+
+    background: rgba(255, 255, 255, 0.05);
+
+    color: rgba(255, 255, 255, 0.85);
+
+    font-family: inherit;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    display: none;
+
+    transition:
+        transform 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.install-button:hover {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.28);
+    transform: translateY(-2px);
+}
+
+.install-button:active {
+    transform: scale(0.98);
+}
+
+.install-button:focus-visible {
+    outline: 3px solid rgba(255, 255, 255, 0.8);
+    outline-offset: 3px;
+}
+    </style>
+</head>
+
+<body>
+
+    <main class="splash-page">
+
+        <section class="splash-card" aria-label="Solyx Fidelidade">
+<button
+    id="installButton"
+    class="install-button"
+    type="button"
+>
+    📲 Instalar aplicativo
+</button>
+            <!-- LOGO -->
+            <div class="logo-wrapper">
+
+                <img
+                    class="logo"
+                    src="https://www.dropbox.com/scl/fi/l3rrm5uznmpz303bnjqqs/Logo_SolyxFidelidade.png?rlkey=ag0v9tvbtxoh2gy1bv8aqrvxa&st=5f0dupbh&raw=1"
+                    alt="Solyx Fidelidade"
+                >
+
+            </div>
+
+
+            <!-- MENSAGEM -->
+            <p class="welcome-text">
+                Escolha uma opção para continuar
+            </p>
+
+
+            <!-- ACESSOS -->
+            <nav class="access-list" aria-label="Opções de acesso">
+
+                <!-- ACESSO LOJISTA -->
+                <a
+                    class="access-button merchant-button"
+                    href="https://painelsolyxfidelidade.blogspot.com/p/avdvs615v65s1dv65s1v65s1v65s1v65s1v65s1.html"
+                    aria-label="Acesso Lojista"
+                >
+                    🏢&nbsp;&nbsp;Acesso Lojista
+                </a>
+
+
+                <!-- ACESSO CLIENTE -->
+                <a
+                    class="access-button customer-button"
+                    href="https://appsolyxfidelidade.blogspot.com/p/dvsvdsvbggfn1f56n16f51n56f15n1f6n1f65n1.html"
+                    aria-label="Acesso Cliente"
+                >
+                    🎁&nbsp;&nbsp;Acesso Cliente
+                </a>
+
+            </nav>
+
+
+            <!-- RODAPÉ -->
+            <div class="footer">
+                SOLYX FIDELIDADE
+            </div>
+
+        </section>
+
+    </main>
+<script>
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", function () {
+
+        navigator.serviceWorker.register("./service-worker.js")
+            .then(function () {
+                console.log("Solyx Fidelidade: Service Worker registrado.");
+            })
+            .catch(function (error) {
+                console.error(
+                    "Erro ao registrar Service Worker:",
+                    error
+                );
+            });
+
+    });
+
+}
+</script>
+  <script>
+
+let deferredInstallPrompt = null;
+
+const installButton =
+    document.getElementById("installButton");
+
+
+window.addEventListener(
+    "beforeinstallprompt",
+    function (event) {
+
+        event.preventDefault();
+
+        deferredInstallPrompt = event;
+
+        installButton.style.display = "flex";
+        installButton.style.alignItems = "center";
+        installButton.style.justifyContent = "center";
+
+    }
+);
+
+
+installButton.addEventListener(
+    "click",
+    async function () {
+
+        if (!deferredInstallPrompt) {
+            return;
+        }
+
+        deferredInstallPrompt.prompt();
+
+        const { outcome } =
+            await deferredInstallPrompt.userChoice;
+
+        console.log(
+            "Resultado da instalação:",
+            outcome
+        );
+
+        deferredInstallPrompt = null;
+
+        installButton.style.display = "none";
+
+    }
+);
+
+
+window.addEventListener(
+    "appinstalled",
+    function () {
+
+        console.log(
+            "Solyx Fidelidade instalado!"
+        );
+
+        installButton.style.display = "none";
+
+    }
+);
+
+</script>
+</body>
+</html>
+```
