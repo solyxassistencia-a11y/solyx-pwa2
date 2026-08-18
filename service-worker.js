@@ -1,4 +1,4 @@
-const CACHE_NAME = "solyx-fidelidade-v7";
+const CACHE_NAME = "solyx-fidelidade-v8";
 
 const FILES_TO_CACHE = [
     "./",
