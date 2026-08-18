@@ -5,9 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Lojista - Solyx Fidelidade</title>
-
-    <meta name="description" content="Solyx Fidelidade - Escolha seu tipo de acesso.">
+<title>Lojista - Solyx Fidelidade</title>
+<meta name="description" id="metaDescription" content="Solyx Fidelidade - Escolha seu tipo de acesso.">
 
   <link rel="manifest" href="./manifest.json">
 
@@ -736,14 +735,11 @@ document.getElementById("anoAtual").textContent =
     new Date().getFullYear();
 </script>
 
-    <script>
-        <script>
-    // URL Oficial do Apps Script do SOLYX FIDELIDADE
+<script>
     const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbySLSbcAqPyq2exmYmUa8vhKZ2nZ1YQ7a3N1q-n2T9Rw48RM-PsufD5Uszok5FA_ZHVJA/exec";
 
     async function carregarIdentidadeAbertura() {
         try {
-            // Faz a requisição para o Sheets buscar a Identidade Visual
             const resposta = await fetch(URL_APPS_SCRIPT, {
                 method: "POST",
                 body: JSON.stringify({ action: "buscar_identidade_visual" }) 
@@ -751,7 +747,6 @@ document.getElementById("anoAtual").textContent =
             
             const resultado = await resposta.json();
             
-            // Verifica se achou os dados no Sheets
             if (resultado.status === "success" && resultado.data) {
                 const iden = resultado.data;
 
@@ -770,18 +765,23 @@ document.getElementById("anoAtual").textContent =
                     });
                 }
 
-                // 3. Aplica o Nome do Programa Dinâmico
+                // 3. Aplica o Nome do Programa no Título, Meta e Textos
                 if (iden.Nome_Programa) {
-                    // Muda o título na aba do navegador
-                    document.title = `${iden.Nome_Programa} - Acesso Lojista`;
-                    
-                    // Muda os textos na tela
+                    // Atualiza o Título da página/aba
+                    document.title = `Lojista - ${iden.Nome_Programa}`;
+
+                    // Atualiza a meta description
+                    const metaDesc = document.querySelector('meta[name="description"]');
+                    if (metaDesc) {
+                        metaDesc.setAttribute('content', `${iden.Nome_Programa} - Escolha seu tipo de acesso.`);
+                    }
+
+                    // Atualiza elementos de texto na página
                     document.querySelectorAll('.nome-dinamico').forEach(el => {
                         el.innerText = iden.Nome_Programa;
                     });
                 }
                 
-                // (Bônus) Salva no cache do navegador para a próxima página abrir ainda mais rápido
                 sessionStorage.setItem('identidadeGlobal', JSON.stringify(iden));
             }
         } catch (erro) {
@@ -789,10 +789,8 @@ document.getElementById("anoAtual").textContent =
         }
     }
 
-    // Dispara a mágica automaticamente assim que a página carrega
     document.addEventListener("DOMContentLoaded", carregarIdentidadeAbertura);
 </script>
-        </script>
 </body>
 </html>
 ```
