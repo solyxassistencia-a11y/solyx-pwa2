@@ -591,9 +591,9 @@
             <div class="logo-wrapper">
 
                 <img
-                    class="logo"
+                    class="logo logo-dinamica"
                     src="https://www.dropbox.com/scl/fi/l3rrm5uznmpz303bnjqqs/Logo_SolyxFidelidade.png?rlkey=ag0v9tvbtxoh2gy1bv8aqrvxa&st=5f0dupbh&raw=1"
-                    alt="Solyx Fidelidade"
+                    alt="Logo Fidelidade"
                 >
 
             </div>
@@ -638,7 +638,7 @@
 
             <!-- RODAPÉ -->
             <div class="footer">
-        © <span id="anoAtual"></span> <strong>Solyx Fidelidade</strong> <br>
+        © <span id="anoAtual"></span> <strong class="nome-dinamico">Solyx Fidelidade</strong> <br> 
         Programa de Fidelização de Clientes  <br>
         Todos os direitos reservados.
             </div>
@@ -735,6 +735,64 @@ window.addEventListener(
 document.getElementById("anoAtual").textContent =
     new Date().getFullYear();
 </script>
+
+    <script>
+        <script>
+    // URL Oficial do Apps Script do SOLYX FIDELIDADE
+    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbySLSbcAqPyq2exmYmUa8vhKZ2nZ1YQ7a3N1q-n2T9Rw48RM-PsufD5Uszok5FA_ZHVJA/exec";
+
+    async function carregarIdentidadeAbertura() {
+        try {
+            // Faz a requisição para o Sheets buscar a Identidade Visual
+            const resposta = await fetch(URL_APPS_SCRIPT, {
+                method: "POST",
+                body: JSON.stringify({ action: "buscar_identidade_visual" }) 
+            });
+            
+            const resultado = await resposta.json();
+            
+            // Verifica se achou os dados no Sheets
+            if (resultado.status === "success" && resultado.data) {
+                const iden = resultado.data;
+
+                // 1. Aplica o Fundo Gradiente Dinâmico
+                if (iden.BG_COR1 && iden.BG_COR2) {
+                    document.body.style.background = `linear-gradient(335deg, ${iden.BG_COR1} 0%, ${iden.BG_COR2} 150%)`;
+                    document.body.style.minHeight = "100vh";
+                    document.body.style.backgroundRepeat = "no-repeat";
+                    document.body.style.backgroundAttachment = "fixed";
+                }
+
+                // 2. Aplica a Logo Dinâmica
+                if (iden.Logo_URL) {
+                    document.querySelectorAll('.logo-dinamica').forEach(logo => {
+                        logo.src = iden.Logo_URL;
+                    });
+                }
+
+                // 3. Aplica o Nome do Programa Dinâmico
+                if (iden.Nome_Programa) {
+                    // Muda o título na aba do navegador
+                    document.title = `${iden.Nome_Programa} - Acesso Lojista`;
+                    
+                    // Muda os textos na tela
+                    document.querySelectorAll('.nome-dinamico').forEach(el => {
+                        el.innerText = iden.Nome_Programa;
+                    });
+                }
+                
+                // (Bônus) Salva no cache do navegador para a próxima página abrir ainda mais rápido
+                sessionStorage.setItem('identidadeGlobal', JSON.stringify(iden));
+            }
+        } catch (erro) {
+            console.error("Erro ao carregar a Identidade Visual:", erro);
+        }
+    }
+
+    // Dispara a mágica automaticamente assim que a página carrega
+    document.addEventListener("DOMContentLoaded", carregarIdentidadeAbertura);
+</script>
+        </script>
 </body>
 </html>
 ```
