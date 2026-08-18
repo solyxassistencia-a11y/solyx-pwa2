@@ -734,62 +734,91 @@ window.addEventListener(
 document.getElementById("anoAtual").textContent =
     new Date().getFullYear();
 </script>
-
+<!--ID VISUAL FIDELIDADE.NET.BR-->
 <script>
-    const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbySLSbcAqPyq2exmYmUa8vhKZ2nZ1YQ7a3N1q-n2T9Rw48RM-PsufD5Uszok5FA_ZHVJA/exec";
+    // URL Oficial do Apps Script do SOLYX FIDELIDADE
+    const API_URL = "https://script.google.com/macros/s/AKfycbySLSbcAqPyq2exmYmUa8vhKZ2nZ1YQ7a3N1q-n2T9Rw48RM-PsufD5Uszok5FA_ZHVJA/exec";
 
-    async function carregarIdentidadeAbertura() {
+    async function carregarEConfigurarIdentidade() {
         try {
-            const resposta = await fetch(URL_APPS_SCRIPT, {
-                method: "POST",
-                body: JSON.stringify({ action: "buscar_identidade_visual" }) 
-            });
-            
-            const resultado = await resposta.json();
-            
-            if (resultado.status === "success" && resultado.data) {
-                const iden = resultado.data;
-
-                // 1. Aplica o Fundo Gradiente Dinâmico
-                if (iden.BG_COR1 && iden.BG_COR2) {
-                    document.body.style.background = `linear-gradient(335deg, ${iden.BG_COR1} 0%, ${iden.BG_COR2} 150%)`;
-                    document.body.style.minHeight = "100vh";
-                    document.body.style.backgroundRepeat = "no-repeat";
-                    document.body.style.backgroundAttachment = "fixed";
-                }
-
-                // 2. Aplica a Logo Dinâmica
-                if (iden.Logo_URL) {
-                    document.querySelectorAll('.logo-dinamica').forEach(logo => {
-                        logo.src = iden.Logo_URL;
-                    });
-                }
-
-                // 3. Aplica o Nome do Programa no Título, Meta e Textos
-                if (iden.Nome_Programa) {
-                    // Atualiza o Título da página/aba
-                    document.title = `Lojista - ${iden.Nome_Programa}`;
-
-                    // Atualiza a meta description
-                    const metaDesc = document.querySelector('meta[name="description"]');
-                    if (metaDesc) {
-                        metaDesc.setAttribute('content', `${iden.Nome_Programa} - Escolha seu tipo de acesso.`);
-                    }
-
-                    // Atualiza elementos de texto na página
-                    document.querySelectorAll('.nome-dinamico').forEach(el => {
-                        el.innerText = iden.Nome_Programa;
-                    });
-                }
-                
-                sessionStorage.setItem('identidadeGlobal', JSON.stringify(iden));
+            // 1. Tenta carregar do cache para ser ultra-rápido
+            const cache = sessionStorage.getItem('identidadeGlobal');
+            if (cache) {
+                aplicarIdentidadeVisual(JSON.parse(cache));
+                return;
             }
-        } catch (erro) {
-            console.error("Erro ao carregar a Identidade Visual:", erro);
+
+            // 2. Se não tiver no cache, busca no Apps Script silenciosamente
+            const res = await (await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'buscar_identidade' })
+            })).json();
+
+            // CORREÇÃO APLICADA AQUI: Busca por 'res.identidade'
+            if (res.status === 'success' && res.identidade) {
+                sessionStorage.setItem('identidadeGlobal', JSON.stringify(res.identidade));
+                aplicarIdentidadeVisual(res.identidade);
+            }
+        } catch (e) {
+            console.error("Erro ao carregar identidade visual:", e);
         }
     }
 
-    document.addEventListener("DOMContentLoaded", carregarIdentidadeAbertura);
+    function aplicarIdentidadeVisual(iden) {
+        // Guarda o nome do programa na memória da página
+        window.NOME_PROGRAMA = iden.Nome_Programa || "Solyx Fidelidade";
+
+        // 1. Aplica o Fundo Gradiente Dinâmico (Específico da Tela de Abertura)
+        if (iden.BG_COR1 && iden.BG_COR2) {
+            document.body.style.background = `linear-gradient(335deg, ${iden.BG_COR1} 0%, ${iden.BG_COR2} 150%)`;
+            document.body.style.minHeight = "100vh";
+            document.body.style.backgroundRepeat = "no-repeat";
+            document.body.style.backgroundAttachment = "fixed";
+        }
+
+        // 2. Aplica a Logo Dinâmica (Certifique-se de que a tag <img> tenha a class="logo-dinamica")
+        if (iden.Logo_URL) {
+            document.querySelectorAll('.logo-dinamica').forEach(logo => {
+                logo.src = iden.Logo_URL;
+            });
+        }
+
+        // 3. Atualiza o Título da Aba e Meta Description dinamicamente
+        document.title = `Lojista - ${window.NOME_PROGRAMA}`;
+        const metaDesc = document.querySelector('meta[name="description"]');
+        if (metaDesc) {
+            metaDesc.setAttribute('content', `${window.NOME_PROGRAMA} - Escolha seu tipo de acesso.`);
+        }
+
+        // 4. SUBSTITUIÇÃO INTELIGENTE NO HTML ESTÁTICO (O Padrão TreeWalker do seu ScriptID)
+        const walker = document.createTreeWalker(
+            document.body, 
+            NodeFilter.SHOW_TEXT, 
+            { acceptNode: function(node) {
+                if (node.parentNode.nodeName === 'SCRIPT' || node.parentNode.nodeName === 'STYLE') {
+                    return NodeFilter.FILTER_REJECT;
+                }
+                return NodeFilter.FILTER_ACCEPT;
+            }}, 
+            false
+        );
+
+        let node;
+        while ((node = walker.nextNode())) {
+            let texto = node.nodeValue;
+            if (texto.trim() !== '') {
+                // Procura a palavra "Solyx Fidelidade" e troca pelo novo nome do Sheets
+                texto = texto.replace(/Solyx Fidelidade/gi, window.NOME_PROGRAMA);
+
+                if (node.nodeValue !== texto) {
+                    node.nodeValue = texto;
+                }
+            }
+        }
+    }
+
+    // Dispara a função assim que a página carrega
+    document.addEventListener("DOMContentLoaded", carregarEConfigurarIdentidade);
 </script>
 </body>
 </html>
