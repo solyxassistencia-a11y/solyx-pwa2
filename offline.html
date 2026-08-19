@@ -1,1 +1,78 @@
-<>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solyx Admin - Offline</title>
+    <style>
+        :root {
+            --vermelho-solyx: #8B0000;
+            --fundo: #f4f4f9;
+            --texto: #333;
+            --card-bg: #ffffff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { 
+            background-color: var(--fundo); color: var(--texto); display: flex; 
+            flex-direction: column; align-items: center; justify-content: center; 
+            min-height: 100vh; padding: 20px; text-align: center; 
+        }
+        .aviso-container { 
+            max-width: 600px; background: var(--card-bg); padding: 40px 30px; 
+            border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            border-top: 6px solid var(--vermelho-solyx); width: 100%; 
+        }
+        h1 { color: var(--vermelho-solyx); margin-bottom: 15px; font-size: 28px; }
+        p { margin-bottom: 25px; color: #666; line-height: 1.6; font-size: 16px; }
+        .btn-reconectar { 
+            background: var(--vermelho-solyx); color: #fff; border: none; 
+            padding: 14px 28px; border-radius: 8px; font-size: 16px; 
+            cursor: pointer; font-weight: bold; transition: all 0.3s ease; 
+            margin-bottom: 40px; box-shadow: 0 4px 15px rgba(139, 0, 0, 0.2);
+        }
+        .btn-reconectar:hover { background: #660000; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139, 0, 0, 0.3); }
+        
+        h2 { margin-bottom: 20px; color: #444; font-size: 18px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .galeria-jogos { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        .card-jogo { 
+            flex: 1; min-width: 220px; background: #fff; border: 2px solid #eaeaea; 
+            border-radius: 12px; padding: 25px 20px; text-decoration: none; 
+            color: inherit; transition: all 0.3s ease; display: flex; 
+            flex-direction: column; align-items: center; 
+        }
+        .card-jogo:hover { 
+            transform: translateY(-5px); border-color: var(--vermelho-solyx); 
+            box-shadow: 0 8px 25px rgba(139, 0, 0, 0.1); 
+        }
+        .icone-jogo { font-size: 45px; margin-bottom: 15px; }
+        .titulo-jogo { font-weight: 800; font-size: 20px; margin-bottom: 8px; color: var(--vermelho-solyx); }
+        .desc-jogo { font-size: 14px; color: #777; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+    <div class="aviso-container">
+        <h1>⚠️ Sistema Offline</h1>
+        <p>Parece que o seu dispositivo perdeu a conexão com a internet. O Painel Admin precisa de conexão para salvar e sincronizar os dados com segurança.</p>
+        
+        <button class="btn-reconectar" onclick="window.location.reload()">🔄 Tentar Reconectar</button>
+
+        <h2>Enquanto a internet não volta, escolha um passatempo:</h2>
+        
+        <div class="galeria-jogos">
+            <a href="EduQuiz_Offline.html" class="card-jogo">
+                <div class="icone-jogo">🧠</div>
+                <div class="titulo-jogo">EduQuiz</div>
+                <div class="desc-jogo">Teste seus conhecimentos em várias áreas e mantenha a mente afiada.</div>
+            </a>
+            
+            <a href="Brick_Game_4_em_1.html" class="card-jogo">
+                <div class="icone-jogo">🕹️</div>
+                <div class="titulo-jogo">Brick Game</div>
+                <div class="desc-jogo">Divirta-se com os clássicos retrô 4 em 1 direto na tela do seu celular.</div>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
