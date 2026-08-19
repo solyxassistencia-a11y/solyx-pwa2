@@ -1,9 +1,10 @@
-const CACHE_NAME = 'AdminFidelidade-v3'; // Mudamos a versão para forçar o celular a atualizar!
+const CACHE_NAME = 'AdminFidelidade-v4'; // Mudamos a versão para forçar o celular a atualizar!
 const ARQUIVOS_PARA_CACHEAR = [
   './offline.html',
   './EduQuiz_Offline.html',
   './Brick_Game_5_em_1.html'
-  // 💡 Quando quiser adicionar novos jogos no futuro, basta colocar o nome do arquivo aqui!
+  './Brick-Game_intro.wav' //  Música intro do Brick-Game
+  // Quando quiser adicionar novos jogos no futuro, basta colocar o nome do arquivo aqui!
 ];
 
 // 1. INSTALAÇÃO: Baixa e salva os arquivos no celular
