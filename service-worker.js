@@ -1,4 +1,4 @@
-const CACHE_NAME = 'AdminFidelidade-v4'; // Mudamos a versão para forçar o celular a atualizar!
+const CACHE_NAME = 'AdminFidelidade-v5'; // Mudamos a versão para forçar o celular a atualizar!
 const ARQUIVOS_PARA_CACHEAR = [
   './offline.html',
   './EduQuiz_Offline.html',
