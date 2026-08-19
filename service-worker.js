@@ -6,7 +6,7 @@ const urlsToCache = [
     "./",
     "./offline.html",
     "./EduQuiz_Offline.html",
-    "./Brick_Game_4_em_1.html"
+    "./Brick_Game_5_em_1.html"
 ];
 
 self.addEventListener("install", event => {
