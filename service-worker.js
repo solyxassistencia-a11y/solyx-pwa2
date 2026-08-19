@@ -1,9 +1,12 @@
-const CACHE_NAME = "AdminFidelidade-v1";
+const CACHE_NAME = "AdminFidelidade-v2"; // Alterado para v2 para forçar a atualização!
 const OFFLINE_URL = "./offline.html";
 
+// Agora incluímos todos os arquivos essenciais e os minigames na lista de Cache!
 const urlsToCache = [
     "./",
-    "./offline.html"
+    "./offline.html",
+    "./EduQuiz_Offline.html",
+    "./Brick_Game_4_em_1.html"
 ];
 
 self.addEventListener("install", event => {
@@ -27,14 +30,11 @@ self.addEventListener("activate", event => {
 });
 
 self.addEventListener("fetch", event => {
-
     if (event.request.mode === "navigate") {
-
         event.respondWith(
             fetch(event.request)
                 .catch(() => caches.match(OFFLINE_URL))
         );
-
         return;
     }
 
