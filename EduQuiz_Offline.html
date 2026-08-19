@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="Quiz Educacional Offline - Português, Matemática, Artes, Inglês, Espanhol, Química, Geografia, História e Ciências/Biologia.">
+<title>EduQuiz — Quiz Educacional Offline</title>
+<style>
+:root{
+  --bg:#08111f;--panel:#101c2e;--panel2:#15243a;--text:#eef5ff;--muted:#9eb0c7;
+  --primary:#39a9ff;--primary2:#7c5cff;--good:#29d391;--bad:#ff5d73;--gold:#ffc857;
+  --border:rgba(255,255,255,.09);--shadow:0 18px 50px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{
+ margin:0;min-height:100vh;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+ color:var(--text);background:
+ radial-gradient(circle at 10% 0%,rgba(57,169,255,.16),transparent 28%),
+ radial-gradient(circle at 90% 10%,rgba(124,92,255,.15),transparent 28%),var(--bg);
+}
+button{font:inherit}
+.app{width:min(1100px,94%);margin:auto;padding:22px 0 40px}
+header{
+ display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px;
+ background:rgba(16,28,46,.82);backdrop-filter:blur(12px);border:1px solid var(--border);
+ border-radius:20px;box-shadow:var(--shadow);position:sticky;top:10px;z-index:10
+}
+.logo{display:flex;align-items:center;gap:12px}
+.logoIcon{width:45px;height:45px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,var(--primary),var(--primary2));font-size:23px}
+h1,h2,h3,p{margin-top:0}.logo h1{font-size:20px;margin:0}.logo small{color:var(--muted)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.stat{background:var(--panel2);border:1px solid var(--border);padding:8px 12px;border-radius:12px;text-align:center;min-width:80px}
+.stat b{display:block;font-size:17px}.stat span{font-size:10px;color:var(--muted);text-transform:uppercase}
+.screen{display:none;margin-top:24px}.screen.active{display:block}
+.hero{text-align:center;padding:38px 15px 24px}.hero h2{font-size:clamp(28px,5vw,48px);margin-bottom:10px}
+.hero p{color:var(--muted);max-width:700px;margin:auto;line-height:1.6}
+.sectionTitle{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:18px 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.card{
+ border:1px solid var(--border);background:linear-gradient(145deg,rgba(21,36,58,.95),rgba(13,25,42,.95));
+ border-radius:18px;padding:20px;cursor:pointer;transition:.2s;position:relative;overflow:hidden
+}
+.card:hover{transform:translateY(-4px);border-color:rgba(57,169,255,.55);box-shadow:0 12px 35px rgba(0,0,0,.25)}
+.card .emoji{font-size:32px}.card h3{margin:12px 0 6px}.card p{color:var(--muted);font-size:13px;margin:0}
+.levels{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:760px;margin:25px auto}
+.level{
+ padding:22px;border-radius:18px;background:var(--panel);border:1px solid var(--border);cursor:pointer;text-align:left
+}
+.level:hover{border-color:var(--primary);transform:translateY(-2px)}
+.level b{font-size:18px}.level p{color:var(--muted);font-size:13px;margin:7px 0 0}
+.easy{border-top:4px solid var(--good)}.medium{border-top:4px solid var(--gold)}.hard{border-top:4px solid var(--bad)}
+.quizBox{max-width:850px;margin:auto;background:rgba(16,28,46,.92);border:1px solid var(--border);border-radius:24px;padding:24px;box-shadow:var(--shadow)}
+.quizTop{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.badge{padding:7px 11px;border-radius:999px;background:var(--panel2);color:#cfe4ff;font-size:12px}
+.progress{height:9px;background:#07101d;border-radius:20px;overflow:hidden;margin:18px 0 25px}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--primary2));transition:.3s}
+.timerWrap{text-align:center;margin:6px auto 22px}
+.timer{width:78px;height:78px;border-radius:50%;border:7px solid var(--panel2);display:grid;place-items:center;margin:auto;font-size:24px;font-weight:800}
+.timer.warn{border-color:var(--bad);color:var(--bad);animation:pulse .7s infinite alternate}
+@keyframes pulse{to{transform:scale(1.05)}}
+.question{font-size:clamp(20px,3vw,29px);line-height:1.35;margin:15px 0 20px}
+.answers{display:grid;gap:11px}
+.answer{
+ width:100%;text-align:left;padding:15px 16px;border-radius:13px;background:#122137;color:var(--text);
+ border:1px solid var(--border);cursor:pointer;transition:.15s
+}
+.answer:hover:not(:disabled){border-color:var(--primary);background:#172b47}
+.answer.correct{background:rgba(41,211,145,.15);border-color:var(--good)}
+.answer.wrong{background:rgba(255,93,115,.14);border-color:var(--bad)}
+.answer:disabled{cursor:default}
+.explain{margin-top:17px;padding:13px 15px;border-radius:12px;background:var(--panel2);color:#c5d3e5;line-height:1.5;font-size:14px}
+.actions{display:flex;gap:10px;justify-content:space-between;margin-top:20px;flex-wrap:wrap}
+.btn{
+ border:0;border-radius:12px;padding:12px 17px;background:linear-gradient(135deg,var(--primary),var(--primary2));
+ color:white;font-weight:750;cursor:pointer
+}
+.btn.secondary{background:var(--panel2);border:1px solid var(--border)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.result{text-align:center;max-width:650px;margin:50px auto;background:var(--panel);padding:35px;border-radius:24px;border:1px solid var(--border)}
+.scoreBig{font-size:60px;font-weight:900;background:linear-gradient(90deg,var(--primary),#b37cff);-webkit-background-clip:text;color:transparent}
+.review{text-align:left;margin-top:25px}.reviewItem{padding:13px;border-bottom:1px solid var(--border);font-size:14px}.ok{color:var(--good)}.no{color:var(--bad)}
+.footer{text-align:center;color:#71839b;font-size:12px;margin-top:25px}
+@media(max-width:650px){header{position:relative}.levels{grid-template-columns:1fr}.stats{width:100%;justify-content:stretch}.stat{flex:1}.app{width:95%}.quizBox{padding:18px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="logo"><div class="logoIcon">🧠</div><div><h1>EduQuiz</h1><small>Quiz Educacional • Offline</small></div></div>
+ <div class="stats">
+  <div class="stat"><b id="score">0</b><span>Pontos</span></div>
+  <div class="stat"><b id="levelLabel">—</b><span>Nível</span></div>
+  <div class="stat"><b id="streak">0</b><span>Sequência</span></div>
+ </div>
+</header>
+
+<section id="home" class="screen active">
+ <div class="hero">
+  <h2>Teste seus conhecimentos! 🚀</h2>
+  <p>Escolha uma matéria, selecione o nível e responda às perguntas antes que o tempo termine. Tudo funciona diretamente neste arquivo, sem internet.</p>
+ </div>
+ <div class="sectionTitle"><h2>Escolha uma matéria</h2></div>
+ <div class="grid" id="subjects"></div>
+ <div class="footer">9 matérias • 3 níveis • perguntas embaralhadas • progresso salvo nesta sessão</div>
+</section>
+
+<section id="levels" class="screen">
+ <div class="hero"><h2 id="chosenSubject">Matéria</h2><p>Agora escolha o nível de dificuldade.</p></div>
+ <div class="levels">
+  <div class="level easy" onclick="startQuiz('Fácil')"><b>🟢 Fácil</b><p>Conhecimentos fundamentais • 20 segundos por questão</p></div>
+  <div class="level medium" onclick="startQuiz('Médio')"><b>🟡 Médio</b><p>Desafie seus conhecimentos • 15 segundos por questão</p></div>
+  <div class="level hard" onclick="startQuiz('Difícil')"><b>🔴 Difícil</b><p>Questões avançadas • 10 segundos por questão</p></div>
+ </div>
+ <div style="text-align:center"><button class="btn secondary" onclick="goHome()">← Voltar às matérias</button></div>
+</section>
+
+<section id="quiz" class="screen">
+ <div class="quizBox">
+  <div class="quizTop"><span class="badge" id="quizSubject">Matéria</span><span class="badge" id="questionCount">1/10</span></div>
+  <div class="progress"><i id="progress"></i></div>
+  <div class="timerWrap"><div class="timer" id="timer">20</div></div>
+  <div class="question" id="question">Pergunta</div>
+  <div class="answers" id="answers"></div>
+  <div id="explain"></div>
+  <div class="actions"><button class="btn secondary" onclick="quitQuiz()">Sair</button><button class="btn" id="nextBtn" onclick="nextQuestion()" disabled>Próxima →</button></div>
+ </div>
+</section>
+
+<section id="result" class="screen">
+ <div class="result">
+  <div style="font-size:42px">🏆</div><h2>Quiz concluído!</h2>
+  <div class="scoreBig" id="finalScore">0</div>
+  <p id="resultText"></p>
+  <div class="grid" style="margin-top:22px">
+   <div class="stat"><b id="correctCount">0</b><span>Acertos</span></div>
+   <div class="stat"><b id="totalTime">0s</b><span>Tempo</span></div>
+   <div class="stat"><b id="bestStreak">0</b><span>Melhor sequência</span></div>
+  </div>
+  <div class="review" id="review"></div>
+  <div class="actions"><button class="btn secondary" onclick="goHome()">🏠 Matérias</button><button class="btn" onclick="restart()">🔄 Jogar novamente</button></div>
+ </div>
+</section>
+</div>
+
+<script>
+/* ============================================================
+   EDUGAME OFFLINE
+   Todas as perguntas estão neste único arquivo. Para adicionar
+   questões, basta incluir novos objetos no banco abaixo.
+   ============================================================ */
+const DB = {
+"Português":{
+emoji:"📚",desc:"Gramática, literatura e interpretação",
+"Fácil":[
+["Qual é o plural de 'cidadão'?",["Cidadãos","Cidadões","Cidadães","Cidadãons"],0,"O plural padrão de cidadão é cidadãos."],
+["Qual palavra é um substantivo?",["Correr","Bonito","Casa","Rapidamente"],2,"Casa nomeia um ser/coisa, portanto é substantivo."],
+["Qual é o antônimo de 'alegre'?",["Feliz","Triste","Animado","Contente"],1,"Triste é o sentido oposto de alegre."],
+["Em 'O menino estudou', qual é o verbo?",["O","menino","estudou","menino estudou"],2,"Estudou indica uma ação e é o verbo da oração."],
+["Qual palavra está escrita corretamente?",["Excessão","Exceção","Esceção","Eceção"],1,"A grafia correta é exceção."],
+["Qual é o feminino de 'ator'?",["Atoresa","Atriz","Atora","Atrizinha"],1,"O feminino tradicional de ator é atriz."],
+["Qual sinal termina normalmente uma pergunta?",["Ponto final","Vírgula","Ponto de interrogação","Dois-pontos"],2,"Perguntas diretas terminam com ponto de interrogação."],
+["'Bonito' é uma palavra de qual classe?",["Adjetivo","Verbo","Pronome","Preposição"],0,"Bonito caracteriza um substantivo, funcionando como adjetivo."],
+["Qual é o diminutivo de 'casa'?",["Casarão","Casinha","Casebre","Casota"],1,"Casinha é uma forma diminutiva de casa."],
+["Qual destas palavras é oxítona?",["Lápis","Café","Árvore","Médico"],1,"Café tem a sílaba tônica na última sílaba."]
+],
+"Médio":[
+["Em 'Maria comprou um livro', qual é o objeto direto?",["Maria","comprou","um livro","Maria comprou"],2,"'Um livro' recebe diretamente a ação de comprar."],
+["Qual figura de linguagem aparece em 'Estou morrendo de fome'?",["Metáfora","Hipérbole","Ironia","Eufemismo"],1,"Há exagero intencional: hipérbole."],
+["Qual é a função principal de um adjetivo?",["Indicar ação","Caracterizar","Ligar orações","Substituir nomes"],1,"Adjetivos atribuem características aos substantivos."],
+["Qual alternativa apresenta uma conjunção?",["Embora","Casa","Bonito","Ontem"],0,"Embora é uma conjunção subordinativa concessiva."],
+["Em 'Se eu estudar, passarei', 'se' indica ideia de:",["Causa","Condição","Conclusão","Explicação"],1,"A oração começa com uma condição."],
+["Qual é a voz verbal em 'O aluno fez a prova'?",["Passiva","Reflexiva","Ativa","Impersonal"],2,"O sujeito pratica a ação: voz ativa."],
+["'Apesar de' introduz normalmente uma ideia de:",["Concessão","Finalidade","Tempo","Causa"],0,"Apesar de introduz uma ideia concessiva."],
+["Qual alternativa contém uma oração subordinada?",["Choveu.","Estudei porque precisava.","Silêncio!","Bom dia!"],1,"'porque precisava' depende sintaticamente da oração principal."],
+["Qual é o plural de 'pão'?",["Pãos","Pães","Pões","Pãezes"],1,"O plural consagrado é pães."],
+["Na frase 'Os alunos chegaram cedo', qual é o sujeito?",["chegaram","cedo","Os alunos","alunos chegaram"],2,"Os alunos praticam a ação de chegar."]
+],
+"Difícil":[
+["Em 'Embora estivesse cansado, continuou', a oração destacada é:",["Substantiva","Adjetiva","Adverbial concessiva","Adverbial causal"],2,"'Embora' introduz uma oração subordinada adverbial concessiva."],
+["Qual alternativa apresenta uma oração subordinada substantiva?",["Quero que você estude.","O aluno que estuda vence.","Quando chegar, avise.","Estudei porque quis."],0,"'que você estude' exerce função de complemento do verbo quero."],
+["Em 'Vendem-se casas', o 'se' é:",["Pronome reflexivo","Partícula apassivadora","Índice de indeterminação","Conjunção"],1,"Casas sofrem a ação e a oração pode ser convertida para 'Casas são vendidas'."],
+["Qual é a regência adequada na norma-padrão?",["Assisti o filme.","Assisti ao filme.","Assisti no filme.","Assisti para o filme."],1,"No sentido de ver, assistir rege a preposição 'a' na norma-padrão."],
+["Qual figura aparece em 'A cidade acordou triste'?",["Prosopopeia","Antítese","Pleonasmo","Catacrese"],0,"Atribui característica humana à cidade: prosopopeia/personificação."],
+["Em 'É necessário que todos participem', a oração iniciada por 'que' é:",["Substantiva subjetiva","Adjetiva explicativa","Adverbial temporal","Coordenada"],0,"A oração exerce função de sujeito de 'é necessário'."],
+["Qual alternativa apresenta concordância correta?",["Houveram problemas.","Fazem dois anos.","Havia muitos alunos.","Existe muitas opções."],2,"O verbo haver, no sentido de existir, é impessoal: havia muitos alunos."],
+["Em 'O livro, que comprei ontem, é ótimo', a oração entre vírgulas é:",["Adjetiva restritiva","Adjetiva explicativa","Substantiva","Adverbial"],1,"As vírgulas indicam uma oração adjetiva explicativa."],
+["Qual é a função da linguagem predominante em um manual de instruções?",["Poética","Emotiva","Conativa","Referencial"],3,"Manuais priorizam a transmissão objetiva de informações."],
+["A palavra 'inconstitucionalmente' apresenta processo de:",["Derivação prefixal, sufixal e parassíntese","Composição por justaposição","Redução","Onomatopeia"],0,"Há prefixo in-, base constitucional e sufixo -mente."]
+]},
+"Matemática":{
+emoji:"➗",desc:"Números, álgebra, geometria e raciocínio",
+"Fácil":[
+["Quanto é 7 × 8?",["54","56","58","64"],1,"7 vezes 8 é 56."],
+["Qual é a metade de 90?",["35","40","45","50"],2,"90 ÷ 2 = 45."],
+["Quanto é 15 + 27?",["40","41","42","43"],2,"15 + 27 = 42."],
+["Qual é o resultado de 100 − 37?",["53","63","67","73"],1,"100 − 37 = 63."],
+["Quanto é 144 ÷ 12?",["10","11","12","14"],2,"144 dividido por 12 é 12."],
+["Qual é o dobro de 35?",["60","65","70","75"],2,"35 × 2 = 70."],
+["Um triângulo possui quantos lados?",["2","3","4","5"],1,"Todo triângulo tem três lados."],
+["Qual fração representa metade?",["1/3","1/4","1/2","2/3"],2,"1/2 representa uma de duas partes iguais."],
+["Quanto é 5²?",["10","15","20","25"],3,"5² = 5 × 5 = 25."],
+["Qual é o menor número primo?",["0","1","2","3"],2,"2 é o menor número primo."]
+],
+"Médio":[
+["Quanto é 25% de 200?",["25","40","50","75"],2,"25% = 1/4; 200 ÷ 4 = 50."],
+["Resolva: 3x + 5 = 20.",["3","5","7","8"],1,"3x = 15, então x = 5."],
+["A área de um retângulo de 8 cm × 5 cm é:",["13 cm²","26 cm²","40 cm²","80 cm²"],2,"Área = base × altura = 8 × 5 = 40 cm²."],
+["Qual é a média de 6, 8 e 10?",["7","8","9","10"],1,"(6 + 8 + 10) ÷ 3 = 8."],
+["Um produto de R$80 teve 10% de desconto. Preço final?",["R$70","R$72","R$74","R$78"],1,"10% de 80 = 8; 80 − 8 = 72."],
+["Qual é a raiz quadrada de 169?",["11","12","13","14"],2,"13 × 13 = 169."],
+["Se 2x = 18, x vale:",["6","8","9","12"],2,"18 ÷ 2 = 9."],
+["Qual é o perímetro de um quadrado de lado 7 cm?",["14 cm","21 cm","28 cm","49 cm"],2,"Perímetro = 4 × 7 = 28 cm."],
+["3/4 de 80 é:",["40","50","60","70"],2,"80 × 3/4 = 60."],
+["Um ângulo reto mede:",["45°","90°","180°","360°"],1,"Ângulo reto mede 90°."]
+],
+"Difícil":[
+["Resolva x² − 5x + 6 = 0.",["x=1 e 6","x=2 e 3","x=−2 e −3","x=3 e 4"],1,"Fatorando: (x−2)(x−3)=0."],
+["Qual é a derivada de f(x)=x³?",["x²","2x","3x²","3x³"],2,"Pela regra da potência, a derivada é 3x²."],
+["Se log₂(x)=5, x é:",["10","16","25","32"],3,"2⁵ = 32."],
+["Qual é a probabilidade de tirar um ás em um baralho comum de 52 cartas?",["1/4","1/13","4/13","1/52"],1,"Há 4 ases em 52 cartas: 4/52 = 1/13."],
+["A soma dos ângulos internos de um hexágono é:",["540°","720°","900°","1080°"],1,"(6−2) × 180° = 720°."],
+["Se a razão entre x e y é 3/5 e y=20, x é:",["8","10","12","15"],2,"x/20 = 3/5, logo x=12."],
+["Qual é o determinante de [[2,3],[1,4]]?",["5","6","8","11"],0,"Determinante = 2×4 − 3×1 = 5."],
+["A função f(x)=2x+3 é crescente porque:",["2 < 0","2 = 0","2 > 0","3 > 2"],2,"O coeficiente angular positivo indica crescimento."],
+["Qual é a soma da PG 2, 4, 8, 16, 32?",["48","60","62","64"],2,"2+4+8+16+32 = 62."],
+["Se sen(30°)=:",["0","1/2","√2/2","1"],1,"O seno de 30° é 1/2."]
+]},
+"Artes":{
+emoji:"🎨",desc:"Cores, história da arte e expressão",
+"Fácil":[
+["Quais são as três cores primárias tradicionais?",["Verde, laranja e roxo","Vermelho, amarelo e azul","Preto, branco e cinza","Rosa, verde e marrom"],1,"Na teoria tradicional de pigmentos, são vermelho, amarelo e azul."],
+["Qual material é muito usado para desenhar?",["Lápis","Colher","Régua de metal","Tesoura"],0,"O lápis é um instrumento tradicional de desenho."],
+["A escultura é uma arte principalmente:",["Sonora","Tridimensional","Literária","Digital"],1,"A escultura ocupa volume e possui três dimensões."],
+["Qual elemento visual pode indicar distância em um desenho?",["Perspectiva","Ortografia","Rima","Ritmo musical"],0,"A perspectiva cria sensação de profundidade e distância."],
+["Qual técnica usa pequenos pontos de cor?",["Pontilhismo","Gravura","Colagem","Origami"],0,"O pontilhismo constrói imagens por pontos de cores."],
+["O que é uma colagem?",["Mistura de materiais/imagens","Uma música","Uma dança","Uma escultura de metal"],0,"Colagem reúne e combina diferentes materiais ou imagens."],
+["Qual arte usa o corpo e o movimento como principal meio?",["Dança","Pintura","Escultura","Fotografia"],0,"A dança utiliza movimento corporal e expressão."],
+["Qual elemento da arte se relaciona à sensação de claro e escuro?",["Valor","Som","Sabor","Texto"],0,"Valor tonal trata das variações de claro e escuro."],
+["Qual profissional cria obras de pintura?",["Pintor","Astrônomo","Geólogo","Químico"],0,"Pintor é o artista que trabalha principalmente com pintura."],
+["Origami é uma arte tradicional associada a qual país?",["Brasil","Japão","Egito","México"],1,"Origami é uma tradicional arte japonesa de dobradura de papel."]
+],
+"Médio":[
+["O Impressionismo ficou conhecido pelo interesse em:",["Luz e efeitos momentâneos","Cenas mitológicas apenas","Geometria pura","Esculturas monumentais"],0,"Impressionistas exploraram luz, cor e impressões visuais momentâneas."],
+["Qual artista é associado ao Cubismo?",["Pablo Picasso","Claude Monet","Michelangelo","Caravaggio"],0,"Picasso foi um dos principais nomes do Cubismo."],
+["A perspectiva linear usa principalmente:",["Linhas de fuga","Rimas","Sons graves","Texturas reais"],0,"Linhas de fuga ajudam a representar profundidade."],
+["O que caracteriza uma obra abstrata?",["Não depender da representação realista","Copiar exatamente uma fotografia","Ser sempre preta","Ser obrigatoriamente uma escultura"],0,"A abstração pode priorizar formas, cores e relações sem representação literal."],
+["O Barroco costuma apresentar:",["Dramaticidade e contrastes","Minimalismo absoluto","Ausência de ornamentação","Somente formas geométricas"],0,"Dramaticidade, movimento e contrastes são marcas frequentes do Barroco."],
+["Qual é a técnica de pintar sobre parede úmida?",["Afresco","Aquarela","Serigrafia","Xilogravura"],0,"O afresco é realizado sobre reboco ainda úmido."],
+["O Surrealismo explorou muito:",["Sonhos e inconsciente","Cálculos matemáticos","Documentos históricos","Paisagens cartográficas"],0,"O Surrealismo buscou explorar o sonho, o acaso e o inconsciente."],
+["Qual é a principal característica da xilogravura?",["Matriz de madeira","Matriz de vidro","Pintura com óleo","Fotografia digital"],0,"Xilogravura usa uma matriz entalhada em madeira."],
+["A arte cinética está relacionada:",["Ao movimento","Apenas à literatura","À culinária","À astronomia"],0,"Arte cinética incorpora ou sugere movimento."],
+["Qual elemento diz respeito à superfície percebida de uma obra?",["Textura","Perspectiva","Escala musical","Narrador"],0,"Textura é a qualidade visual/tátil da superfície."]
+],
+"Difícil":[
+["O conceito de 'ready-made' é associado a:",["Marcel Duchamp","Vincent van Gogh","Tarsila do Amaral","Leonardo da Vinci"],0,"Duchamp apresentou objetos cotidianos como obras de arte."],
+["O movimento De Stijl valorizava principalmente:",["Geometria e cores primárias","Paisagens realistas","Mitologia grega","Retratos fotográficos"],0,"De Stijl buscava abstração geométrica, linhas retas e cores básicas."],
+["A técnica de chiaroscuro explora:",["Contraste entre luz e sombra","Som e silêncio","Perspectiva aérea","Colagem"],0,"Chiaroscuro é o forte contraste entre áreas iluminadas e sombreadas."],
+["O Expressionismo tende a enfatizar:",["Expressão subjetiva e emoção","Precisão fotográfica","Cálculo de proporções","Neutralidade absoluta"],0,"Expressionistas priorizaram emoção e subjetividade."],
+["Na composição visual, equilíbrio assimétrico significa:",["Equilibrar pesos visuais diferentes","Repetir tudo de forma idêntica","Eliminar contraste","Usar apenas círculos"],0,"Elementos diferentes podem gerar equilíbrio por seus pesos visuais."],
+["A arte conceitual coloca grande ênfase:",["Na ideia/conceito","No realismo anatômico","Na durabilidade do material","Na perspectiva renascentista"],0,"Na arte conceitual, a ideia pode ser mais importante que o objeto final."],
+["Qual artista brasileiro é fortemente associado ao Abaporu?",["Tarsila do Amaral","Anita Malfatti","Candido Portinari","Lygia Clark"],0,"Abaporu é uma obra emblemática de Tarsila do Amaral."],
+["A Bauhaus defendia a integração entre:",["Arte, design e arquitetura","Astronomia e química","Literatura e medicina","Música e matemática apenas"],0,"A Bauhaus aproximou arte, design, artesanato e arquitetura."],
+["O que é anamorfose?",["Imagem distorcida que assume forma correta de certo ponto","Pintura feita em madeira","Escultura sem volume","Mistura de pigmentos"],0,"Anamorfose usa distorção para criar uma imagem legível sob determinada perspectiva."],
+["No Renascimento, ganhou destaque o estudo de:",["Perspectiva e anatomia","Somente arte abstrata","Fotografia","Cinema"],0,"Artistas renascentistas estudaram perspectiva, proporção e anatomia."]
+]},
+"Inglês":{
+emoji:"🇬🇧",desc:"Vocabulary, grammar and reading",
+"Fácil":[
+["What is the opposite of 'hot'?",["Cold","Tall","Fast","Old"],0,"Cold is the opposite of hot."],
+["'Book' means:",["Livro","Mesa","Caneta","Escola"],0,"Book = livro."],
+["Complete: 'I ___ a student.'",["am","is","are","be"],0,"With 'I', the verb to be is 'am'."],
+["What is the plural of 'child'?",["Childs","Children","Childes","Childrens"],1,"The irregular plural is children."],
+["'Good morning' means:",["Boa noite","Bom dia","Boa tarde","Até logo"],1,"Good morning = bom dia."],
+["Which word means 'água'?",["Water","Weather","Window","Watch"],0,"Water = água."],
+["Complete: 'She ___ happy.'",["am","is","are","be"],1,"With she, use 'is'."],
+["What color is 'green'?",["Azul","Verde","Vermelho","Amarelo"],1,"Green = verde."],
+["'Dog' is:",["Cachorro","Gato","Pássaro","Peixe"],0,"Dog = cachorro."],
+["What is the past of 'go'?",["Goed","Went","Gone","Goes"],1,"The simple past of go is went."]
+],
+"Médio":[
+["Choose the correct sentence:",["He don't like coffee.","He doesn't like coffee.","He doesn't likes coffee.","He not like coffee."],1,"With he/she/it, use doesn't + base verb."],
+["Complete: 'I have lived here ___ 2020.'",["for","since","during","at"],1,"Since is used with a starting point."],
+["What does 'although' mean?",["Embora","Porque","Portanto","Enquanto"],0,"Although introduces a contrast/concession."],
+["Choose the comparative:",["more easy","easier","easyer","most easy"],1,"The comparative of easy is easier."],
+["'I was studying' is which tense?",["Past Continuous","Present Perfect","Simple Future","Past Perfect"],0,"Was/were + -ing forms the Past Continuous."],
+["Complete: 'If it rains, we ___ stay home.'",["will","would","did","have"],0,"First conditional: if + present, will + base verb."],
+["What is a synonym for 'begin'?",["Start","Finish","Lose","Forget"],0,"Start is a synonym of begin."],
+["'Could' can express:",["Ability/possibility/polite request","Only past time","Only certainty","Plural"],0,"Could has several uses, including past ability and polite requests."],
+["Choose the correct question:",["Where you live?","Where do you live?","Where does you live?","Where are live you?"],1,"Questions in the simple present use do/does."],
+["What does 'borrow' mean?",["Pedir emprestado","Emprestar","Comprar","Vender"],0,"Borrow means to receive/use something temporarily from another person."]
+],
+"Difícil":[
+["Choose the correct conditional: 'If I ___ you, I would study more.'",["am","were","was","be"],1,"The second conditional commonly uses 'were' in the expression 'If I were you'."],
+["What does 'despite' mean?",["Apesar de","Porque","Desde que","A fim de"],0,"Despite introduces contrast."],
+["Which sentence is in the Present Perfect?",["I went yesterday.","I have visited London.","I am visiting London.","I will visit London."],1,"Have/has + past participle forms the Present Perfect."],
+["Complete: 'The book ___ by millions of people.'",["read","was read","has read","reading"],1,"Passive voice uses be + past participle."],
+["'Had finished' is:",["Past Perfect","Present Perfect","Past Continuous","Future Perfect"],0,"Had + past participle forms the Past Perfect."],
+["Which word best completes: 'She is interested ___ science.'",["on","at","in","for"],2,"The fixed expression is 'interested in'."],
+["What is the meaning of 'nevertheless'?",["No entanto","Além disso","Por exemplo","Finalmente"],0,"Nevertheless indicates contrast, like 'no entanto'."],
+["Choose the correct reported speech: He said, 'I am tired.'",["He said he is tired.","He said he was tired.","He said I was tired.","He says he tired."],1,"In standard backshift, am becomes was."],
+["Which is a phrasal verb?",["Give up","Beautiful","Quickly","Although"],0,"Give up is a verb + particle combination."],
+["'Had I known' is an example of:",["Inverted conditional","Passive voice","Direct question","Comparative"],0,"It is an inverted form equivalent to 'If I had known...'."]
+]},
+"Espanhol":{
+emoji:"🇪🇸",desc:"Vocabulario, gramática y comprensión",
+"Fácil":[
+["'Hola' significa:",["Olá","Adeus","Obrigado","Por favor"],0,"Hola = olá."],
+["'Gracias' significa:",["Desculpe","Obrigado(a)","Bom dia","Até amanhã"],1,"Gracias = obrigado(a)."],
+["Qual é o plural de 'libro'?",["Libros","Libres","Libroes","Libras"],0,"Libro + s = libros."],
+["'Casa' em espanhol significa:",["Casa","Carro","Escola","Rua"],0,"Casa tem o mesmo significado."],
+["Complete: 'Yo ___ estudiante.'",["soy","eres","es","somos"],0,"Com yo, usamos soy."],
+["'Buenos días' significa:",["Boa noite","Bom dia","Boa tarde","Até logo"],1,"Buenos días = bom dia."],
+["Qual palavra significa 'água'?",["Agua","Aire","Árbol","Azúcar"],0,"Agua = água."],
+["'Rojo' é a cor:",["Azul","Verde","Vermelha","Branca"],2,"Rojo = vermelho."],
+["Qual é o contrário de 'grande'?",["Alto","Pequeño","Largo","Fuerte"],1,"Pequeño = pequeno."],
+["'Perro' significa:",["Gato","Cachorro","Cavalo","Pássaro"],1,"Perro = cachorro."]
+],
+"Médio":[
+["Complete: 'Nosotros ___ español.'",["habla","hablamos","hablan","hablo"],1,"Nosotros + hablamos."],
+["'Ayer' significa:",["Hoje","Amanhã","Ontem","Depois"],2,"Ayer = ontem."],
+["Qual é o feminino de 'actor'?",["Actora","Actriz","Actores","Actorae"],1,"Actor → actriz."],
+["'Porque' em espanhol significa:",["Por que/porque","Embora","Entretanto","Sempre"],0,"Porque = porque."],
+["Complete: 'Ella ___ en Madrid.'",["vivo","vives","vive","vivimos"],2,"Ella + vive."],
+["'Aunque' expressa ideia de:",["Concessão","Causa","Finalidade","Conclusão"],0,"Aunque = embora/ainda que."],
+["Qual é o pretérito de 'tener' para 'yo'?",["tení","tuve","tengo","tendré"],1,"Yo tuve = eu tive."],
+["'Entonces' significa:",["Então","Também","Talvez","Nunca"],0,"Entonces = então."],
+["Qual palavra é um pronome pessoal?",["Yo","Casa","Rápido","Ayer"],0,"Yo = eu."],
+["'Todavía' significa:",["Ainda","Sempre","Já","Nunca"],0,"Todavía = ainda."]
+],
+"Difícil":[
+["Complete: 'Si tuviera tiempo, ___ más.'",["viajo","viajaré","viajaría","viajé"],2,"No condicional: si + imperfecto de subjuntivo + condicional."],
+["'Sin embargo' significa:",["No entanto","Por isso","Além de","Desde"],0,"Sin embargo = no entanto."],
+["Qual forma está no pretérito pluscuamperfecto?",["Había llegado","Llegué","He llegado","Llegaba"],0,"Había + particípio forma o pluscuamperfecto."],
+["Complete: 'Es importante que ellos ___ temprano.'",["llegan","llegaron","lleguen","llegar"],2,"Após 'es importante que', usa-se subjuntivo: lleguen."],
+["'A pesar de' introduz:",["Concessão","Causa","Tempo","Condição"],0,"A pesar de = apesar de."],
+["Qual é o subjuntivo de 'tener' para 'yo' no presente?",["tengo","tenga","tenía","tendré"],1,"Yo tenga."],
+["'Hubiera sabido' corresponde a:",["Pluscuamperfecto de subjuntivo","Futuro","Presente","Imperativo"],0,"Hubiera + particípio é uma forma do pluscuamperfecto de subjuntivo."],
+["Em 'Se venden casas', 'se' funciona como:",["Marca de passiva","Pronome pessoal","Conjunção","Artigo"],0,"É uma construção de passiva com se."],
+["Qual opção apresenta uma perífrase verbal de obrigação?",["Tener que estudiar","Estudié ayer","Soy estudiante","Muy rápido"],0,"Tener que + infinitivo expressa obrigação."],
+["'Sin que' normalmente exige:",["Indicativo","Subjuntivo","Infinitivo sempre","Imperativo"],1,"Sin que introduz oração que normalmente leva subjuntivo."]
+]},
+"Química":{
+emoji:"⚗️",desc:"Matéria, átomos, reações e elementos",
+"Fácil":[
+["Qual é o símbolo químico do oxigênio?",["O","Ox","Og","X"],0,"O é o símbolo do oxigênio."],
+["Qual é a fórmula da água?",["CO₂","H₂O","O₂","NaCl"],1,"Água é H₂O."],
+["O pH 7 é considerado:",["Ácido","Básico","Neutro","Radioativo"],2,"Em condições padrão, pH 7 é neutro."],
+["Qual elemento tem símbolo Na?",["Nitrogênio","Sódio","Néon","Níquel"],1,"Na vem de natrium, sódio."],
+["Qual gás é essencial à respiração aeróbica?",["Oxigênio","Hélio","Neônio","Argônio"],0,"O oxigênio participa da respiração celular aeróbica."],
+["Qual estado tem volume e forma definidos?",["Sólido","Líquido","Gasoso","Plasma"],0,"Sólidos possuem forma e volume próprios."],
+["O sal de cozinha é principalmente:",["NaCl","H₂O","CO₂","O₂"],0,"Cloreto de sódio, NaCl."],
+["O átomo é formado por:",["Prótons, nêutrons e elétrons","Somente elétrons","Somente prótons","Moléculas apenas"],0,"Essas são as principais partículas subatômicas do modelo básico."],
+["Qual é o símbolo do ferro?",["Fe","F","Fr","Ir"],0,"Ferro = Fe."],
+["Combustão geralmente necessita de:",["Oxigênio","Nitrogênio puro","Hélio","Sal"],0,"A combustão comum é uma reação que envolve oxigênio."]
+],
+"Médio":[
+["Qual partícula possui carga negativa?",["Próton","Nêutron","Elétron","Núcleo"],2,"O elétron possui carga elétrica negativa."],
+["Qual é o número atômico do carbono?",["4","6","8","12"],1,"Carbono possui 6 prótons."],
+["Uma ligação iônica envolve geralmente:",["Transferência de elétrons","Compartilhamento igual sempre","Somente nêutrons","Fusão nuclear"],0,"Na ligação iônica ocorre transferência de elétrons e formação de íons."],
+["Qual é a fórmula do dióxido de carbono?",["CO","CO₂","C₂O","C₂O₂"],1,"Dióxido indica dois átomos de oxigênio: CO₂."],
+["Uma solução com pH 3 é:",["Ácida","Neutra","Básica","Metálica"],0,"pH abaixo de 7 indica acidez."],
+["Qual gás é mais abundante na atmosfera terrestre?",["Oxigênio","Nitrogênio","CO₂","Hidrogênio"],1,"Nitrogênio representa cerca de 78% da atmosfera."],
+["Qual processo separa sólido insolúvel de líquido usando filtro?",["Filtração","Destilação","Fusão","Sublimação"],0,"A filtração retém o sólido no filtro."],
+["Na tabela periódica, elementos do mesmo grupo tendem a ter:",["Propriedades químicas semelhantes","Mesma massa exata","Mesmo número de nêutrons","Mesmo símbolo"],0,"Elementos do mesmo grupo têm configurações de valência semelhantes."],
+["Qual é a massa molar aproximada da água?",["10 g/mol","18 g/mol","28 g/mol","36 g/mol"],1,"H₂O ≈ 2×1 + 16 = 18 g/mol."],
+["Oxidação envolve, em definição moderna:",["Perda de elétrons","Ganho de elétrons","Perda de prótons","Ganho de nêutrons"],0,"OxiDAção = perda de elétrons."]
+],
+"Difícil":[
+["Qual é a relação entre pH e concentração de H⁺?",["pH = −log[H⁺]","pH = log[H⁺]","pH = [H⁺]²","pH = 1/[H⁺]"],0,"A definição de pH é o negativo do logaritmo da atividade/concentração de H⁺ em aproximação escolar."],
+["Qual princípio explica que elétrons ocupam níveis de energia quantizados?",["Mecânica quântica","Lei de Boyle","Princípio de Arquimedes","Lei de Hess"],0,"A estrutura eletrônica é descrita pela mecânica quântica."],
+["Em uma reação exotérmica, o sistema:",["Libera calor","Absorve calor","Não troca energia","Sempre congela"],0,"Reações exotérmicas liberam energia na forma de calor."],
+["Qual é o número de oxidação do oxigênio em H₂O?",["−2","−1","+1","+2"],0,"Em H₂O, o oxigênio normalmente tem NOX −2."],
+["O equilíbrio químico é caracterizado por:",["Velocidades direta e inversa iguais","Reação parada","Concentrações sempre iguais","Ausência de moléculas"],0,"No equilíbrio dinâmico, as velocidades das reações direta e inversa são iguais."],
+["Qual lei relaciona pressão e volume de um gás a temperatura constante?",["Lei de Boyle","Lei de Charles","Lei de Hess","Lei de Avogadro"],0,"Boyle: P·V = constante, a T constante."],
+["Um catalisador:",["Diminui a energia de ativação","Aumenta o ΔG da reação","É sempre consumido","Muda os produtos finais"],0,"Catalisadores fornecem um caminho de menor energia de ativação."],
+["Qual é a geometria molecular do CO₂?",["Linear","Angular","Tetraédrica","Trigonal piramidal"],0,"O carbono central possui dois domínios de ligação, resultando em geometria linear."],
+["Em uma reação redox, a espécie que sofre redução:",["Ganha elétrons","Perde elétrons","Ganha prótons sempre","Perde nêutrons"],0,"Redução é ganho de elétrons."],
+["Qual equação representa a primeira lei da termodinâmica?",["ΔU=q+w","PV=nRT","E=mc²","F=ma"],0,"A convenção química comum é ΔU = q + w."]
+]},
+"Geografia":{
+emoji:"🌎",desc:"Espaço geográfico, clima e sociedade",
+"Fácil":[
+["Qual é o maior continente em área?",["África","Ásia","Europa","América do Sul"],1,"A Ásia é o maior continente."],
+["Qual é a capital do Brasil?",["Rio de Janeiro","Brasília","São Paulo","Salvador"],1,"Brasília é a capital federal."],
+["O que é um rio?",["Curso natural de água","Montanha","Deserto","Cidade"],0,"Rio é um curso natural de água."],
+["Qual oceano banha a costa leste do Brasil?",["Pacífico","Atlântico","Índico","Ártico"],1,"O Brasil possui extensa costa no Atlântico."],
+["O Equador divide a Terra em:",["Hemisférios Norte e Sul","Leste e Oeste","Continentes","Trópicos"],0,"A Linha do Equador separa Norte e Sul."],
+["Qual é o maior país da América do Sul?",["Brasil","Argentina","Peru","Chile"],0,"O Brasil é o maior país sul-americano em território."],
+["Deserto é uma região caracterizada por:",["Baixa precipitação","Muita chuva","Florestas densas","Geleiras apenas"],0,"Desertos recebem pouca precipitação."],
+["O que é clima?",["Padrão atmosférico de longo prazo","Tempo de um único minuto","Tipo de solo","Forma de relevo"],0,"Clima descreve padrões atmosféricos de longo prazo."],
+["Qual linha imaginária passa por Greenwich?",["Meridiano de Greenwich","Equador","Trópico de Câncer","Linha Internacional"],0,"O meridiano de Greenwich é referência para longitude 0°."],
+["Qual relevo é geralmente mais elevado e acidentado?",["Montanha","Planície","Depressão","Praia"],0,"Montanhas apresentam grandes elevações e declives."]
+],
+"Médio":[
+["O fenômeno El Niño está relacionado ao aquecimento anormal de águas do:",["Pacífico Equatorial","Atlântico Norte","Índico Sul","Mediterrâneo"],0,"El Niño envolve aquecimento anormal do Pacífico Equatorial central/leste."],
+["Latitude mede a distância em relação:",["Ao Equador","A Greenwich","Aos polos somente","Ao nível do mar"],0,"Latitude é medida ao norte ou sul do Equador."],
+["Urbanização significa:",["Crescimento da população urbana","Redução das cidades","Migração apenas rural","Formação de rios"],0,"Urbanização é o aumento relativo da população vivendo em áreas urbanas."],
+["Qual bioma brasileiro é conhecido por floresta equatorial densa?",["Amazônia","Pampa","Caatinga","Cerrado"],0,"A Amazônia possui clima equatorial e floresta densa."],
+["Globalização envolve:",["Maior integração entre lugares","Isolamento total","Fim do comércio","Redução das comunicações"],0,"Globalização amplia fluxos econômicos, culturais, tecnológicos e informacionais."],
+["O movimento das placas tectônicas pode causar:",["Terremotos e vulcanismo","Somente chuvas","Marés diárias","Eclipses"],0,"Movimentos de placas estão associados a terremotos, vulcanismo e formação de relevo."],
+["O que é densidade demográfica?",["Habitantes por unidade de área","Total de cidades","Taxa de natalidade","Número de países"],0,"É geralmente calculada como população dividida pela área."],
+["Qual setor econômico transforma matérias-primas em produtos?",["Secundário","Primário","Terciário","Quaternário apenas"],0,"A indústria pertence ao setor secundário."],
+["O que são coordenadas geográficas?",["Latitude e longitude","Altitude e clima","Relevo e solo","População e PIB"],0,"Latitude e longitude localizam pontos na superfície terrestre."],
+["A erosão é:",["Desgaste e transporte de materiais","Formação de estrelas","Aquecimento do núcleo","Movimento de planetas"],0,"Erosão envolve remoção e transporte de partículas por agentes naturais."]
+],
+"Difícil":[
+["O intemperismo químico é mais intenso, em geral, em ambientes:",["Quentes e úmidos","Frios e secos","Sem água","Polares extremamente secos"],0,"Calor e água favorecem reações químicas que alteram minerais."],
+["A transição demográfica clássica descreve mudanças em:",["Natalidade e mortalidade","Longitude e latitude","Clima e relevo","PIB e exportações"],0,"O modelo relaciona transformações nas taxas de natalidade e mortalidade."],
+["A circulação geral da atmosfera é influenciada fortemente por:",["Aquecimento desigual da Terra","Somente vulcões","Marés apenas","Fases da Lua"],0,"O aquecimento desigual é fundamental para os padrões de circulação atmosférica."],
+["O conceito de território envolve principalmente:",["Poder e controle sobre um espaço","Apenas relevo","Somente clima","Somente vegetação"],0,"Território é espaço apropriado e relacionado a relações de poder."],
+["Uma bacia hidrográfica é:",["Área drenada por um sistema fluvial","Uma montanha isolada","Uma região sem rios","Somente o leito principal"],0,"É a área drenada por um rio principal e seus afluentes."],
+["A inversão térmica pode agravar:",["Poluição do ar","Tsunamis","Erosão marinha","Vulcanismo"],0,"A inversão dificulta a dispersão vertical de poluentes próximos à superfície."],
+["O intemperismo físico ocorre quando:",["Rochas se fragmentam sem alteração química significativa","Minerais viram novos compostos","O magma chega à superfície","A água evapora dos oceanos"],0,"É a desagregação física da rocha."],
+["PIB per capita é calculado aproximadamente por:",["PIB dividido pela população","População dividida pelo PIB","Exportações divididas pela área","PIB multiplicado pela população"],0,"PIB per capita = PIB/população."],
+["A projeção cartográfica de Mercator preserva principalmente:",["Ângulos/formas locais","Áreas globais","Distâncias em todo mapa","Volumes"],0,"Mercator é conforme, preservando ângulos, mas distorcendo áreas."],
+["O efeito estufa natural é importante porque:",["Mantém a Terra mais aquecida","Elimina todo CO₂","Impede a luz solar","Resfria completamente o planeta"],0,"Gases de efeito estufa retêm parte da radiação infravermelha, permitindo temperaturas adequadas à vida."]
+]},
+"História":{
+emoji:"🏛️",desc:"Civilizações, Brasil e mundo",
+"Fácil":[
+["Onde surgiu a democracia antiga conhecida?",["Atenas","Roma","Paris","Londres"],0,"A democracia ateniense é uma referência histórica da Antiguidade."],
+["Qual civilização construiu as pirâmides de Gizé?",["Egípcia","Romana","Grega","Asteca"],0,"As pirâmides de Gizé foram construídas no Egito antigo."],
+["Quem chegou à América em 1492 em uma expedição financiada pela Espanha?",["Cristóvão Colombo","Pedro Álvares Cabral","Vasco da Gama","Marco Polo"],0,"Colombo chegou às Américas em 1492."],
+["Em que ano ocorreu a Independência do Brasil?",["1500","1822","1889","1922"],1,"A Independência foi proclamada em 1822."],
+["A Proclamação da República no Brasil ocorreu em:",["1822","1889","1899","1930"],1,"A República foi proclamada em 15 de novembro de 1889."],
+["Qual povo antigo criou a escrita cuneiforme?",["Sumérios","Romanos","Vikings","Incas"],0,"A escrita cuneiforme é associada aos sumérios da Mesopotâmia."],
+["A Revolução Francesa começou em:",["1789","1815","1848","1914"],0,"1789 é o marco inicial da Revolução Francesa."],
+["Qual foi o sistema econômico predominante na Europa medieval?",["Feudalismo","Capitalismo industrial","Socialismo","Mercantilismo industrial"],0,"O feudalismo marcou grande parte da Europa medieval."],
+["Quem proclamou a Independência do Brasil?",["D. Pedro I","D. João VI","Tiradentes","Getúlio Vargas"],0,"D. Pedro proclamou a Independência em 7 de setembro de 1822."],
+["A Segunda Guerra Mundial terminou em:",["1939","1942","1945","1950"],2,"A Segunda Guerra Mundial terminou em 1945."]
+],
+"Médio":[
+["A Revolução Industrial começou primeiro em:",["Inglaterra","França","Rússia","Brasil"],0,"A primeira Revolução Industrial começou na Inglaterra no século XVIII."],
+["A Lei Áurea foi assinada em:",["1822","1850","1888","1889"],2,"A escravidão foi oficialmente abolida no Brasil em 1888."],
+["O Iluminismo valorizava:",["Razão e crítica","Absolutismo sem limites","Feudalismo","Censura científica"],0,"Pensadores iluministas enfatizaram razão, liberdade e crítica."],
+["A Primeira Guerra Mundial ocorreu entre:",["1914–1918","1939–1945","1870–1871","1929–1933"],0,"A Primeira Guerra Mundial ocorreu de 1914 a 1918."],
+["A Guerra Fria envolveu principalmente a rivalidade entre:",["EUA e URSS","Brasil e Argentina","China e Japão","França e Itália"],0,"EUA e União Soviética lideraram os principais blocos rivais."],
+["A Inconfidência Mineira ocorreu no contexto de:",["Domínio colonial português","República Velha","Era Vargas","Ditadura militar"],0,"Foi um movimento do período colonial, ligado à cobrança de impostos e ideias de independência."],
+["O Tratado de Tordesilhas envolveu principalmente:",["Portugal e Espanha","França e Inglaterra","Brasil e Argentina","Roma e Grécia"],0,"Portugal e Espanha dividiram áreas de exploração por meio do tratado."],
+["A queda do Império Romano do Ocidente é tradicionalmente datada em:",["476","1492","1789","1066"],0,"476 é a data convencional para a queda do Império Romano do Ocidente."],
+["A Era Vargas começou em:",["1930","1889","1945","1964"],0,"Getúlio Vargas chegou ao poder em 1930."],
+["A Constituição brasileira de 1988 ficou conhecida como:",["Constituição Cidadã","Carta Imperial","Constituição do Estado Novo","Carta Colonial"],0,"A Constituição de 1988 é conhecida como Constituição Cidadã."]
+],
+"Difícil":[
+["O Congresso de Viena ocorreu após:",["Guerras Napoleônicas","Revolução Russa","Primeira Guerra Mundial","Guerra Fria"],0,"O Congresso reorganizou a Europa após as Guerras Napoleônicas."],
+["A Revolução Russa de 1917 resultou na ascensão dos:",["Bolcheviques","Jacobinos","Fascistas italianos","Tories"],0,"Os bolcheviques lideraram a tomada de poder em outubro de 1917."],
+["O mercantilismo europeu estava associado a:",["Metalismo, protecionismo e colonialismo","Livre comércio absoluto","Fim das colônias","Economia feudal exclusivamente"],0,"Mercantilismo envolvia práticas como metalismo, monopólios e protecionismo."],
+["O Estado Novo brasileiro começou em:",["1937","1930","1945","1954"],0,"Getúlio Vargas instaurou o Estado Novo em 1937."],
+["A Conferência de Berlim (1884–85) está ligada à:",["Partilha colonial da África","Criação da ONU","Independência dos EUA","Revolução Francesa"],0,"A conferência regulamentou disputas entre potências europeias na África."],
+["O termo 'Antigo Regime' refere-se principalmente à ordem:",["Monárquica, estamental e absolutista europeia","Socialista soviética","Republicana contemporânea","Colonial americana apenas"],0,"O Antigo Regime designa a ordem política e social europeia anterior às revoluções liberais."],
+["A crise de 1929 teve como um de seus principais marcos:",["Quebra da Bolsa de Nova York","Queda de Roma","Criação da OTAN","Independência do Brasil"],0,"O crash de Wall Street em 1929 marcou o início da Grande Depressão."],
+["O AI-5, no Brasil, foi decretado em:",["1968","1964","1979","1985"],0,"O Ato Institucional nº 5 foi decretado em dezembro de 1968."],
+["A descolonização afro-asiática intensificou-se sobretudo:",["Após a Segunda Guerra Mundial","Antes da Primeira Guerra","Na Idade Média","No Renascimento"],0,"Após 1945, muitos territórios conquistaram independência."],
+["A Doutrina Truman estava relacionada à política de:",["Contenção do comunismo","Expansão colonial portuguesa","Neutralidade absoluta","Fim da OTAN"],0,"A Doutrina Truman expressou a política americana de contenção da expansão soviética/comunista."]
+]},
+"Ciências / Biologia":{
+emoji:"🧬",desc:"Vida, corpo humano e natureza",
+"Fácil":[
+["Qual órgão bombeia o sangue?",["Pulmão","Coração","Fígado","Rim"],1,"O coração bombeia o sangue pelo sistema circulatório."],
+["Qual é a unidade básica da vida?",["Célula","Órgão","Tecido","Sistema"],0,"A célula é a unidade estrutural e funcional básica dos seres vivos."],
+["Qual gás as plantas absorvem na fotossíntese?",["Oxigênio","Gás carbônico","Nitrogênio","Hélio"],1,"As plantas utilizam CO₂ na fotossíntese."],
+["Qual órgão é responsável principalmente pelas trocas gasosas?",["Pulmões","Estômago","Rins","Pele"],0,"As trocas de O₂ e CO₂ ocorrem principalmente nos pulmões."],
+["Qual vitamina é produzida na pele com ajuda da luz solar?",["Vitamina A","Vitamina C","Vitamina D","Vitamina K"],2,"A exposição solar contribui para a síntese de vitamina D."],
+["Qual é o maior órgão do corpo humano?",["Pele","Fígado","Coração","Pulmão"],0,"A pele é o maior órgão humano."],
+["Animais que possuem coluna vertebral são:",["Vertebrados","Invertebrados","Protozoários","Fungos"],0,"Vertebrados possuem coluna vertebral."],
+["Qual é o planeta conhecido como planeta vermelho?",["Terra","Marte","Júpiter","Vênus"],1,"Marte tem aparência avermelhada devido a óxidos de ferro."],
+["Qual processo as plantas usam para produzir matéria orgânica usando luz?",["Fotossíntese","Respiração apenas","Digestão","Fermentação"],0,"Fotossíntese converte energia luminosa em energia química."],
+["O DNA está relacionado principalmente à:",["Informação genética","Digestão","Respiração pulmonar","Circulação"],0,"O DNA armazena informação genética."]
+],
+"Médio":[
+["Qual organela é conhecida como 'usina de energia' da célula?",["Mitocôndria","Ribossomo","Lisossomo","Núcleo"],0,"Mitocôndrias produzem grande parte do ATP celular."],
+["A fotossíntese ocorre principalmente nos:",["Cloroplastos","Ribossomos","Lisossomos","Centríolos"],0,"Cloroplastos contêm clorofila e são locais da fotossíntese."],
+["Qual sistema coordena respostas rápidas por sinais elétricos?",["Nervoso","Digestório","Excretor","Endócrino"],0,"O sistema nervoso usa impulsos elétricos e neurotransmissores."],
+["Qual molécula carrega oxigênio no sangue?",["Hemoglobina","Insulina","Queratina","Colágeno"],0,"A hemoglobina das hemácias transporta oxigênio."],
+["Qual é a função principal dos rins?",["Filtrar o sangue e formar urina","Produzir bile","Bombear sangue","Realizar trocas gasosas"],0,"Rins filtram o sangue e participam do equilíbrio hídrico e iônico."],
+["O que é um ecossistema?",["Seres vivos e fatores abióticos interagindo","Apenas animais","Apenas plantas","Um único organismo"],0,"Ecossistema inclui componentes bióticos e abióticos e suas interações."],
+["Qual relação ecológica beneficia ambos os organismos?",["Mutualismo","Predação","Parasitismo","Competição"],0,"No mutualismo, ambos obtêm benefícios."],
+["Genes são segmentos de:",["DNA","Gordura","Água","Glicose"],0,"Genes são regiões do DNA que carregam informação hereditária."],
+["Qual hormônio ajuda a reduzir a glicemia?",["Insulina","Adrenalina","Tiroxina","Melatonina"],0,"A insulina promove a redução da glicose sanguínea."],
+["O processo de divisão celular que gera duas células geneticamente semelhantes é:",["Mitose","Meiose","Fecundação","Mutação"],0,"A mitose gera duas células-filhas geneticamente muito semelhantes."]
+],
+"Difícil":[
+["Na meiose, o resultado típico é:",["Quatro células haploides","Duas células diploides idênticas","Uma célula triploide","Quatro células diploides idênticas"],0,"A meiose reduz o número cromossômico e geralmente produz quatro células haploides."],
+["Qual processo produz ATP sem usar oxigênio como aceptor final na respiração anaeróbica?",["Respiração anaeróbica","Fotossíntese obrigatoriamente","Transcrição","Tradução"],0,"Na respiração anaeróbica, outro aceptor final de elétrons é utilizado."],
+["A seleção natural atua diretamente sobre:",["Variações que afetam sobrevivência/reprodução","Necessidades conscientes dos organismos","DNA isolado sem efeito fenotípico","Indivíduos após a morte"],0,"Seleção natural altera frequências de variantes ao longo das gerações por diferenças de sucesso reprodutivo."],
+["Qual molécula é formada na tradução?",["Proteína","DNA","RNA mensageiro","Lipídio"],0,"A tradução usa mRNA para produzir uma cadeia polipeptídica."],
+["A transcrição, em células eucarióticas, produz principalmente:",["RNA a partir de DNA","DNA a partir de proteína","Proteína a partir de RNA","ATP a partir de glicose"],0,"Transcrição é a síntese de RNA usando DNA como molde."],
+["Qual organela participa da digestão intracelular?",["Lisossomo","Mitocôndria","Cloroplasto","Ribossomo"],0,"Lisossomos contêm enzimas digestivas."],
+["Em genética, um indivíduo Aa é:",["Heterozigoto","Homozigoto dominante","Homozigoto recessivo","Haploide obrigatoriamente"],0,"Possui dois alelos diferentes para o gene."],
+["O crossing-over ocorre principalmente durante:",["Prófase I da meiose","Mitose II","G1","Tradução"],0,"A recombinação entre cromossomos homólogos ocorre na prófase I."],
+["Qual é a principal função do ATP?",["Transferir energia utilizável na célula","Armazenar informação genética","Formar paredes celulares","Transportar oxigênio"],0,"ATP atua como importante intermediário de transferência de energia."],
+["A homeostase é a capacidade de:",["Manter condições internas relativamente estáveis","Produzir apenas hormônios","Eliminar todo calor","Impedir qualquer mudança"],0,"Homeostase é a manutenção dinâmica do equilíbrio interno."]
+]}
+};
+
+const subjectNames = Object.keys(DB);
+const $ = id => document.getElementById(id);
+let subject="", difficulty="", questions=[], current=0, score=0, streak=0, bestStreak=0;
+let timeLeft=0, timerId=null, quizStart=0, answersLog=[];
+
+const settings = {
+ "Fácil":{time:20, base:10, bonus:5},
+ "Médio":{time:15, base:20, bonus:10},
+ "Difícil":{time:10, base:35, bonus:20}
+};
+
+function renderSubjects(){
+ $("subjects").innerHTML = subjectNames.map(s=>`
+  <div class="card" onclick="chooseSubject('${escapeAttr(s)}')">
+   <div class="emoji">${DB[s].emoji}</div><h3>${s}</h3><p>${DB[s].desc}</p>
+  </div>`).join("");
+}
+function escapeAttr(s){return s.replace(/\\/g,"\\\\").replace(/'/g,"\\'")}
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
+function chooseSubject(s){subject=s;$("chosenSubject").textContent=s;show("levels")}
+function goHome(){clearInterval(timerId);show("home");updateStats()}
+function shuffle(a){return a.slice().sort(()=>Math.random()-.5)}
+function startQuiz(level){
+ difficulty=level; questions=shuffle(DB[subject][level]).slice(0,10); current=0; score=0; streak=0; bestStreak=0; answersLog=[]; quizStart=Date.now();
+ $("quizSubject").textContent=subject+" • "+difficulty; $("levelLabel").textContent=difficulty; updateStats(); show("quiz"); loadQuestion();
+}
+function loadQuestion(){
+ clearInterval(timerId);
+ const q=questions[current], set=settings[difficulty];
+ timeLeft=set.time; $("timer").textContent=timeLeft; $("timer").classList.remove("warn");
+ $("questionCount").textContent=`${current+1}/${questions.length}`;
+ $("progress").style.width=`${(current/questions.length)*100}%`;
+ $("question").textContent=q[0];
+ $("explain").innerHTML="";
+ $("nextBtn").disabled=true;
+ $("answers").innerHTML=shuffle(q[1].map((text,i)=>({text,i}))).map(a=>
+  `<button class="answer" data-index="${a.i}" onclick="answer(${a.i},this)">${a.text}</button>`).join("");
+ timerId=setInterval(()=>{timeLeft--; $("timer").textContent=timeLeft; if(timeLeft<=5)$("timer").classList.add("warn"); if(timeLeft<=0){clearInterval(timerId);timeout()}},1000);
+}
+function timeout(){
+ document.querySelectorAll(".answer").forEach(b=>{b.disabled=true;if(+b.dataset.index===questions[current][2])b.classList.add("correct")});
+ streak=0; $("explain").innerHTML=`<div class="explain"><b>⏰ Tempo esgotado!</b><br>Resposta correta: <strong>${questions[current][1][questions[current][2]]}</strong><br>${questions[current][3]}</div>`;
+ answersLog.push({q:questions[current][0],selected:"Tempo esgotado",correct:questions[current][1][questions[current][2]],ok:false});
+ $("nextBtn").disabled=false; updateStats();
+}
+function answer(index,btn){
+ clearInterval(timerId);
+ document.querySelectorAll(".answer").forEach(b=>b.disabled=true);
+ const q=questions[current], ok=index===q[2], set=settings[difficulty];
+ document.querySelectorAll(".answer").forEach(b=>{if(+b.dataset.index===q[2])b.classList.add("correct")});
+ if(!ok)btn.classList.add("wrong");
+ if(ok){
+   streak++;bestStreak=Math.max(bestStreak,streak);
+   const gained=set.base+Math.min(timeLeft,set.time)*set.bonus+Math.max(0,streak-1)*5;
+   score+=gained;
+   $("explain").innerHTML=`<div class="explain"><b class="ok">✓ Correto! +${gained} pontos</b><br>${q[3]}</div>`;
+ }else{
+   streak=0;
+   $("explain").innerHTML=`<div class="explain"><b class="no">✗ Incorreto!</b><br>Resposta correta: <strong>${q[1][q[2]]}</strong><br>${q[3]}</div>`;
+ }
+ answersLog.push({q:q[0],selected:q[1][index],correct:q[1][q[2]],ok});
+ $("nextBtn").disabled=false;updateStats();
+}
+function nextQuestion(){if(current<questions.length-1){current++;loadQuestion()}else finish()}
+function finish(){
+ clearInterval(timerId); $("progress").style.width="100%";
+ const elapsed=Math.round((Date.now()-quizStart)/1000), correct=answersLog.filter(x=>x.ok).length;
+ $("finalScore").textContent=score.toLocaleString("pt-BR")+" pts";
+ $("correctCount").textContent=`${correct}/${questions.length}`;$("totalTime").textContent=elapsed+"s";$("bestStreak").textContent=bestStreak;
+ $("resultText").textContent=correct===questions.length?"Excelente! Você acertou tudo! 🎯":correct>=7?"Muito bem! Continue evoluindo! 🚀":correct>=5?"Bom trabalho! Revise os temas que errou. 📖":"Continue praticando. Cada tentativa ajuda a aprender! 💪";
+ $("review").innerHTML=answersLog.map((x,i)=>`<div class="reviewItem"><b>${i+1}. ${x.q}</b><br><span class="${x.ok?"ok":"no"}">${x.ok?"✓":"✗"} ${x.selected}</span>${x.ok?"":"<br><small>Correta: "+x.correct+"</small>"}</div>`).join("");
+ show("result");
+}
+function restart(){startQuiz(difficulty)}
+function quitQuiz(){if(confirm("Sair do quiz? O progresso desta rodada será perdido."))goHome()}
+function updateStats(){$("score").textContent=score.toLocaleString("pt-BR");$("streak").textContent=streak}
+renderSubjects();
+</script>
+</body>
+</html>
