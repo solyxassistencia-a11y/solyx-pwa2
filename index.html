@@ -822,6 +822,51 @@ document.getElementById("anoAtual").textContent =
     // Dispara a função assim que a página carrega
     document.addEventListener("DOMContentLoaded", carregarEConfigurarIdentidade);
 </script>
+
+<script>
+    function injetarManifestAdmin(iden) {
+    // 1. Define que este é o App Administrativo
+    const nomeApp = "Solyx Lojista"; // Nome fixo ou pode vir do Sheets também
+    const nomeCurto = "Admin";
+    const corTema = iden.BG_COR1 || "#8B0000"; // Vermelho Lojista
+    const corFundo = iden.BG_COR2 || "#FFFFFF";
+    
+    // ATENÇÃO AQUI: Se tiver um ícone diferente para o painel Admin, coloque a URL aqui
+    const iconeAdmin = "https://www.dropbox.com/scl/fi/ip6z1ggdrkatb842mwdst/Icon_SF_512x512.png?rlkey=v1u4dxlq947v27xn4u06ry23b&raw=1"; 
+
+    // 2. Monta o arquivo Manifest do Admin
+    const manifestJSON = {
+        "name": nomeApp,
+        "short_name": nomeCurto,
+        "start_url": window.location.href, // Abre a tela do Admin no GitHub e depois redireciona pro Blogger
+        "display": "standalone",
+        "background_color": corFundo,
+        "theme_color": corTema,
+        "icons": [
+            {
+                "src": iconeAdmin,
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "any maskable"
+            }
+        ]
+    };
+
+    // 3. Transforma o texto em um arquivo virtual
+    const stringManifest = JSON.stringify(manifestJSON);
+    const blob = new Blob([stringManifest], { type: 'application/json' });
+    const manifestURL = URL.createObjectURL(blob);
+
+    // 4. Injeta no HTML do Admin
+    let linkManifest = document.querySelector('link[rel="manifest"]');
+    if (!linkManifest) {
+        linkManifest = document.createElement('link');
+        linkManifest.rel = 'manifest';
+        document.head.appendChild(linkManifest);
+    }
+    linkManifest.href = manifestURL;
+}
+    </script>
 </body>
 </html>
 ```
