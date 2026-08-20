@@ -1,10 +1,11 @@
-const CACHE_NAME = 'AdminFidelidade-v11';
+const CACHE_NAME = 'AdminFidelidade-v12';
 
 const ARQUIVOS_PARA_CACHEAR = [
   './offline.html',
-  './EduQuiz_Offline.html',
-  './Brick_Game_5_em_1.html',
-  './Vintage_Calculadora.html'
+  './fid_game1.html',
+  './fid_game2.html',
+  './fid_game3.html',
+  './fid_game4.html'
 ];
 
 
