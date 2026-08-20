@@ -83,8 +83,116 @@ h1,h2,h3,p{margin-top:0}.logo h1{font-size:20px;margin:0}.logo small{color:var(-
 .footer{text-align:center;color:#71839b;font-size:12px;margin-top:25px}
 @media(max-width:650px){header{position:relative}.levels{grid-template-columns:1fr}.stats{width:100%;justify-content:stretch}.stat{flex:1}.app{width:95%}.quizBox{padding:18px}}
 </style>
+
+  <style>
+/* ============================================================
+   BOTÃO DISCRETO DE SAÍDA
+   ============================================================ */
+#game-exit {
+    position: fixed;
+    top: 6px;
+    right: 6px;
+    z-index: 2147483647;
+    width: 18px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    background: rgba(0,0,0,.18);
+    color: rgba(255,255,255,.35);
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    transition:
+        width .22s ease,
+        background .22s ease,
+        color .22s ease,
+        border-color .22s ease,
+        box-shadow .22s ease;
+
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+}
+
+
+/* Ícone */
+#game-exit .game-exit-icon {
+    flex: 0 0 18px;
+    width: 18px;
+    text-align: center;
+    font-size: 13px;
+    line-height: 26px;
+}
+/* Texto SAIR */
+#game-exit .game-exit-label {
+    opacity: 0;
+    width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    font: 700 9px/1 Arial, sans-serif;
+    letter-spacing: .7px;
+    transition:
+        opacity .16s ease,
+        width .22s ease;
+}
+
+/* ============================================================
+   BOTÃO EXPANDIDO
+   ============================================================ */
+#game-exit:hover,
+#game-exit:focus-visible,
+#game-exit.is-open {
+
+    width: 72px;
+    background: rgba(0,0,0,.72);
+    color: rgba(255,255,255,.92);
+    border-color: rgba(255,255,255,.28);
+    box-shadow: 0 3px 12px rgba(0,0,0,.25);
+    outline: none;
+}
+
+#game-exit:hover .game-exit-label,
+#game-exit:focus-visible .game-exit-label,
+#game-exit.is-open .game-exit-label {
+
+    opacity: 1;
+
+    width: 50px;
+}
+
+
+/* ============================================================
+   DISPOSITIVOS TOUCH
+   ============================================================ */
+
+@media (hover: none) {
+
+    #game-exit {
+        opacity: .58;
+    }
+
+}
+</style>
+
 </head>
 <body>
+
+<button
+    id="game-exit"
+    type="button"
+    aria-label="Sair do jogo"
+    title="Sair do jogo">
+    <span class="game-exit-icon" aria-hidden="true">↩</span>
+    <span class="game-exit-label">
+        SAIR
+    </span>
+</button>
+  
 <div class="app">
 <header>
  <div class="logo"><div class="logoIcon">🧠</div><div><h1>EduQuiz</h1><small>Quiz Educacional • Offline</small></div></div>
@@ -571,6 +679,69 @@ function restart(){startQuiz(difficulty)}
 function quitQuiz(){if(confirm("Sair do quiz? O progresso desta rodada será perdido."))goHome()}
 function updateStats(){$("score").textContent=score.toLocaleString("pt-BR");$("streak").textContent=streak}
 renderSubjects();
+</script>
+  <script>
+/* ============================================================
+   BOTÃO DE SAÍDA
+   Volta para a página anterior.
+   ============================================================ */
+
+(function () {
+
+    const exitButton = document.getElementById('game-exit');
+
+    if (!exitButton) return;
+
+
+    function exitGame(event) {
+
+        if (event) {
+            event.preventDefault();
+        }
+
+        // Fecha a aba expandida
+        exitButton.classList.remove('is-open');
+
+
+        // Volta para a página anterior
+        if (window.history.length > 1) {
+
+            window.history.back();
+
+        } else {
+
+            // Fallback caso o jogo tenha sido aberto diretamente
+            window.location.href = 'offline.html';
+
+        }
+
+    }
+
+
+    /* Clique normal — PC */
+    exitButton.addEventListener('click', exitGame);
+
+
+    /* ========================================================
+       TOUCH — CELULAR
+       Primeiro toque: expande
+       Segundo toque: sai
+       ======================================================== */
+
+    exitButton.addEventListener('touchend', function (event) {
+
+        if (!exitButton.classList.contains('is-open')) {
+
+            event.preventDefault();
+
+            exitButton.classList.add('is-open');
+
+        }
+
+    }, { passive: false });
+
+
+})();
 </script>
 </body>
 </html>
