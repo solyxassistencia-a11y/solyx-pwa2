@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Vintage</title>
+    <!-- Fonte digital vintage do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            /* Variáveis de cores padrão */
+            --cor-carcaca: #2c2c2c;
+            --cor-botao: #e0e0e0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        .configuracoes {
+            background: #fff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .configuracoes label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .configuracoes input[type="color"] {
+            margin-top: 5px;
+            border: none;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        .calculadora {
+            background-color: var(--cor-carcaca);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.1);
+            width: 320px;
+            transition: background-color 0.3s;
+        }
+
+        .visor {
+            background-color: #9ba686; /* Cor de fundo LCD clássica */
+            color: #1a1a1a;
+            font-family: 'VT323', monospace;
+            font-size: 48px;
+            text-align: right;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 3px 8px rgba(0,0,0,0.2);
+            overflow: hidden;
+            white-space: nowrap;
+            letter-spacing: 2px;
+        }
+
+        .botoes {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            background-color: var(--cor-botao);
+            border: none;
+            padding: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            transition: all 0.1s;
+        }
+
+        button:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 rgba(0,0,0,0.2);
+        }
+
+        .btn-operacao {
+            background-color: #ff9800;
+            color: white;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
+        }
+
+        .btn-igual {
+            background-color: #4caf50;
+            color: white;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
+        }
+
+        .btn-limpar {
+            background-color: #f44336;
+            color: white;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Painel de Configurações -->
+    <div class="configuracoes">
+        <label>
+            Cor da Carcaça
+            <input type="color" id="corCarcaca" value="#2c2c2c">
+        </label>
+        <label>
+            Cor dos Botões
+            <input type="color" id="corBotao" value="#e0e0e0">
+        </label>
+    </div>
+
+    <!-- Calculadora -->
+    <div class="calculadora">
+        <div class="visor" id="visor">0</div>
+        <div class="botoes">
+            <button class="btn-limpar" onclick="limparVisor()">C</button>
+            <button onclick="adicionarValor('(')">(</button>
+            <button onclick="adicionarValor(')')">)</button>
+            <button class="btn-operacao" onclick="adicionarValor('/')">÷</button>
+
+            <button onclick="adicionarValor('7')">7</button>
+            <button onclick="adicionarValor('8')">8</button>
+            <button onclick="adicionarValor('9')">9</button>
+            <button class="btn-operacao" onclick="adicionarValor('*')">×</button>
+
+            <button onclick="adicionarValor('4')">4</button>
+            <button onclick="adicionarValor('5')">5</button>
+            <button onclick="adicionarValor('6')">6</button>
+            <button class="btn-operacao" onclick="adicionarValor('-')">-</button>
+
+            <button onclick="adicionarValor('1')">1</button>
+            <button onclick="adicionarValor('2')">2</button>
+            <button onclick="adicionarValor('3')">3</button>
+            <button class="btn-operacao" onclick="adicionarValor('+')">+</button>
+
+            <button onclick="adicionarValor('0')">0</button>
+            <button onclick="adicionarValor('.')">.</button>
+            <button class="btn-igual" onclick="calcular()" style="grid-column: span 2;">=</button>
+        </div>
+    </div>
+
+    <script>
+        const visor = document.getElementById('visor');
+        const inputCorCarcaca = document.getElementById('corCarcaca');
+        const inputCorBotao = document.getElementById('corBotao');
+
+        // Configuração de cores via variáveis CSS
+        inputCorCarcaca.addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--cor-carcaca', e.target.value);
+        });
+
+        inputCorBotao.addEventListener('input', (e) => {
+            document.documentElement.style.setProperty('--cor-botao', e.target.value);
+        });
+
+        // Configuração de Áudio (Sintetizador Web para o bipe)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function tocarSom() {
+            // Retoma o contexto de áudio se estiver suspenso (política de navegadores)
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.type = 'square'; // Tipo de onda para som eletrônico/vintage
+            oscillator.frequency.setValueAtTime(600, audioCtx.currentTime); // Frequência do bipe
+            
+            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // Volume
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); // Fade out rápido
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+
+        // Lógica da Calculadora
+        function adicionarValor(valor) {
+            tocarSom();
+            if (visor.innerText === '0' || visor.innerText === 'Erro') {
+                visor.innerText = valor;
+            } else {
+                visor.innerText += valor;
+            }
+            // Impede que o texto ultrapasse muito o visor
+            if(visor.innerText.length > 12) {
+                visor.innerText = visor.innerText.substring(0, 12);
+            }
+        }
+
+        function limparVisor() {
+            tocarSom();
+            visor.innerText = '0';
+        }
+
+        function calcular() {
+            tocarSom();
+            try {
+                // O eval() calcula a string matemática. 
+                // Nota: em projetos complexos evitamos eval, mas para uma calculadora simples é bastante comum.
+                let resultado = eval(visor.innerText).toString();
+                
+                // Limita as casas decimais para não quebrar o layout
+                if (resultado.includes('.') && resultado.length > 10) {
+                    resultado = parseFloat(resultado).toFixed(4);
+                }
+                
+                visor.innerText = resultado;
+            } catch (erro) {
+                visor.innerText = 'Erro';
+            }
+        }
+    </script>
+</body>
+</html>
