@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Memória Educativo</title>
+    <style>
+        :root {
+    --primary: #4CAF50;
+    --primary-hover: #45a049;
+    --secondary: #2196F3;
+    --secondary-hover: #1976D2;
+    --bg-color: #f4f7f6;
+    --card-bg: #ffffff;
+    --card-back: #ff9800;
+    --text-dark: #333;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-dark);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+#app-container {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    max-width: 800px;
+    width: 100%;
+    text-align: center;
+}
+
+.hidden { display: none !important; }
+.active { display: block; }
+.mt { margin-top: 20px; }
+
+/* Botões */
+button {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: bold;
+}
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-secondary { background: var(--secondary); color: white; }
+.btn-secondary:hover { background: var(--secondary-hover); }
+.btn-small { padding: 5px 15px; font-size: 18px; margin: 0 10px; }
+
+.btn-top {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #555;
+    color: white;
+}
+
+/* Telas de Configuração */
+.config-group {
+    background: var(--bg-color);
+    padding: 15px;
+    border-radius: 10px;
+    margin: 15px 0;
+    text-align: left;
+}
+.config-group h3 { margin-bottom: 10px; border-bottom: 2px solid #ddd; padding-bottom: 5px; }
+.config-group label { display: inline-block; margin-right: 15px; cursor: pointer; }
+
+#timer-controls { margin-top: 10px; display: flex; align-items: center; }
+#time-display { font-size: 20px; font-weight: bold; }
+
+/* Escolha de Tema */
+.theme-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+.theme-btn {
+    padding: 20px;
+    font-size: 18px;
+    background: var(--bg-color);
+    border: 2px solid #ccc;
+}
+.theme-btn:hover { border-color: var(--primary); background: #e8f5e9; }
+
+/* Lista de Conhecimentos */
+.knowledge-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    text-align: left;
+    margin-top: 20px;
+}
+.knowledge-item {
+    display: flex;
+    align-items: center;
+    background: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border-left: 5px solid var(--primary);
+}
+.knowledge-item span.emoji { font-size: 40px; margin-right: 15px; }
+
+/* Cabeçalho do Jogo */
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    background: #eee;
+    padding: 10px;
+    border-radius: 10px;
+}
+#scoreboard { display: flex; gap: 15px; font-size: 18px; font-weight: bold; }
+.score { padding: 5px 10px; border-radius: 5px; }
+.active-turn { background: var(--primary); color: white; }
+#timer-box { font-size: 20px; font-weight: bold; color: #d32f2f; }
+
+/* Área do Jogo e Grid */
+.game-area {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    align-items: flex-start;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+    flex: 3;
+    min-width: 300px;
+}
+
+/* Cartas (Flip Animation) */
+.card {
+    width: 100%;
+    aspect-ratio: 1 / 1.1;
+    perspective: 1000px;
+    cursor: pointer;
+}
+.card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+.card.flipped .card-inner { transform: rotateY(180deg); }
+
+.card-front, .card-back {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    backface-visibility: hidden;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.card-back { background-color: var(--card-back); background-image: radial-gradient(#ffe0b2 15%, transparent 16%), radial-gradient(#ffe0b2 15%, transparent 16%); background-size: 20px 20px; background-position: 0 0, 10px 10px; }
+.card-front {
+    background-color: var(--card-bg);
+    transform: rotateY(180deg);
+    border: 2px solid var(--primary);
+}
+.card-front .emoji { font-size: 2.5rem; }
+.card-front .title { font-size: 0.8rem; font-weight: bold; margin-top: 5px; }
+
+/* Lista de Acertos */
+.found-container {
+    flex: 1;
+    min-width: 200px;
+    background: #e3f2fd;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: left;
+}
+#found-list { list-style: none; margin-top: 10px; }
+#found-list li {
+    background: white;
+    padding: 8px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: 0.2s;
+}
+#found-list li:hover { background: var(--secondary); color: white; }
+
+/* Modal */
+.modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: white; padding: 30px; border-radius: 15px;
+    text-align: center; max-width: 400px; width: 90%; position: relative;
+}
+.close { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; }
+.modal-emoji { font-size: 80px; margin-bottom: 10px; }
+
+@media (max-width: 600px) {
+    .theme-grid { grid-template-columns: 1fr; }
+    .game-area { flex-direction: column; }
+    .card-front .emoji { font-size: 2rem; }
+}
+        
+    </style>
+<body>
+    <!-- Controle de Som (Topo) -->
+    <button id="btn-mute" class="btn-top" onclick="toggleMute()">🔊 Som Ativado</button>
+
+    <div id="app-container">
+        
+        <!-- TELA 1: CONFIGURAÇÕES -->
+        <div id="screen-1" class="screen active">
+            <h1>🧠 Jogo da Memória Educativo</h1>
+            
+            <div class="config-group">
+                <h3>Nível de Dificuldade</h3>
+                <label><input type="radio" name="level" value="6" checked> Básico (6 pares)</label>
+                <label><input type="radio" name="level" value="10"> Intermediário (10 pares)</label>
+                <label><input type="radio" name="level" value="15"> Avançado (15 pares)</label>
+            </div>
+
+            <div class="config-group">
+                <h3>Número de Jogadores</h3>
+                <label><input type="radio" name="players" value="1" checked> 1 Jogador</label>
+                <label><input type="radio" name="players" value="2"> 2 Jogadores</label>
+            </div>
+
+            <div class="config-group">
+                <h3>Cronômetro (Tempo por tentativa)</h3>
+                <label><input type="checkbox" id="timer-toggle"> Ativar Cronômetro</label>
+                <div id="timer-controls" class="hidden">
+                    <button class="btn-small" onclick="adjustTime(-1)">-</button>
+                    <span id="time-display">15</span> s
+                    <button class="btn-small" onclick="adjustTime(1)">+</button>
+                    <small>(Máximo 60s)</small>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="goToScreen(2)">Avançar ➔</button>
+        </div>
+
+        <!-- TELA 2: TEMA -->
+        <div id="screen-2" class="screen hidden">
+            <h1>Escolha o Tema</h1>
+            <div class="theme-grid">
+                <button class="theme-btn" onclick="selectTheme('paises')">🌍 Países</button>
+                <button class="theme-btn" onclick="selectTheme('animais')">🦁 Animais</button>
+                <button class="theme-btn" onclick="selectTheme('frutas')">🍎 Frutas e Verduras</button>
+                <button class="theme-btn" onclick="selectTheme('aleatorio')">🎲 Aleatório</button>
+            </div>
+            <button class="btn-secondary mt" onclick="goToScreen(1)">⬅ Voltar</button>
+        </div>
+
+        <!-- TELA 3: PRÉ-JOGO -->
+        <div id="screen-3" class="screen hidden">
+            <h1 id="selected-theme-title">Tema</h1>
+            <button class="btn-secondary" onclick="showList()">📚 Listar Conhecimentos do Tema</button>
+            <br><br>
+            <button class="btn-primary" onclick="startGame()">▶ Jogar Agora</button>
+            <br>
+            <button class="btn-secondary mt" onclick="goToScreen(2)">⬅ Voltar</button>
+        </div>
+
+        <!-- TELA DE LISTA DE CONHECIMENTOS (Informativa) -->
+        <div id="screen-list" class="screen hidden">
+            <h1>Conheça as Cartas</h1>
+            <div id="knowledge-list" class="knowledge-container"></div>
+            <button class="btn-primary mt" onclick="goToScreen(3)">⬅ Voltar para o Jogo</button>
+        </div>
+
+        <!-- TELA DO JOGO -->
+        <div id="screen-game" class="screen hidden">
+            <div class="game-header">
+                <div id="scoreboard">
+                    <div id="score-p1" class="score active-turn">P1: 0</div>
+                    <div id="score-p2" class="score hidden">P2: 0</div>
+                </div>
+                <div id="timer-box" class="hidden">⏱ <span id="game-time">15</span>s</div>
+                <button id="btn-start-game" class="btn-primary" onclick="beginPlay()">Começar!</button>
+            </div>
+
+            <div class="game-area">
+                <div id="card-grid" class="grid hidden"></div>
+                
+                <div id="found-items" class="found-container hidden">
+                    <h3>✅ Acertos:</h3>
+                    <ul id="found-list"></ul>
+                </div>
+            </div>
+            
+            <button class="btn-secondary mt" onclick="resetToMenu()">Desistir / Menu</button>
+        </div>
+
+    </div>
+
+    <!-- MODAL DE INFORMAÇÃO DA CARTA ENCONTRADA -->
+    <div id="info-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('info-modal')">&times;</span>
+            <div id="modal-emoji" class="modal-emoji"></div>
+            <h2 id="modal-title"></h2>
+            <p id="modal-desc"></p>
+        </div>
+    </div>
+
+    <!-- MODAL DE FIM DE JOGO -->
+    <div id="game-over-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Fim de Jogo! 🎉</h2>
+            <p id="winner-text"></p>
+            <button class="btn-primary" onclick="playAgain()">🔄 Nova Rodada (Manter Placar)</button>
+            <button class="btn-secondary" onclick="resetToMenu()">🏠 Novo Jogo (Zerar Tudo)</button>
+        </div>
+    </div>
+
+    <script>
+        
+// --- BANCO DE DADOS OFFLINE ---
+const database = {
+    paises: [
+        { id: 'br', emoji: '🇧🇷', name: 'Brasil', desc: 'Maior país da América do Sul, famoso pela floresta Amazônica, futebol e carnaval.' },
+        { id: 'us', emoji: '🇺🇸', name: 'EUA', desc: 'País norte-americano com 50 estados, possui uma das maiores economias do mundo.' },
+        { id: 'jp', emoji: '🇯🇵', name: 'Japão', desc: 'Nação insular no Oceano Pacífico, famosa por sua tecnologia, animes e cultura milenar.' },
+        { id: 'it', emoji: '🇮🇹', name: 'Itália', desc: 'País europeu em formato de bota, berço do Império Romano, das pizzas e das massas.' },
+        { id: 'fr', emoji: '🇫🇷', name: 'França', desc: 'Conhecida mundialmente pela Torre Eiffel, gastronomia refinada e museu do Louvre.' },
+        { id: 'za', emoji: '🇿🇦', name: 'África do Sul', desc: 'País localizado no extremo sul da África, famoso por seus safáris e vida selvagem.' },
+        { id: 'au', emoji: '🇦🇺', name: 'Austrália', desc: 'País que também é um continente, famoso pelos cangurus, coalas e belas praias.' },
+        { id: 'ca', emoji: '🇨🇦', name: 'Canadá', desc: 'País norte-americano conhecido por suas vastas paisagens naturais e o xarope de bordo (maple).' },
+        { id: 'mx', emoji: '🇲🇽', name: 'México', desc: 'País com rica cultura asteca e maia, famoso por sua culinária picante e mariachis.' },
+        { id: 'eg', emoji: '🇪🇬', name: 'Egito', desc: 'País no nordeste da África, lar das antigas pirâmides, faraós e do rio Nilo.' },
+        { id: 'cn', emoji: '🇨🇳', name: 'China', desc: 'País mais populoso do mundo, dono da Grande Muralha e famoso pela cultura do dragão.' },
+        { id: 'in', emoji: '🇮🇳', name: 'Índia', desc: 'País asiático famoso pelo Taj Mahal, culinária rica em especiarias e cultura vibrante.' },
+        { id: 'de', emoji: '🇩🇪', name: 'Alemanha', desc: 'Famosa por sua engenharia automotiva, castelos medievais e o festival Oktoberfest.' },
+        { id: 'ar', emoji: '🇦🇷', name: 'Argentina', desc: 'País sul-americano conhecido pelo tango, pela paixão pelo futebol e pelas carnes.' },
+        { id: 'gb', emoji: '🇬🇧', name: 'Reino Unido', desc: 'Composto por Inglaterra, Escócia, País de Gales e Irlanda do Norte. Terra da família real.' }
+    ],
+    animais: [
+        { id: 'dog', emoji: '🐶', name: 'Cachorro', desc: 'Mamífero carnívoro, leal e afetuoso. É conhecido mundialmente como o melhor amigo do homem.' },
+        { id: 'cat', emoji: '🐱', name: 'Gato', desc: 'Felino doméstico independente e ágil, com excelente visão noturna e instinto caçador.' },
+        { id: 'lion', emoji: '🦁', name: 'Leão', desc: 'Grande felino conhecido como o "rei da selva". Os machos possuem uma juba majestosa.' },
+        { id: 'elephant', emoji: '🐘', name: 'Elefante', desc: 'O maior mamífero terrestre, caracterizado por sua longa tromba e grandes orelhas.' },
+        { id: 'monkey', emoji: '🐒', name: 'Macaco', desc: 'Animal primata altamente inteligente e curioso, que vive geralmente nas árvores.' },
+        { id: 'frog', emoji: '🐸', name: 'Sapo', desc: 'Anfíbio conhecido por seus saltos longos e por coaxar perto de lagoas.' },
+        { id: 'pig', emoji: '🐷', name: 'Porco', desc: 'Animal muito inteligente que gosta de chafurdar na lama para se refrescar.' },
+        { id: 'cow', emoji: '🐮', name: 'Vaca', desc: 'Animal herbívoro de grande porte, muito importante na produção de leite e derivados.' },
+        { id: 'horse', emoji: '🐴', name: 'Cavalo', desc: 'Mamífero veloz e forte, historicamente usado pelo ser humano para transporte e agricultura.' },
+        { id: 'rabbit', emoji: '🐰', name: 'Coelho', desc: 'Pequeno mamífero herbívoro, conhecido por suas orelhas compridas e saltos rápidos.' },
+        { id: 'penguin', emoji: '🐧', name: 'Pinguim', desc: 'Ave marinha que não voa, adaptada ao frio intenso. Suas asas funcionam como nadadeiras.' },
+        { id: 'tiger', emoji: '🐯', name: 'Tigre', desc: 'O maior de todos os felinos selvagens, reconhecível por sua pelagem alaranjada com listras escuras.' },
+        { id: 'zebra', emoji: '🦓', name: 'Zebra', desc: 'Mamífero africano da família dos cavalos, inconfundível por suas listras pretas e brancas.' },
+        { id: 'giraffe', emoji: '🦒', name: 'Girafa', desc: 'O mamífero mais alto do mundo, com um pescoço extremamente longo para alcançar folhas altas.' },
+        { id: 'bear', emoji: '🐻', name: 'Urso', desc: 'Grande mamífero que pode ser carnívoro ou onívoro. Muitos hibernam durante o inverno.' }
+    ],
+    frutas: [
+        { id: 'carrot', emoji: '🥕', name: 'Cenoura', desc: 'Raiz crocante e alaranjada, muito rica em vitamina A, ótima para a visão.' },
+        { id: 'apple', emoji: '🍎', name: 'Maçã', desc: 'Fruta popular, doce e crocante. Muito rica em fibras e antioxidantes.' },
+        { id: 'banana', emoji: '🍌', name: 'Banana', desc: 'Fruta amarela e alongada, excelente fonte de energia rápida e potássio.' },
+        { id: 'broccoli', emoji: '🥦', name: 'Brócolis', desc: 'Vegetal verde em formato de arvorezinha, riquíssimo em vitaminas e cálcio.' },
+        { id: 'grape', emoji: '🍇', name: 'Uva', desc: 'Fruta em formato de pequenos globos cultivada em cachos. Usada para sucos e vinhos.' },
+        { id: 'orange', emoji: '🍊', name: 'Laranja', desc: 'Fruta cítrica muito suculenta, mundialmente famosa por seu alto teor de vitamina C.' },
+        { id: 'strawberry', emoji: '🍓', name: 'Morango', desc: 'Fruta vermelha com sementes aparentes, sabor doce e levemente ácido.' },
+        { id: 'watermelon', emoji: '🍉', name: 'Melancia', desc: 'Fruto grande e refrescante, composto por mais de 90% de água. Ótimo no verão.' },
+        { id: 'pineapple', emoji: '🍍', name: 'Abacaxi', desc: 'Fruta tropical com casca espinhosa e polpa amarela, doce e cítrica. Símbolo de hospitalidade.' },
+        { id: 'lemon', emoji: '🍋', name: 'Limão', desc: 'Fruta cítrica bastante ácida, muito usada para temperar saladas e fazer sucos refrescantes.' },
+        { id: 'tomato', emoji: '🍅', name: 'Tomate', desc: 'Botanicamente uma fruta, mas usado como vegetal nas refeições. Rico em licopeno.' },
+        { id: 'lettuce', emoji: '🥬', name: 'Alface', desc: 'Folhagem verde muito popular, sendo a base principal da maioria das saladas no mundo.' },
+        { id: 'onion', emoji: '🧅', name: 'Cebola', desc: 'Bulbo com camadas utilizado como tempero universal. Costuma fazer as pessoas chorarem ao cortá-la.' },
+        { id: 'potato', emoji: '🥔', name: 'Batata', desc: 'Tubérculo muito versátil na culinária, podendo ser frita, assada ou em formato de purê.' },
+        { id: 'corn', emoji: '🌽', name: 'Milho', desc: 'Cereal amarelo cultivado em espigas. Pode ser cozido, feito pipoca ou pamonha.' }
+    ]
+};
+
+// --- VARIÁVEIS DE ESTADO ---
+let config = { level: 6, players: 1, useTimer: false, timerValue: 15 };
+let themeStr = '';
+let currentCards = [];
+let deck = [];
+let flippedCards = [];
+let matchedPairs = 0;
+let scores = { p1: 0, p2: 0 };
+let currentTurn = 1; // 1 ou 2
+let gameTimer = null;
+let timeLeft = 0;
+let isMuted = false;
+let gameStarted = false;
+
+// --- SISTEMA DE AUDIO (Web Audio API - Funciona Offline) ---
+let audioCtx;
+function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+function playSound(type) {
+    if (isMuted) return;
+    initAudio();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+    
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+    
+    if (type === 'click') {
+        osc.type = 'sine'; osc.frequency.setValueAtTime(600, now);
+        gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now); osc.stop(now + 0.1);
+    } else if (type === 'flip') {
+        osc.type = 'triangle'; osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+        gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        osc.start(now); osc.stop(now + 0.1);
+    } else if (type === 'match') {
+        osc.type = 'square'; osc.frequency.setValueAtTime(400, now);
+        osc.frequency.setValueAtTime(600, now + 0.1);
+        gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.3);
+        osc.start(now); osc.stop(now + 0.3);
+    } else if (type === 'error') {
+        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, now);
+        osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
+        gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 0.2);
+        osc.start(now); osc.stop(now + 0.2);
+    }
+}
+function toggleMute() {
+    isMuted = !isMuted;
+    document.getElementById('btn-mute').innerText = isMuted ? '🔇 Som Desativado' : '🔊 Som Ativado';
+    playSound('click');
+}
+
+// --- NAVEGAÇÃO DE TELAS ---
+function goToScreen(screenNum) {
+    playSound('click');
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    document.getElementById(`screen-${screenNum}`).classList.remove('hidden');
+    document.getElementById(`screen-${screenNum}`).classList.add('active');
+
+    // Salvar config ao sair da tela 1
+    if(screenNum === 2) {
+        config.level = parseInt(document.querySelector('input[name="level"]:checked').value);
+        config.players = parseInt(document.querySelector('input[name="players"]:checked').value);
+        config.useTimer = document.getElementById('timer-toggle').checked;
+    }
+}
+
+// Controle do timer na Tela 1
+document.getElementById('timer-toggle').addEventListener('change', (e) => {
+    playSound('click');
+    document.getElementById('timer-controls').classList.toggle('hidden', !e.target.checked);
+});
+function adjustTime(val) {
+    playSound('click');
+    config.timerValue += val;
+    if(config.timerValue < 5) config.timerValue = 5;
+    if(config.timerValue > 60) config.timerValue = 60;
+    document.getElementById('time-display').innerText = config.timerValue;
+}
+
+// --- ESCOLHA DE TEMA E PREPARAÇÃO ---
+function selectTheme(theme) {
+    playSound('click');
+    themeStr = theme;
+    
+    let title = '';
+    if(theme === 'paises') title = '🌍 Países';
+    if(theme === 'animais') title = '🦁 Animais';
+    if(theme === 'frutas') title = '🍎 Frutas e Verduras';
+    if(theme === 'aleatorio') title = '🎲 Aleatório';
+    document.getElementById('selected-theme-title').innerText = `Tema: ${title}`;
+
+    // Preparar lista de cartas baseada no nível escolhido
+    currentCards = [];
+    if(theme === 'aleatorio') {
+        let all = [...database.paises, ...database.animais, ...database.frutas];
+        all.sort(() => 0.5 - Math.random());
+        currentCards = all.slice(0, config.level);
+    } else {
+        let selectedDb = [...database[theme]];
+        selectedDb.sort(() => 0.5 - Math.random());
+        currentCards = selectedDb.slice(0, config.level);
+    }
+
+    goToScreen(3);
+}
+
+function showList() {
+    playSound('click');
+    const container = document.getElementById('knowledge-list');
+    container.innerHTML = '';
+    
+    currentCards.forEach(item => {
+        container.innerHTML += `
+            <div class="knowledge-item">
+                <span class="emoji">${item.emoji}</span>
+                <div>
+                    <strong>${item.name}</strong>
+                    <p>${item.desc}</p>
+                </div>
+            </div>
+        `;
+    });
+    
+    document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+    document.getElementById('screen-list').classList.remove('hidden');
+}
+
+// --- LÓGICA DO JOGO ---
+function startGame() {
+    playSound('click');
+    goToScreen('game');
+    
+    // UI Setup
+    document.getElementById('score-p2').classList.toggle('hidden', config.players === 1);
+    document.getElementById('timer-box').classList.toggle('hidden', !config.useTimer);
+    document.getElementById('btn-start-game').classList.remove('hidden');
+    document.getElementById('card-grid').classList.add('hidden');
+    document.getElementById('found-items').classList.add('hidden');
+    
+    updateScoreUI();
+    generateGrid();
+    gameStarted = false;
+}
+
+function beginPlay() {
+    playSound('click');
+    gameStarted = true;
+    document.getElementById('btn-start-game').classList.add('hidden');
+    document.getElementById('card-grid').classList.remove('hidden');
+    document.getElementById('found-items').classList.remove('hidden');
+    document.getElementById('found-list').innerHTML = '';
+    
+    if(config.useTimer) startTurnTimer();
+}
+
+function generateGrid() {
+    const grid = document.getElementById('card-grid');
+    grid.innerHTML = '';
+    matchedPairs = 0;
+    flippedCards = [];
+    
+    // Duplicar e embaralhar
+    deck = [...currentCards, ...currentCards];
+    deck.sort(() => 0.5 - Math.random());
+
+    deck.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+        card.dataset.id = item.id;
+        card.dataset.index = index;
+        
+        card.innerHTML = `
+            <div class="card-inner">
+                <div class="card-back"></div>
+                <div class="card-front">
+                    <span class="emoji">${item.emoji}</span>
+                    <span class="title">${item.name}</span>
+                </div>
+            </div>
+        `;
+        
+        card.addEventListener('click', () => handleCardClick(card, item));
+        grid.appendChild(card);
+    });
+}
+
+function handleCardClick(card, item) {
+    if(!gameStarted) return;
+    if(card.classList.contains('flipped') || flippedCards.length >= 2) return;
+
+    playSound('flip');
+    card.classList.add('flipped');
+    flippedCards.push({ card, item });
+
+    if(flippedCards.length === 2) {
+        checkMatch();
+    }
+}
+
+function checkMatch() {
+    const [card1, card2] = flippedCards;
+    
+    if(card1.item.id === card2.item.id) {
+        // Acertou
+        playSound('match');
+        matchedPairs++;
+        if(currentTurn === 1) scores.p1++; else scores.p2++;
+        
+        addFoundItem(card1.item);
+        updateScoreUI();
+        flippedCards = [];
+        
+        if(config.useTimer) resetTimer(); // Reseta o tempo após acerto
+        
+        if(matchedPairs === config.level) setTimeout(endGame, 500);
+    } else {
+        // Errou
+        if(config.useTimer) clearInterval(gameTimer); // Pausa tempo na animação de erro
+        setTimeout(() => {
+            playSound('error');
+            card1.card.classList.remove('flipped');
+            card2.card.classList.remove('flipped');
+            flippedCards = [];
+            switchTurn();
+        }, 1000);
+    }
+}
+
+function addFoundItem(item) {
+    const list = document.getElementById('found-list');
+    const li = document.createElement('li');
+    li.innerHTML = `${item.emoji} ${item.name}`;
+    li.onclick = () => openInfoModal(item);
+    list.appendChild(li);
+}
+
+// --- TIMER E TURNOS ---
+function startTurnTimer() {
+    clearInterval(gameTimer);
+    timeLeft = config.timerValue;
+    document.getElementById('game-time').innerText = timeLeft;
+    
+    gameTimer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('game-time').innerText = timeLeft;
+        
+        if(timeLeft <= 0) {
+            clearInterval(gameTimer);
+            playSound('error');
+            // Tempo esgotado desvira as cartas e passa o turno
+            if(flippedCards.length > 0) {
+                flippedCards.forEach(fc => fc.card.classList.remove('flipped'));
+                flippedCards = [];
+            }
+            switchTurn();
+        }
+    }, 1000);
+}
+
+function resetTimer() {
+    if(config.useTimer && gameStarted) startTurnTimer();
+}
+
+function switchTurn() {
+    if(config.players === 2) {
+        currentTurn = currentTurn === 1 ? 2 : 1;
+        updateScoreUI();
+    }
+    resetTimer();
+}
+
+function updateScoreUI() {
+    document.getElementById('score-p1').innerText = `P1: ${scores.p1}`;
+    document.getElementById('score-p2').innerText = `P2: ${scores.p2}`;
+    
+    document.getElementById('score-p1').classList.toggle('active-turn', currentTurn === 1);
+    if(config.players === 2) {
+        document.getElementById('score-p2').classList.toggle('active-turn', currentTurn === 2);
+    }
+}
+
+// --- MODAIS E FINALIZAÇÃO ---
+function openInfoModal(item) {
+    playSound('click');
+    document.getElementById('modal-emoji').innerText = item.emoji;
+    document.getElementById('modal-title').innerText = item.name;
+    document.getElementById('modal-desc').innerText = item.desc;
+    document.getElementById('info-modal').classList.remove('hidden');
+}
+
+function closeModal(id) {
+    playSound('click');
+    document.getElementById(id).classList.add('hidden');
+}
+
+function endGame() {
+    clearInterval(gameTimer);
+    playSound('match'); // Toca som final
+    
+    let winnerText = '';
+    if(config.players === 1) {
+        winnerText = `Parabéns! Você fez ${scores.p1} pontos no total.`;
+    } else {
+        if(scores.p1 > scores.p2) winnerText = '🏆 Jogador 1 Venceu!';
+        else if(scores.p2 > scores.p1) winnerText = '🏆 Jogador 2 Venceu!';
+        else winnerText = 'Empate!';
+    }
+    
+    document.getElementById('winner-text').innerText = winnerText;
+    document.getElementById('game-over-modal').classList.remove('hidden');
+}
+
+function playAgain() {
+    playSound('click');
+    closeModal('game-over-modal');
+    // Mantém o placar (scores) intacto e escolhe outro tema (volta pra tela 2)
+    goToScreen(2);
+}
+
+function resetToMenu() {
+    playSound('click');
+    closeModal('game-over-modal');
+    clearInterval(gameTimer);
+    scores = { p1: 0, p2: 0 };
+    currentTurn = 1;
+    goToScreen(1);
+}
+    </script>
+</body>
+</html>
