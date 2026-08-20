@@ -227,17 +227,359 @@ button {
     .card-front .emoji { font-size: 2rem; }
 }
         
+    
+/* =========================================================
+   APRIMORAMENTO VISUAL — MEMÓRIA EDUCATIVA
+   Somente aparência; lógica e conteúdo originais preservados.
+   ========================================================= */
+:root{
+    --primary:#35e6a3;
+    --primary-hover:#5af0b6;
+    --secondary:#19324b;
+    --secondary-hover:#254b6d;
+    --bg-color:#07111f;
+    --card-bg:#183b5a;
+    --card-back:#102942;
+    --text-dark:#f5f8fc;
+    --line:#24435f;
+    --muted:#9eb2c8;
+    --gold:#ffd166;
+    --shadow:0 18px 50px rgba(0,0,0,.52);
+}
+html{
+    background:#050b13;
+}
+body{
+    background:
+      radial-gradient(circle at 8% 0%,rgba(22,79,74,.34),transparent 28%),
+      radial-gradient(circle at 92% 8%,rgba(20,81,138,.34),transparent 30%),
+      linear-gradient(145deg,#050b13,#091626 55%,#06101c);
+    color:var(--text-dark);
+    min-height:100vh;
+    padding:14px;
+}
+#app-container{
+    background:rgba(13,27,46,.95);
+    border:1px solid #23415e;
+    padding:clamp(18px,4vw,34px);
+    border-radius:25px;
+    box-shadow:var(--shadow);
+    max-width:1180px;
+    width:100%;
+}
+h1{
+    color:#f5f8fc;
+    font-size:clamp(29px,6vw,50px);
+    margin:4px 0 20px;
+    letter-spacing:-.6px;
+}
+h1::first-letter{filter:drop-shadow(0 5px 8px rgba(0,0,0,.4))}
+h2,h3{color:#f5f8fc}
+button{
+    border-radius:14px;
+    font-weight:900;
+    border:1px solid transparent;
+    transition:transform .18s,box-shadow .18s,border-color .18s,background .18s;
+}
+button:hover{
+    transform:translateY(-1px);
+}
+.btn-primary{
+    background:linear-gradient(135deg,var(--primary),#50a8ff);
+    color:#04111a;
+    box-shadow:0 8px 22px rgba(53,230,163,.15);
+}
+.btn-primary:hover{
+    background:linear-gradient(135deg,#5af0b6,#6bb8ff);
+    box-shadow:0 10px 28px rgba(53,230,163,.22);
+}
+.btn-secondary{
+    background:#19324b;
+    color:#fff;
+    border-color:#294864;
+}
+.btn-secondary:hover{background:#254b6d}
+.btn-small{
+    background:#193753;
+    color:#fff;
+    border:0;
+    margin:0 4px;
+}
+.btn-top{
+    top:14px;
+    right:14px;
+    background:#10253c;
+    border:1px solid var(--line);
+    color:#fff;
+    border-radius:13px;
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+    z-index:10;
+}
+.config-group{
+    background:#091728;
+    border:1px solid #1d3853;
+    padding:16px;
+    border-radius:18px;
+    margin:15px 0;
+    text-align:left;
+}
+.config-group h3{
+    margin-bottom:12px;
+    border-bottom:1px solid #24435f;
+    padding-bottom:9px;
+    color:#fff;
+}
+.config-group label{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    background:linear-gradient(145deg,#112a44,#0c1c30);
+    border:1px solid #294864;
+    color:#fff;
+    border-radius:15px;
+    padding:12px 14px;
+    margin:4px 6px 4px 0;
+    cursor:pointer;
+    transition:.18s;
+}
+.config-group label:hover{
+    border-color:var(--primary);
+}
+.config-group input{
+    accent-color:var(--primary);
+}
+#timer-controls{
+    gap:8px;
+    flex-wrap:wrap;
+}
+#time-display{
+    color:var(--green,#35e6a3);
+    background:#10253c;
+    border:1px solid #294864;
+    padding:7px 15px;
+    border-radius:11px;
+}
+.theme-grid{
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-top:18px;
+}
+.theme-btn{
+    min-height:145px;
+    padding:16px;
+    font-size:18px;
+    background:linear-gradient(145deg,#112a44,#0c1c30);
+    color:#fff;
+    border:1px solid #294864;
+    border-radius:15px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+}
+.theme-btn:hover{
+    border-color:var(--primary);
+    background:linear-gradient(145deg,#153655,#0d2136);
+    box-shadow:0 0 0 2px rgba(53,230,163,.11);
+}
+.theme-btn::first-line{font-size:40px}
+.knowledge-container{
+    max-height:60vh;
+    overflow-y:auto;
+    background:#091728;
+    border:1px solid #1d3853;
+    border-radius:18px;
+    padding:10px;
+    text-align:left;
+}
+.knowledge-item{
+    background:#0d2034;
+    border:1px solid #203d58;
+    border-left:3px solid var(--primary);
+    padding:10px 12px;
+    margin-bottom:8px;
+    border-radius:13px;
+    color:#fff;
+}
+.knowledge-item p{
+    color:var(--muted);
+    line-height:1.4;
+    margin-top:3px;
+}
+.knowledge-item span.emoji{
+    font-size:38px;
+}
+.game-header{
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    gap:10px;
+    align-items:center;
+    margin-bottom:12px;
+    background:transparent;
+    padding:0;
+}
+#scoreboard{
+    gap:8px;
+    font-size:18px;
+}
+.score{
+    background:#091728;
+    border:1px solid #203c57;
+    color:#fff;
+    padding:9px 12px;
+    border-radius:14px;
+}
+.active-turn{
+    background:#102d2b;
+    border-color:var(--primary);
+    color:var(--primary);
+    box-shadow:0 0 0 2px rgba(53,230,163,.08);
+}
+#timer-box{
+    color:var(--gold);
+    background:#291f0d;
+    border:1px solid #6c5620;
+    border-radius:14px;
+    padding:9px 12px;
+}
+#btn-start-game{
+    justify-self:end;
+}
+.game-area{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) 260px;
+    gap:15px;
+    align-items:start;
+}
+.grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    min-width:0;
+}
+.card{
+    aspect-ratio:1/1.1;
+}
+.card-inner{
+    transition:transform .48s cubic-bezier(.2,.7,.2,1);
+}
+.card-front,.card-back{
+    border-radius:16px;
+    border:2px solid #274764;
+    box-shadow:0 12px 22px rgba(0,0,0,.25);
+}
+.card-back{
+    background:linear-gradient(145deg,#153655,#091c30);
+    background-image:none;
+    color:var(--primary);
+    font-size:0;
+}
+.card-back::after{
+    content:"✦";
+    font-size:42px;
+    opacity:.42;
+}
+.card-front{
+    background:linear-gradient(145deg,#183b5a,#0c2339);
+    border-color:var(--primary);
+}
+.card-front .emoji{
+    font-size:clamp(34px,6vw,58px);
+    line-height:1;
+}
+.card-front .title{
+    font-size:clamp(10px,1.8vw,15px);
+    color:#fff;
+    margin-top:7px;
+}
+.found-container{
+    background:#091728;
+    border:1px solid #203c57;
+    border-radius:18px;
+    padding:14px;
+}
+.found-container h3{margin:0 0 10px}
+#found-list{
+    display:grid;
+    gap:7px;
+}
+#found-list li{
+    background:#10253b;
+    border:1px solid #23435f;
+    color:#fff;
+    border-radius:10px;
+    padding:9px;
+    margin:0;
+    box-shadow:none;
+}
+#found-list li:hover{
+    background:#153655;
+    border-color:var(--primary);
+    color:#fff;
+}
+.modal{
+    background:rgba(0,0,0,.72);
+    backdrop-filter:blur(4px);
+}
+.modal-content{
+    background:#0d1b2e;
+    border:1px solid #315474;
+    border-radius:22px;
+    box-shadow:var(--shadow);
+    padding:24px;
+    color:#fff;
+}
+.modal-content p{
+    color:var(--muted);
+    line-height:1.55;
+}
+.close{
+    color:#9eb2c8;
+    width:32px;height:32px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:9px;
+}
+.close:hover{background:#19324b;color:#fff}
+.modal-emoji{
+    filter:drop-shadow(0 8px 8px rgba(0,0,0,.35));
+}
+.mt{margin-top:20px}
+
+/* scrollbar */
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:#091728}
+::-webkit-scrollbar-thumb{background:#24435f;border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:#35e6a3}
+
+@media(max-width:850px){
+    .theme-grid{grid-template-columns:repeat(2,1fr)}
+    .game-area{grid-template-columns:1fr}
+    .found-container{order:2}
+}
+@media(max-width:600px){
+    body{padding:8px}
+    #app-container{border-radius:18px;padding:14px}
+    .grid{gap:6px}
+    .card-front,.card-back{border-radius:12px}
+    .theme-grid{gap:8px}
+    .theme-btn{min-height:125px}
+    .game-header{grid-template-columns:1fr 1fr}
+    #timer-box{justify-self:end}
+    #btn-start-game{grid-column:1/-1;justify-self:center}
+}
+
     </style>
 <body>
     <!-- Controle de Som (Topo) -->
-    <button id="btn-mute" class="btn-top" onclick="toggleMute()">🔊 Som Ativado</button>
+    <button id="btn-mute" class="btn-top" onclick="toggleMute()">🔊 Som</button>
 
     <div id="app-container">
         
         <!-- TELA 1: CONFIGURAÇÕES -->
         <div id="screen-1" class="screen active">
-            <h1>🧠 Jogo da Memória Educativo</h1>
-            
+            <br>
+            <h1>🧠 Memória Educativa </h1>
+            <p> 15 pares</p>
             <div class="config-group">
                 <h3>Nível de Dificuldade</h3>
                 <label><input type="radio" name="level" value="6" checked> Básico (6 pares)</label>
@@ -298,8 +640,9 @@ button {
         <div id="screen-game" class="screen hidden">
             <div class="game-header">
                 <div id="scoreboard">
-                    <div id="score-p1" class="score active-turn">P1: 0</div>
-                    <div id="score-p2" class="score hidden">P2: 0</div>
+                    <div id="score-p1" class="score active-turn">Player 1: 0</div>
+                    <br>
+                    <div id="score-p2" class="score hidden">Player 2: 0</div>
                 </div>
                 <div id="timer-box" class="hidden">⏱ <span id="game-time">15</span>s</div>
                 <button id="btn-start-game" class="btn-primary" onclick="beginPlay()">Começar!</button>
@@ -344,9 +687,9 @@ button {
 // --- BANCO DE DADOS OFFLINE ---
 const database = {
     paises: [
-        { id: 'br', emoji: '🇧🇷', name: 'Brasil', desc: 'Maior país da América do Sul, famoso pela floresta Amazônica, futebol e carnaval.' },
+        { id: 'br', emoji: '🇧🇷', name: 'Brasil', desc: 'Maior país da América do Sul, famoso pela floresta Amazônica, futebol e carnaval.Sua língua oficial é o português e possui grande diversidade de biomas.' },
         { id: 'us', emoji: '🇺🇸', name: 'EUA', desc: 'País norte-americano com 50 estados, possui uma das maiores economias do mundo.' },
-        { id: 'jp', emoji: '🇯🇵', name: 'Japão', desc: 'Nação insular no Oceano Pacífico, famosa por sua tecnologia, animes e cultura milenar.' },
+        { id: 'jp', emoji: '🇯🇵', name: 'Japão', desc: 'Nação insular no Oceano Pacífico, famosa por sua tecnologia, animes, cultura milenar e pelo Monte Fuji.' },
         { id: 'it', emoji: '🇮🇹', name: 'Itália', desc: 'País europeu em formato de bota, berço do Império Romano, das pizzas e das massas.' },
         { id: 'fr', emoji: '🇫🇷', name: 'França', desc: 'Conhecida mundialmente pela Torre Eiffel, gastronomia refinada e museu do Louvre.' },
         { id: 'za', emoji: '🇿🇦', name: 'África do Sul', desc: 'País localizado no extremo sul da África, famoso por seus safáris e vida selvagem.' },
@@ -448,7 +791,7 @@ function playSound(type) {
 }
 function toggleMute() {
     isMuted = !isMuted;
-    document.getElementById('btn-mute').innerText = isMuted ? '🔇 Som Desativado' : '🔊 Som Ativado';
+    document.getElementById('btn-mute').innerText = isMuted ? '🔇 Som' : '🔊 Som';
     playSound('click');
 }
 
@@ -674,8 +1017,8 @@ function switchTurn() {
 }
 
 function updateScoreUI() {
-    document.getElementById('score-p1').innerText = `P1: ${scores.p1}`;
-    document.getElementById('score-p2').innerText = `P2: ${scores.p2}`;
+    document.getElementById('score-p1').innerText = `Player 1: ${scores.p1}`;
+    document.getElementById('score-p2').innerText = `Player 2: ${scores.p2}`;
     
     document.getElementById('score-p1').classList.toggle('active-turn', currentTurn === 1);
     if(config.players === 2) {
