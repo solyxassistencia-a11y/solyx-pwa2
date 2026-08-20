@@ -2,173 +2,285 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Vintage</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Calculadora Multifuncional Vintage</title>
     <!-- Fonte digital vintage do Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     
     <style>
         :root {
             /* Variáveis de cores padrão */
-            --cor-carcaca: #2c2c2c;
-            --cor-botao: #e0e0e0;
+            --cor-carcaca: #242424;
+            --cor-botao: #d4d4d4;
+            --cor-visor: #8b9977;
+            --cor-detalhe: #111;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f0f0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #4a4a4a, #2b2b2b);
+            padding: 20px;
         }
 
-        .configuracoes {
-            background: #fff;
-            padding: 15px 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            display: flex;
-            gap: 20px;
-        }
-
-        .configuracoes label {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-weight: bold;
-            font-size: 14px;
-            color: #333;
-        }
-
-        .configuracoes input[type="color"] {
-            margin-top: 5px;
-            border: none;
-            width: 40px;
-            height: 40px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .calculadora {
+        .dispositivo {
             background-color: var(--cor-carcaca);
-            padding: 25px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 2px 5px rgba(255,255,255,0.1);
-            width: 320px;
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 
+                0 15px 35px rgba(0,0,0,0.6), 
+                inset 0 2px 5px rgba(255,255,255,0.1),
+                inset 0 -3px 10px rgba(0,0,0,0.4);
+            width: 100%;
+            max-width: 380px;
             transition: background-color 0.3s;
         }
 
-        .visor {
-            background-color: #9ba686; /* Cor de fundo LCD clássica */
+        /* --- Painel Superior (Relógio, Cronômetro, Configs) --- */
+        .painel-superior {
+            background-color: var(--cor-detalhe);
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 4px 8px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .lcd-display {
+            background-color: var(--cor-visor);
             color: #1a1a1a;
             font-family: 'VT323', monospace;
-            font-size: 48px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .cronometro-controles {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-pequeno {
+            flex: 1;
+            padding: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 5px;
+            background-color: #555;
+            color: white;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 3px 0 #333;
+        }
+        .btn-pequeno:active {
+            transform: translateY(3px);
+            box-shadow: 0 0 0 #333;
+        }
+
+        .configuracoes {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #333;
+            padding-top: 10px;
+        }
+
+        .config-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: #aaa;
+            text-transform: uppercase;
+        }
+
+        .config-item input[type="color"] {
+            border: none;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            border-radius: 50%;
+            padding: 0;
+            background: none;
+        }
+
+        .btn-som {
+            background: none;
+            border: 1px solid #555;
+            color: #ccc;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-som.desativado {
+            color: #f44336;
+            border-color: #f44336;
+        }
+
+        /* --- Visor Principal --- */
+        .visor-principal {
+            background-color: var(--cor-visor);
+            color: #1a1a1a;
+            font-family: 'VT323', monospace;
+            font-size: 56px;
             text-align: right;
             padding: 10px 15px;
-            border-radius: 5px;
+            border-radius: 8px;
             margin-bottom: 20px;
-            box-shadow: inset 0 3px 8px rgba(0,0,0,0.2);
+            box-shadow: inset 0 3px 10px rgba(0,0,0,0.3), 0 2px 0 rgba(255,255,255,0.05);
             overflow: hidden;
             white-space: nowrap;
             letter-spacing: 2px;
+            border: 2px solid #111;
         }
 
+        /* --- Botões da Calculadora --- */
         .botoes {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 12px;
         }
 
-        button {
+        button.tecla {
             background-color: var(--cor-botao);
             border: none;
-            padding: 20px;
-            font-size: 20px;
+            padding: 18px 0;
+            font-size: 22px;
             font-weight: bold;
+            color: #222;
             border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 0 rgba(0,0,0,0.2);
-            transition: all 0.1s;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.3);
+            transition: transform 0.1s, box-shadow 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        button:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 rgba(0,0,0,0.2);
+        button.tecla:active {
+            transform: translateY(5px);
+            box-shadow: 0 0 0 rgba(0,0,0,0.3);
         }
 
         .btn-operacao {
-            background-color: #ff9800;
-            color: white;
-            text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
+            background-color: #f39c12 !important;
+            color: white !important;
+            box-shadow: 0 5px 0 #c07d06 !important;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
         }
 
         .btn-igual {
-            background-color: #4caf50;
-            color: white;
-            text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
+            background-color: #27ae60 !important;
+            color: white !important;
+            box-shadow: 0 5px 0 #1e8449 !important;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
         }
 
         .btn-limpar {
-            background-color: #f44336;
-            color: white;
-            text-shadow: 1px 1px 0px rgba(0,0,0,0.3);
+            background-color: #e74c3c !important;
+            color: white !important;
+            box-shadow: 0 5px 0 #b33929 !important;
+            text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+        }
+
+        /* Ajustes Mobile */
+        @media (max-width: 400px) {
+            .dispositivo {
+                padding: 15px;
+            }
+            .visor-principal {
+                font-size: 48px;
+            }
+            button.tecla {
+                padding: 15px 0;
+                font-size: 20px;
+            }
+            .lcd-display {
+                font-size: 20px;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- Painel de Configurações -->
-    <div class="configuracoes">
-        <label>
-            Cor da Carcaça
-            <input type="color" id="corCarcaca" value="#2c2c2c">
-        </label>
-        <label>
-            Cor dos Botões
-            <input type="color" id="corBotao" value="#e0e0e0">
-        </label>
-    </div>
+    <div class="dispositivo">
+        <!-- Painel Superior de Ferramentas -->
+        <div class="painel-superior">
+            <!-- Relógio e Cronômetro -->
+            <div class="lcd-display">
+                <span id="relogio">00:00</span>
+                <span id="cronometro" style="color: #444;">00:00.0</span>
+            </div>
+            
+            <div class="cronometro-controles">
+                <button class="btn-pequeno" id="btn-iniciar-crono" onclick="alternarCronometro()">⏱ Iniciar</button>
+                <button class="btn-pequeno" onclick="zerarCronometro()">Zerar</button>
+            </div>
 
-    <!-- Calculadora -->
-    <div class="calculadora">
-        <div class="visor" id="visor">0</div>
+            <!-- Configurações -->
+            <div class="configuracoes">
+                <div class="config-item">
+                    Carcaça <input type="color" id="corCarcaca" value="#242424">
+                </div>
+                <div class="config-item">
+                    Teclas <input type="color" id="corBotao" value="#d4d4d4">
+                </div>
+                <button class="btn-som" id="btn-som" onclick="alternarSom()">🔊 Som On</button>
+            </div>
+        </div>
+
+        <!-- Calculadora Principal -->
+        <div class="visor-principal" id="visor">0</div>
         <div class="botoes">
-            <button class="btn-limpar" onclick="limparVisor()">C</button>
-            <button onclick="adicionarValor('(')">(</button>
-            <button onclick="adicionarValor(')')">)</button>
-            <button class="btn-operacao" onclick="adicionarValor('/')">÷</button>
+            <button class="tecla btn-limpar" onclick="limparVisor()">C</button>
+            <button class="tecla" onclick="adicionarValor('(')">(</button>
+            <button class="tecla" onclick="adicionarValor(')')">)</button>
+            <button class="tecla btn-operacao" onclick="adicionarValor('/')">÷</button>
 
-            <button onclick="adicionarValor('7')">7</button>
-            <button onclick="adicionarValor('8')">8</button>
-            <button onclick="adicionarValor('9')">9</button>
-            <button class="btn-operacao" onclick="adicionarValor('*')">×</button>
+            <button class="tecla" onclick="adicionarValor('7')">7</button>
+            <button class="tecla" onclick="adicionarValor('8')">8</button>
+            <button class="tecla" onclick="adicionarValor('9')">9</button>
+            <button class="tecla btn-operacao" onclick="adicionarValor('*')">×</button>
 
-            <button onclick="adicionarValor('4')">4</button>
-            <button onclick="adicionarValor('5')">5</button>
-            <button onclick="adicionarValor('6')">6</button>
-            <button class="btn-operacao" onclick="adicionarValor('-')">-</button>
+            <button class="tecla" onclick="adicionarValor('4')">4</button>
+            <button class="tecla" onclick="adicionarValor('5')">5</button>
+            <button class="tecla" onclick="adicionarValor('6')">6</button>
+            <button class="tecla btn-operacao" onclick="adicionarValor('-')">-</button>
 
-            <button onclick="adicionarValor('1')">1</button>
-            <button onclick="adicionarValor('2')">2</button>
-            <button onclick="adicionarValor('3')">3</button>
-            <button class="btn-operacao" onclick="adicionarValor('+')">+</button>
+            <button class="tecla" onclick="adicionarValor('1')">1</button>
+            <button class="tecla" onclick="adicionarValor('2')">2</button>
+            <button class="tecla" onclick="adicionarValor('3')">3</button>
+            <button class="tecla btn-operacao" onclick="adicionarValor('+')">+</button>
 
-            <button onclick="adicionarValor('0')">0</button>
-            <button onclick="adicionarValor('.')">.</button>
-            <button class="btn-igual" onclick="calcular()" style="grid-column: span 2;">=</button>
+            <button class="tecla" onclick="adicionarValor('0')">0</button>
+            <button class="tecla" onclick="adicionarValor('.')">.</button>
+            <button class="tecla btn-igual" onclick="calcular()" style="grid-column: span 2;">=</button>
         </div>
     </div>
 
     <script>
-        const visor = document.getElementById('visor');
+        // ================= Configurações de Cores =================
         const inputCorCarcaca = document.getElementById('corCarcaca');
         const inputCorBotao = document.getElementById('corBotao');
 
-        // Configuração de cores via variáveis CSS
         inputCorCarcaca.addEventListener('input', (e) => {
             document.documentElement.style.setProperty('--cor-carcaca', e.target.value);
         });
@@ -177,23 +289,37 @@
             document.documentElement.style.setProperty('--cor-botao', e.target.value);
         });
 
-        // Configuração de Áudio (Sintetizador Web para o bipe)
+        // ================= Lógica do Som =================
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let somAtivado = true;
         
+        function alternarSom() {
+            somAtivado = !somAtivado;
+            const btnSom = document.getElementById('btn-som');
+            if(somAtivado) {
+                btnSom.innerText = "🔊 Som On";
+                btnSom.classList.remove('desativado');
+                tocarSom();
+            } else {
+                btnSom.innerText = "🔇 Som Off";
+                btnSom.classList.add('desativado');
+            }
+        }
+
         function tocarSom() {
-            // Retoma o contexto de áudio se estiver suspenso (política de navegadores)
+            if (!somAtivado) return;
+            
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
-            
             const oscillator = audioCtx.createOscillator();
             const gainNode = audioCtx.createGain();
             
-            oscillator.type = 'square'; // Tipo de onda para som eletrônico/vintage
-            oscillator.frequency.setValueAtTime(600, audioCtx.currentTime); // Frequência do bipe
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(600, audioCtx.currentTime); 
             
-            gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime); // Volume
-            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); // Fade out rápido
+            gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime); 
+            gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1); 
             
             oscillator.connect(gainNode);
             gainNode.connect(audioCtx.destination);
@@ -202,7 +328,62 @@
             oscillator.stop(audioCtx.currentTime + 0.1);
         }
 
-        // Lógica da Calculadora
+        // ================= Lógica do Relógio =================
+        function atualizarRelogio() {
+            const agora = new Date();
+            const horas = String(agora.getHours()).padStart(2, '0');
+            const minutos = String(agora.getMinutes()).padStart(2, '0');
+            document.getElementById('relogio').innerText = `${horas}:${minutos}`;
+        }
+        setInterval(atualizarRelogio, 1000);
+        atualizarRelogio();
+
+        // ================= Lógica do Cronômetro =================
+        let intervaloCrono;
+        let tempoCrono = 0;
+        let cronoRodando = false;
+
+        function formatarTempoCrono(decimosDeSegundo) {
+            const minutos = String(Math.floor(decimosDeSegundo / 600)).padStart(2, '0');
+            const segundos = String(Math.floor((decimosDeSegundo % 600) / 10)).padStart(2, '0');
+            const decimos = decimosDeSegundo % 10;
+            return `${minutos}:${segundos}.${decimos}`;
+        }
+
+        function alternarCronometro() {
+            tocarSom();
+            const btn = document.getElementById('btn-iniciar-crono');
+            const displayCrono = document.getElementById('cronometro');
+            
+            if (cronoRodando) {
+                clearInterval(intervaloCrono);
+                cronoRodando = false;
+                btn.innerText = "⏱ Iniciar";
+                displayCrono.style.color = "#444";
+            } else {
+                cronoRodando = true;
+                btn.innerText = "⏸ Pausar";
+                displayCrono.style.color = "#1a1a1a";
+                intervaloCrono = setInterval(() => {
+                    tempoCrono++;
+                    displayCrono.innerText = formatarTempoCrono(tempoCrono);
+                }, 100);
+            }
+        }
+
+        function zerarCronometro() {
+            tocarSom();
+            clearInterval(intervaloCrono);
+            cronoRodando = false;
+            tempoCrono = 0;
+            document.getElementById('cronometro').innerText = "00:00.0";
+            document.getElementById('cronometro').style.color = "#444";
+            document.getElementById('btn-iniciar-crono').innerText = "⏱ Iniciar";
+        }
+
+        // ================= Lógica da Calculadora =================
+        const visor = document.getElementById('visor');
+
         function adicionarValor(valor) {
             tocarSom();
             if (visor.innerText === '0' || visor.innerText === 'Erro') {
@@ -210,7 +391,6 @@
             } else {
                 visor.innerText += valor;
             }
-            // Impede que o texto ultrapasse muito o visor
             if(visor.innerText.length > 12) {
                 visor.innerText = visor.innerText.substring(0, 12);
             }
@@ -224,11 +404,10 @@
         function calcular() {
             tocarSom();
             try {
-                // O eval() calcula a string matemática. 
-                // Nota: em projetos complexos evitamos eval, mas para uma calculadora simples é bastante comum.
-                let resultado = eval(visor.innerText).toString();
+                // Prevenção básica caso termine em operador
+                let expressao = visor.innerText;
+                let resultado = eval(expressao).toString();
                 
-                // Limita as casas decimais para não quebrar o layout
                 if (resultado.includes('.') && resultado.length > 10) {
                     resultado = parseFloat(resultado).toFixed(4);
                 }
