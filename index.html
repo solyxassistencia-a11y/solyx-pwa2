@@ -12,7 +12,7 @@
       name="apple-mobile-web-app-status-bar-style"
       content="black-translucent"
     />
-    <meta name="apple-mobile-web-app-title" content="Admin Solyx Fidelidade" />
+    <meta name="apple-mobile-web-app-title" content="Solyx Lojista" />
 
     <link rel="manifest" href="./manifest.json">
 
@@ -22,7 +22,7 @@
     />
     <meta name="mobile-web-app-capable" content="yes" />
 
-    <meta name="application-name" content="Solyx Fidelidade" />
+    <meta name="application-name" content="Solyx Lojista" />
 
     <meta name="msapplication-TileColor" content="#B51217" />
 
@@ -652,6 +652,11 @@
             >
                 📲 Instalar aplicativo
             </button>
+                   <!-- BOTÃO MOBILE -->
+
+        <a href="#" class="sf-btn sf-btn-gold" id="installAppBtn"
+          ><i class="bi bi-phone"></i>Instalar Aplicativo</a
+        >
 <br>
             <!-- ACESSOS -->
             <nav class="access-list" aria-label="Opções de acesso">
@@ -886,7 +891,19 @@ document.getElementById("anoAtual").textContent =
     // Dispara a mágica assim que a página é lida
     document.addEventListener("DOMContentLoaded", carregarEConfigurarIdentidade);
 </script>
-
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('./service-worker.js')
+        .then(function(registration) {
+          console.log('Service Worker do APP Fidelidade registrado com sucesso! Escopo:', registration.scope);
+        })
+        .catch(function(error) {
+          console.error('Falha ao registrar o Service Worker do Aplicativo:', error);
+        });
+    });
+  }
+</script>
 
 </body>
 </html>
