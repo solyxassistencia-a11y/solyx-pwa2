@@ -218,8 +218,55 @@
             }
         }
     </style>
+    
+<style>
+    #btn-sair-oculto {
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 12px; /* Super discreto inicialmente */
+        background-color: rgba(255, 255, 255, 0.2); /* Fundo claro e transparente */
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        cursor: pointer;
+        z-index: 99999; /* Garante que fique acima de todos os elementos do jogo */
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        backdrop-filter: blur(2px); /* Dá um leve desfoque no fundo */
+    }
+
+    /* Expansão ao passar o mouse ou tocar */
+    #btn-sair-oculto:hover, #btn-sair-oculto:active {
+        height: 40px;
+        width: 100px;
+        background-color: #8B0000; /* Cor vermelha do seu painel offline */
+        box-shadow: 0 4px 15px rgba(139, 0, 0, 0.4);
+    }
+
+    #btn-sair-oculto span {
+        color: white;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        font-size: 14px;
+        opacity: 0; /* O texto começa invisível */
+        transition: opacity 0.3s ease;
+    }
+
+    #btn-sair-oculto:hover span, #btn-sair-oculto:active span {
+        opacity: 1; /* O texto aparece na expansão */
+    }
+</style>
 </head>
 <body>
+<!-- Início do Botão de Sair Oculto -->
+<div id="btn-sair-oculto" onclick="window.location.href='offline.html'">
+    <span>Sair</span>
+</div>
 
     <div class="dispositivo">
         <!-- Painel Superior de Ferramentas -->
