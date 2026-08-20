@@ -1,22 +1,23 @@
 {
   "name": "Solyx Lojista",
   "short_name": "Solyx Lojista",
-  "description": "Programa de fidelidade Solyx.",
-  "start_url": "./",
-  "scope": "./",
+  "description": "Administração Solyx Fidelidade",
+
+  "start_url": "/index.html",
+
+  "scope": "/index.html",
+
   "display": "standalone",
+
   "orientation": "portrait",
-  "background_color": "#050505",
+
   "theme_color": "#B51217",
+
+  "background_color": "#050505",
+
   "icons": [
     {
-      "src": "https://www.dropbox.com/scl/fi/opjoobbx6fa16a10cq1tm/SF_512x512_Admin.png?rlkey=0etj9gau7r85g3aeqm2wwtm71&raw=1",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "https://www.dropbox.com/scl/fi/opjoobbx6fa16a10cq1tm/SF_512x512_Admin.png?rlkey=0etj9gau7r85g3aeqm2wwtm71&raw=1",
+      "src": "https://www.dropbox.com/scl/fi/aerzmsvnnlsa6e14ket13/SF_512x512_Cliente.png?rlkey=tyn0narcis68k03is68sddtfs&raw=1",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
