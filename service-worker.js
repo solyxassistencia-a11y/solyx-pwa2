@@ -1,54 +1,128 @@
-const CACHE_NAME = 'AdminFidelidade-v6'; // Mudamos a versão para forçar o celular a atualizar!
+const CACHE_NAME = 'AdminFidelidade-v7';
+
 const ARQUIVOS_PARA_CACHEAR = [
-  './offline.html',
-  './EduQuiz_Offline.html',
-  './Brick_Game_5_em_1.html'
-  // Quando quiser adicionar novos jogos no futuro, basta colocar o nome do arquivo aqui!
+    './offline.html',
+    './EduQuiz_Offline.html',
+    './Brick_Game_5_em_1.html'
 ];
 
-// 1. INSTALAÇÃO: Baixa e salva os arquivos no celular
+
+// ============================================================
+// INSTALAÇÃO
+// ============================================================
+
 self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      console.log('Salvando a galeria e os joguinhos no cache...');
-      return cache.addAll(ARQUIVOS_PARA_CACHEAR);
-    })
-  );
-  self.skipWaiting();
+
+    event.waitUntil(
+
+        caches.open(CACHE_NAME)
+            .then(cache => {
+
+                console.log(
+                    'App Fidelidade: salvando arquivos offline...'
+                );
+
+                return cache.addAll(ARQUIVOS_PARA_CACHEAR);
+
+            })
+
+    );
+
+    // Ativa imediatamente a nova versão
+    self.skipWaiting();
+
 });
 
-// 2. ATIVAÇÃO: Limpa o cache antigo que estava travando o app
+
+// ============================================================
+// ATIVAÇÃO
+// ============================================================
+
 self.addEventListener('activate', event => {
-  event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cache => {
-          if (cache !== CACHE_NAME) {
-            console.log('Apagando o cache antigo...');
-            return caches.delete(cache);
-          }
+
+    event.waitUntil(
+
+        caches.keys().then(cacheNames => {
+
+            return Promise.all(
+
+                cacheNames.map(cacheName => {
+
+                    if (cacheName !== CACHE_NAME) {
+
+                        console.log(
+                            'App Fidelidade: removendo cache antigo:',
+                            cacheName
+                        );
+
+                        return caches.delete(cacheName);
+
+                    }
+
+                })
+
+            );
+
         })
-      );
-    })
-  );
-  self.clients.claim();
+
+    );
+
+    // Assume o controle das páginas imediatamente
+    self.clients.claim();
+
 });
 
-// 3. FETCH: A Mágica de abrir os jogos offline sem travar
+
+// ============================================================
+// FETCH
+// ============================================================
+
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    fetch(event.request).catch(() => {
-      // Sem internet! Vamos procurar o que o usuário clicou lá no nosso "baú" (cache)
-      return caches.match(event.request, { ignoreSearch: true }).then(response => {
-        // Se o arquivo clicado (ex: o jogo) estiver no baú, abra o jogo!
-        if (response) {
-          return response;
-        } 
-        // Se não achou (ex: tentou abrir o painel de transações do app), abre a galeria offline
-        else if (event.request.mode === 'navigate') {
-          return caches.match('./offline.html');
-        }
-      });
-    })
-  );
+
+    // --------------------------------------------------------
+    // SOMENTE NAVEGAÇÃO DE PÁGINAS
+    // --------------------------------------------------------
+
+    if (event.request.mode === 'navigate') {
+
+        event.respondWith(
+
+            fetch(event.request)
+
+                .catch(() => {
+
+                    console.log(
+                        'App Fidelidade: sem internet. Abrindo offline.html'
+                    );
+
+                    return caches.match('./offline.html');
+
+                })
+
+        );
+
+        return;
+    }
+
+
+    // --------------------------------------------------------
+    // OUTROS RECURSOS
+    // CSS / JS / IMAGENS / JOGOS ETC.
+    // --------------------------------------------------------
+
+    event.respondWith(
+
+        fetch(event.request)
+
+            .catch(() => {
+
+                return caches.match(
+                    event.request,
+                    { ignoreSearch: true }
+                );
+
+            })
+
+    );
+
 });
