@@ -82,11 +82,10 @@ h1,h2,h3,p{margin-top:0}.logo h1{font-size:20px;margin:0}.logo small{color:var(-
 .review{text-align:left;margin-top:25px}.reviewItem{padding:13px;border-bottom:1px solid var(--border);font-size:14px}.ok{color:var(--good)}.no{color:var(--bad)}
 .footer{text-align:center;color:#71839b;font-size:12px;margin-top:25px}
 @media(max-width:650px){header{position:relative}.levels{grid-template-columns:1fr}.stats{width:100%;justify-content:stretch}.stat{flex:1}.app{width:95%}.quizBox{padding:18px}}
-</style>
 
-  <style>
 /* ============================================================
-   BOTÃO DISCRETO DE SAÍDA
+   BOTÃO DISCRETO DE SAÍDA — COMPONENTE REUTILIZÁVEL
+   Função: voltar uma página (normalmente para offline.html)
    ============================================================ */
 #game-exit {
     position: fixed;
@@ -105,22 +104,18 @@ h1,h2,h3,p{margin-top:0}.logo h1{font-size:20px;margin:0}.logo small{color:var(-
     display: flex;
     align-items: center;
     justify-content: flex-start;
-
     transition:
         width .22s ease,
         background .22s ease,
         color .22s ease,
         border-color .22s ease,
         box-shadow .22s ease;
-
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
     backdrop-filter: blur(3px);
     -webkit-backdrop-filter: blur(3px);
 }
 
-
-/* Ícone */
 #game-exit .game-exit-icon {
     flex: 0 0 18px;
     width: 18px;
@@ -128,7 +123,7 @@ h1,h2,h3,p{margin-top:0}.logo h1{font-size:20px;margin:0}.logo small{color:var(-
     font-size: 13px;
     line-height: 26px;
 }
-/* Texto SAIR */
+
 #game-exit .game-exit-label {
     opacity: 0;
     width: 0;
@@ -136,18 +131,12 @@ h1,h2,h3,p{margin-top:0}.logo h1{font-size:20px;margin:0}.logo small{color:var(-
     overflow: hidden;
     font: 700 9px/1 Arial, sans-serif;
     letter-spacing: .7px;
-    transition:
-        opacity .16s ease,
-        width .22s ease;
+    transition: opacity .16s ease, width .22s ease;
 }
 
-/* ============================================================
-   BOTÃO EXPANDIDO
-   ============================================================ */
 #game-exit:hover,
 #game-exit:focus-visible,
 #game-exit.is-open {
-
     width: 72px;
     background: rgba(0,0,0,.72);
     color: rgba(255,255,255,.92);
@@ -159,29 +148,28 @@ h1,h2,h3,p{margin-top:0}.logo h1{font-size:20px;margin:0}.logo small{color:var(-
 #game-exit:hover .game-exit-label,
 #game-exit:focus-visible .game-exit-label,
 #game-exit.is-open .game-exit-label {
-
     opacity: 1;
-
     width: 50px;
 }
 
-
-/* ============================================================
-   DISPOSITIVOS TOUCH
-   ============================================================ */
-
+/* Em telas sensíveis ao toque, a aba continua pequena até o toque. */
 @media (hover: none) {
-
     #game-exit {
         opacity: .58;
     }
-
 }
-</style>
 
+</style>
 </head>
 <body>
 
+<!-- Botão discreto para sair do jogo / voltar para a página anterior -->
+<button id="game-exit" type="button" aria-label="Sair do jogo" title="Sair do jogo">
+    <span class="game-exit-icon" aria-hidden="true">↩</span>
+    <span class="game-exit-label">SAIR</span>
+</button>
+
+<body>
 <div class="app">
 <header>
  <div class="logo"><div class="logoIcon">🧠</div><div><h1>EduQuiz</h1><small>Quiz Educacional • Offline</small></div></div>
@@ -192,17 +180,6 @@ h1,h2,h3,p{margin-top:0}.logo h1{font-size:20px;margin:0}.logo small{color:var(-
  </div>
 </header>
 
-<button
-    id="game-exit"
-    type="button"
-    aria-label="Sair do jogo"
-    title="Sair do jogo">
-    <span class="game-exit-icon" aria-hidden="true">↩</span>
-    <span class="game-exit-label">
-        SAIR
-    </span>
-</button>
-  
 <section id="home" class="screen active">
  <div class="hero">
   <h2>Teste seus conhecimentos! 🚀</h2>
@@ -679,69 +656,40 @@ function restart(){startQuiz(difficulty)}
 function quitQuiz(){if(confirm("Sair do quiz? O progresso desta rodada será perdido."))goHome()}
 function updateStats(){$("score").textContent=score.toLocaleString("pt-BR");$("streak").textContent=streak}
 renderSubjects();
-</script>
-  <script>
-/* ============================================================
-   BOTÃO DE SAÍDA
-   Volta para a página anterior.
-   ============================================================ */
 
+/* Botão de saída: retorna à página que abriu o jogo. */
 (function () {
-
     const exitButton = document.getElementById('game-exit');
-
     if (!exitButton) return;
 
-
     function exitGame(event) {
+        if (event) event.preventDefault();
 
-        if (event) {
-            event.preventDefault();
-        }
-
-        // Fecha a aba expandida
+        // Fecha a aba expansível antes de voltar.
         exitButton.classList.remove('is-open');
 
-
-        // Volta para a página anterior
+        // O jogo é aberto a partir do offline.html, então voltar
+        // uma página retorna diretamente ao menu offline.
         if (window.history.length > 1) {
-
             window.history.back();
-
         } else {
-
-            // Fallback caso o jogo tenha sido aberto diretamente
+            // Fallback caso o jogo seja aberto diretamente.
             window.location.href = 'offline.html';
-
         }
-
     }
 
-
-    /* Clique normal — PC */
     exitButton.addEventListener('click', exitGame);
 
-
-    /* ========================================================
-       TOUCH — CELULAR
-       Primeiro toque: expande
-       Segundo toque: sai
-       ======================================================== */
-
+    // No celular, o primeiro toque apenas expande.
+    // O segundo toque no botão (ou toque em SAIR) executa a saída.
     exitButton.addEventListener('touchend', function (event) {
-
         if (!exitButton.classList.contains('is-open')) {
-
             event.preventDefault();
-
             exitButton.classList.add('is-open');
-
         }
-
     }, { passive: false });
-
-
 })();
+
 </script>
 </body>
 </html>
