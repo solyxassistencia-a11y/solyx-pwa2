@@ -1,9 +1,10 @@
 const CACHE_NAME = 'AdminFidelidade-v7';
 
 const ARQUIVOS_PARA_CACHEAR = [
-    './offline.html',
-    './EduQuiz_Offline.html',
-    './Brick_Game_5_em_1.html'
+  './offline.html',
+  './EduQuiz_Offline.html',
+  './Brick_Game_5_em_1.html',
+  './Vintage_Calculadora.html'
 ];
 
 
