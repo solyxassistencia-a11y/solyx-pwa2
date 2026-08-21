@@ -1,82 +1,127 @@
 /* ============================================================
-   SOLYX LOJISTA - SERVICE WORKER
-   Versão robusta para funcionamento offline
+   SOLYX LOJISTA - SERVICE WORKER V2
+   PWA OFFLINE
+   ============================================================
+
+   OBJETIVO PRINCIPAL:
+
+   ONLINE:
+       index.html funciona normalmente.
+
+   OFFLINE:
+       qualquer navegação de documento que falhar
+       será direcionada para offline.html.
+
+   offline.html e os jogos continuam disponíveis
+   através do cache.
+
    ============================================================ */
+
 
 /* ============================================================
-   CONFIGURAÇÃO
+   1. CONFIGURAÇÃO
    ============================================================ */
 
-const CACHE_NAME = "SolyxLojista-v19";
+/*
+ * IMPORTANTE:
+ *
+ * Aumentamos a versão do cache.
+ *
+ * Isso faz o navegador reconhecer esta como uma nova
+ * versão do Service Worker.
+ */
+
+const CACHE_NAME = "SolyxLojista-v20";
+
 
 /*
- * Arquivos essenciais que devem existir offline.
- *
- * IMPORTANTE:
- * Todos estes arquivos precisam estar no mesmo diretório
- * do service-worker.js.
+ * Página oficial de fallback offline.
  */
-const ARQUIVOS_PARA_CACHEAR = [
-    "./index.html",
+
+const OFFLINE_PAGE = "./offline.html";
+
+
+/*
+ * Arquivos que precisam estar disponíveis sem internet.
+ *
+ * ATENÇÃO:
+ *
+ * Os nomes abaixo precisam corresponder exatamente aos
+ * arquivos existentes no seu repositório.
+ */
+
+const PRECACHE_FILES = [
+
     "./offline.html",
+
     "./fid_game1.html",
     "./fid_game2.html",
     "./fid_game3.html",
     "./fid_game4.html"
+
 ];
 
 
 /* ============================================================
-   INSTALL
+   2. INSTALAÇÃO
    ============================================================ */
 
 self.addEventListener("install", event => {
 
     console.log(
-        "[Solyx SW] Instalando versão:",
+        "[Solyx SW V2] Instalando:",
         CACHE_NAME
     );
+
 
     event.waitUntil(
 
         caches.open(CACHE_NAME)
+
             .then(cache => {
 
                 console.log(
-                    "[Solyx SW] Armazenando arquivos essenciais..."
+                    "[Solyx SW V2] Criando cache offline..."
                 );
 
-                return cache.addAll(ARQUIVOS_PARA_CACHEAR);
+
+                /*
+                 * Armazena os arquivos essenciais.
+                 */
+
+                return cache.addAll(PRECACHE_FILES);
 
             })
+
             .then(() => {
 
                 console.log(
-                    "[Solyx SW] Cache inicial concluído."
+                    "[Solyx SW V2] Cache offline criado com sucesso."
                 );
 
+
                 /*
-                 * Faz o novo Service Worker assumir
-                 * o controle imediatamente.
+                 * Não esperamos o navegador encerrar o
+                 * Service Worker antigo.
+                 *
+                 * A nova versão assume imediatamente.
                  */
+
                 return self.skipWaiting();
 
             })
+
             .catch(error => {
 
                 console.error(
-                    "[Solyx SW] ERRO ao criar cache:",
+                    "[Solyx SW V2] ERRO durante instalação:",
                     error
                 );
 
+
                 /*
-                 * Se algum arquivo obrigatório não puder
+                 * Se algum arquivo essencial não puder
                  * ser armazenado, a instalação falha.
-                 *
-                 * Isso é proposital:
-                 * não queremos considerar o SW instalado
-                 * se os arquivos essenciais não estiverem
-                 * disponíveis offline.
                  */
 
                 throw error;
@@ -89,15 +134,16 @@ self.addEventListener("install", event => {
 
 
 /* ============================================================
-   ACTIVATE
+   3. ATIVAÇÃO
    ============================================================ */
 
 self.addEventListener("activate", event => {
 
     console.log(
-        "[Solyx SW] Ativando:",
+        "[Solyx SW V2] Ativando:",
         CACHE_NAME
     );
+
 
     event.waitUntil(
 
@@ -109,24 +155,38 @@ self.addEventListener("activate", event => {
 
                     cacheNames.map(cacheName => {
 
+
                         /*
-                         * Remove somente caches antigos
-                         * pertencentes ao Solyx.
+                         * Só apagamos caches pertencentes
+                         * ao nosso aplicativo.
                          */
+
                         if (
-                            cacheName.startsWith("SolyxLojista-") &&
+
+                            cacheName.startsWith(
+                                "SolyxLojista-"
+                            )
+
+                            &&
+
                             cacheName !== CACHE_NAME
+
                         ) {
 
                             console.log(
-                                "[Solyx SW] Removendo cache antigo:",
+                                "[Solyx SW V2] Removendo cache antigo:",
                                 cacheName
                             );
 
-                            return caches.delete(cacheName);
+
+                            return caches.delete(
+                                cacheName
+                            );
+
                         }
 
-                        return Promise.resolve(false);
+
+                        return Promise.resolve();
 
                     })
 
@@ -136,10 +196,16 @@ self.addEventListener("activate", event => {
 
             .then(() => {
 
+                console.log(
+                    "[Solyx SW V2] Service Worker ativo."
+                );
+
+
                 /*
-                 * Faz o SW assumir imediatamente o controle
-                 * das páginas abertas dentro do escopo.
+                 * Assume imediatamente o controle das
+                 * páginas abertas dentro do escopo.
                  */
+
                 return self.clients.claim();
 
             })
@@ -150,196 +216,424 @@ self.addEventListener("activate", event => {
 
 
 /* ============================================================
-   FETCH
+   4. FUNÇÃO — PÁGINA OFFLINE
+   ============================================================ */
+
+async function obterPaginaOffline() {
+
+    /*
+     * Primeiro procura a página offline dentro
+     * do cache atual.
+     */
+
+    const cache = await caches.open(
+        CACHE_NAME
+    );
+
+
+    const resposta = await cache.match(
+        OFFLINE_PAGE
+    );
+
+
+    if (resposta) {
+
+        return resposta;
+
+    }
+
+
+    /*
+     * Segurança adicional:
+     *
+     * caso a chave relativa não seja encontrada,
+     * procuramos pelo caminho absoluto.
+     */
+
+    const urlOffline = new URL(
+        OFFLINE_PAGE,
+        self.location
+    ).href;
+
+
+    const respostaAbsoluta =
+        await cache.match(urlOffline);
+
+
+    if (respostaAbsoluta) {
+
+        return respostaAbsoluta;
+
+    }
+
+
+    /*
+     * Se por algum motivo extremo o offline.html
+     * não existir no cache, devolvemos uma resposta
+     * mínima para evitar uma tela totalmente vazia.
+     */
+
+    return new Response(
+
+        `
+        <!DOCTYPE html>
+
+        <html lang="pt-BR">
+
+        <head>
+
+            <meta charset="UTF-8">
+
+            <meta
+                name="viewport"
+                content="width=device-width, initial-scale=1.0"
+            >
+
+            <title>Solyx - Offline</title>
+
+            <style>
+
+                body {
+                    margin: 0;
+                    min-height: 100vh;
+
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+
+                    background: #080808;
+                    color: white;
+
+                    font-family:
+                        Arial,
+                        sans-serif;
+
+                    text-align: center;
+                }
+
+                main {
+                    padding: 30px;
+                }
+
+                h1 {
+                    margin-bottom: 10px;
+                }
+
+                p {
+                    opacity: .7;
+                }
+
+            </style>
+
+        </head>
+
+        <body>
+
+            <main>
+
+                <h1>Modo Offline</h1>
+
+                <p>
+                    Os jogos offline estão disponíveis.
+                </p>
+
+            </main>
+
+        </body>
+
+        </html>
+        `,
+
+        {
+            status: 200,
+
+            headers: {
+                "Content-Type":
+                    "text/html; charset=UTF-8"
+            }
+
+        }
+
+    );
+
+}
+
+
+/* ============================================================
+   5. FETCH
    ============================================================ */
 
 self.addEventListener("fetch", event => {
 
+
     /*
-     * Trabalhamos somente com requisições GET.
+     * Trabalhamos somente com GET.
      *
-     * POST, PUT, DELETE etc. não devem ser tratados
-     * pelo cache.
+     * POST, PUT, DELETE etc. seguem normalmente.
      */
+
     if (event.request.method !== "GET") {
+
         return;
+
     }
 
 
     const request = event.request;
 
 
-    /*
-     * ========================================================
-     * NAVEGAÇÃO DE PÁGINAS
-     * ========================================================
-     *
-     * Exemplo:
-     *
-     * /solyx-pwa2/index.html
-     * /solyx-pwa2/offline.html
-     * /solyx-pwa2/fid_game1.html
-     *
-     * Estratégia:
-     *
-     * 1. tenta buscar na internet;
-     * 2. se conseguir, devolve a página;
-     * 3. se falhar, procura no cache;
-     * 4. se não encontrar, abre offline.html.
-     */
+    /* ========================================================
+       5.1 NAVEGAÇÃO DE DOCUMENTOS
+       ========================================================
+
+       ESTA É A PARTE MAIS IMPORTANTE DA V2.
+
+       Quando o usuário abre o aplicativo:
+
+           ONLINE
+               ↓
+           tenta a internet
+               ↓
+           sucesso → página normal
+
+
+           OFFLINE
+               ↓
+           internet falhou
+               ↓
+           NÃO procura index.html
+               ↓
+           OFFLINE.HTML
+
+
+       Portanto, não teremos mais o comportamento:
+
+           offline → index → F5 → offline.html
+
+       O objetivo agora é:
+
+           offline → offline.html
+    */
+
 
     if (request.mode === "navigate") {
 
+
         event.respondWith(
 
-            fetch(request)
+            (async () => {
 
-                .then(networkResponse => {
+
+                /*
+                 * Primeiro tentamos a rede.
+                 *
+                 * Isso mantém o comportamento normal
+                 * quando o usuário possui internet.
+                 */
+
+                try {
+
+                    const networkResponse =
+                        await fetch(request);
+
 
                     /*
-                     * Se a internet respondeu corretamente,
-                     * usamos a resposta da rede.
+                     * A rede respondeu.
+                     *
+                     * Devolvemos a página normalmente.
                      */
 
                     return networkResponse;
 
-                })
+                }
 
-                .catch(() => {
+
+                catch (error) {
+
+
+                    /*
+                     * A requisição de navegação falhou.
+                     *
+                     * Isso normalmente significa:
+                     *
+                     * - sem Wi-Fi
+                     * - sem dados móveis
+                     * - modo avião
+                     * - servidor indisponível
+                     * - falha de conexão
+                     */
+
 
                     console.log(
-                        "[Solyx SW] Navegação offline:",
+                        "[Solyx SW V2] Navegação offline:",
                         request.url
                     );
 
+
                     /*
-                     * Primeiro tenta exatamente a página
-                     * que o usuário solicitou.
+                     * NÃO fazemos:
+                     *
+                     * caches.match(request)
+                     *
+                     * porque NÃO queremos abrir a index
+                     * ou uma página anteriormente navegada.
                      */
 
-                    return caches.match(request)
 
-                        .then(cachedPage => {
+                    return obterPaginaOffline();
 
-                            if (cachedPage) {
+                }
 
-                                console.log(
-                                    "[Solyx SW] Página encontrada no cache:",
-                                    request.url
-                                );
-
-                                return cachedPage;
-                            }
-
-
-                            /*
-                             * Se a página específica não estiver
-                             * no cache, abre a central offline.
-                             */
-
-                            console.log(
-                                "[Solyx SW] Usando offline.html"
-                            );
-
-                            return caches.match("./offline.html");
-
-                        });
-
-                })
+            })()
 
         );
 
+
+        /*
+         * IMPORTANTE:
+         *
+         * Não deixar o restante do código tratar
+         * novamente esta requisição.
+         */
+
         return;
+
     }
 
 
-    /*
-     * ========================================================
-     * OUTROS RECURSOS
-     * ========================================================
-     *
-     * Imagens, CSS, JS, fontes etc.
-     *
-     * Estratégia:
-     *
-     * CACHE FIRST
-     *
-     * 1. procura no cache;
-     * 2. se existir, usa cache;
-     * 3. caso contrário, tenta internet;
-     * 4. se baixar corretamente, salva no cache.
-     */
+    /* ========================================================
+       5.2 RECURSOS DO APLICATIVO
+       ========================================================
+
+       Aqui entram:
+
+       - HTML dos jogos
+       - JS
+       - CSS
+       - imagens
+       * etc.
+
+       Estratégia:
+
+           CACHE FIRST
+
+           cache
+             ↓
+           encontrou → usa
+
+           não encontrou
+             ↓
+           internet
+             ↓
+           baixa
+             ↓
+           salva no cache
+    */
+
 
     event.respondWith(
 
-        caches.match(request)
+        (async () => {
 
-            .then(cachedResponse => {
 
-                if (cachedResponse) {
+            /*
+             * Primeiro procura no cache.
+             */
 
-                    return cachedResponse;
+            const cachedResponse =
+                await caches.match(request);
+
+
+            if (cachedResponse) {
+
+                return cachedResponse;
+
+            }
+
+
+            /*
+             * Não está no cache.
+             *
+             * Tenta a internet.
+             */
+
+            try {
+
+                const networkResponse =
+                    await fetch(request);
+
+
+                /*
+                 * Só armazenamos respostas válidas.
+                 *
+                 * "basic" evita armazenar respostas
+                 * cross-origin opacas de forma indiscriminada.
+                 */
+
+                if (
+
+                    networkResponse &&
+                    networkResponse.status === 200 &&
+                    networkResponse.type === "basic"
+
+                ) {
+
+
+                    const cache =
+                        await caches.open(
+                            CACHE_NAME
+                        );
+
+
+                    /*
+                     * Precisamos clonar porque uma resposta
+                     * só pode ser consumida uma vez.
+                     */
+
+                    await cache.put(
+                        request,
+                        networkResponse.clone()
+                    );
 
                 }
 
 
+                return networkResponse;
+
+            }
+
+
+            catch (error) {
+
+
+                console.warn(
+                    "[Solyx SW V2] Recurso indisponível offline:",
+                    request.url
+                );
+
+
                 /*
-                 * Não está no cache.
-                 * Tentamos buscar na internet.
+                 * Para recursos como:
+                 *
+                 * imagens externas
+                 * APIs
+                 * scripts externos
+                 * fontes
+                 *
+                 * não vamos transformar tudo em
+                 * offline.html.
+                 *
+                 * Isso é importante porque um <img>,
+                 * por exemplo, espera uma imagem e não
+                 * uma página HTML.
                  */
 
-                return fetch(request)
 
-                    .then(networkResponse => {
+                throw error;
 
-                        /*
-                         * Só armazenamos respostas válidas.
-                         */
+            }
 
-                        if (
-                            networkResponse &&
-                            networkResponse.status === 200 &&
-                            networkResponse.type === "basic"
-                        ) {
-
-                            const responseToCache =
-                                networkResponse.clone();
-
-                            caches.open(CACHE_NAME)
-                                .then(cache => {
-
-                                    cache.put(
-                                        request,
-                                        responseToCache
-                                    );
-
-                                });
-
-                        }
-
-                        return networkResponse;
-
-                    })
-
-                    .catch(error => {
-
-                        console.warn(
-                            "[Solyx SW] Recurso indisponível offline:",
-                            request.url
-                        );
-
-                        /*
-                         * Não existe fallback genérico para
-                         * imagens, CSS ou JS.
-                         *
-                         * Retornamos erro para o navegador.
-                         */
-
-                        throw error;
-
-                    });
-
-            })
+        })()
 
     );
 
@@ -347,26 +641,35 @@ self.addEventListener("fetch", event => {
 
 
 /* ============================================================
-   MENSAGENS
+   6. MENSAGENS
    ============================================================ */
 
 self.addEventListener("message", event => {
 
+
     if (!event.data) {
+
         return;
+
     }
 
 
     /*
-     * Permite que a página solicite que o Service Worker
-     * seja ativado imediatamente.
+     * Permite que a página solicite atualização
+     * imediata do Service Worker.
      */
 
-    if (event.data.action === "SKIP_WAITING") {
+    if (
+
+        event.data.action ===
+        "SKIP_WAITING"
+
+    ) {
 
         console.log(
-            "[Solyx SW] Recebido comando SKIP_WAITING."
+            "[Solyx SW V2] SKIP_WAITING solicitado."
         );
+
 
         self.skipWaiting();
 
@@ -376,10 +679,10 @@ self.addEventListener("message", event => {
 
 
 /* ============================================================
-   DEBUG
+   7. FINAL
    ============================================================ */
 
 console.log(
-    "[Solyx SW] Service Worker carregado.",
+    "[Solyx SW V2] Carregado:",
     CACHE_NAME
 );
