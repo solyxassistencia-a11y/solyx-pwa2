@@ -624,7 +624,30 @@
 </head>
 
 <body>
+<!-- REDIRECIONAMENTO OFFLINE -->
 
+    <script>
+(function () {
+
+    const OFFLINE_PAGE = "./offline.html";
+
+    function abrirOffline() {
+
+        if (!window.location.pathname.endsWith("/offline.html")) {
+            window.location.replace(OFFLINE_PAGE);
+        }
+
+    }
+
+    if (!navigator.onLine) {
+        abrirOffline();
+        return;
+    }
+
+    window.addEventListener("offline", abrirOffline);
+
+})();
+</script>
     <main class="splash-page">
 
         <section class="splash-card" aria-label="Solyx Fidelidade">
