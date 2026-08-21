@@ -31,7 +31,7 @@
  * versão do Service Worker.
  */
 
-const CACHE_NAME = "SolyxLojista-v20";
+const CACHE_NAME = "SolyxLojista-v21";
 
 
 /*
