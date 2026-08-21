@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>Memória Educativa</title>
+<style>
+:root{--bg:#07111f;--panel:#0d1b2e;--panel2:#10243b;--line:#24435f;--text:#f5f8fc;--muted:#9eb2c8;--green:#35e6a3;--blue:#50a8ff;--gold:#ffd166;--red:#ff6680;--shadow:0 18px 50px #0008}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at 10% 0,#164f4a55,transparent 28%),radial-gradient(circle at 90% 10%,#14518a55,transparent 30%),linear-gradient(145deg,#050b13,#091626 55%,#06101c);color:var(--text);font-family:Arial,Helvetica,sans-serif}
+body{padding:14px}
+button{font:inherit}
+.app{max-width:1180px;margin:auto}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:0 0 14px}
+.logo{font-weight:900;font-size:clamp(20px,4vw,30px);letter-spacing:.7px}.logo span{color:var(--green)}
+.sound{border:1px solid var(--line);background:#10253c;color:white;border-radius:13px;padding:10px 14px;cursor:pointer}
+.screen{display:none}.screen.active{display:block}
+.panel{background:#0d1b2ef2;border:1px solid #23415e;border-radius:25px;box-shadow:var(--shadow);padding:clamp(18px,4vw,34px)}
+.hero{text-align:center}
+.heroIcon{font-size:clamp(58px,12vw,100px);margin:8px 0;filter:drop-shadow(0 9px 10px #0007)}
+h1{font-size:clamp(29px,6vw,50px);margin:4px 0 10px}h2{font-size:clamp(23px,5vw,35px);margin:0 0 10px}
+.subtitle{color:var(--muted);line-height:1.55;max-width:700px;margin:0 auto 24px}
+.settings{display:grid;gap:15px;text-align:left}
+.setting{background:#091728;border:1px solid #1d3853;border-radius:18px;padding:16px}
+.settingTitle{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;font-weight:900}.value{color:var(--green)}
+.options{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.opt{background:linear-gradient(145deg,#112a44,#0c1c30);border:1px solid #294864;color:#fff;border-radius:15px;padding:14px;cursor:pointer;text-align:left;transition:.18s}
+.opt:hover,.opt.selected{border-color:var(--green);box-shadow:0 0 0 2px #35e6a31c;transform:translateY(-1px)}
+.opt b{display:block;margin-bottom:5px}.opt small{color:var(--muted);line-height:1.35}
+.switchrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.switch{width:58px;height:32px;border-radius:30px;background:#273b50;padding:4px;cursor:pointer}.switch i{display:block;width:24px;height:24px;border-radius:50%;background:white;transition:.2s}.switch.on{background:var(--green)}.switch.on i{transform:translateX(26px)}
+.stepper{display:none;align-items:center;gap:8px}.stepper button{width:40px;height:40px;border:0;border-radius:11px;background:#193753;color:#fff;font-size:22px;cursor:pointer}.stepper strong{min-width:64px;text-align:center;font-size:20px}
+.actions{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-top:20px}
+.primary,.secondary{border:0;border-radius:14px;padding:13px 24px;font-weight:900;cursor:pointer}.primary{background:linear-gradient(135deg,var(--green),var(--blue));color:#04111a}.secondary{background:#19324b;color:white}
+.themeGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:18px}.theme{min-height:145px;text-align:center;display:flex;align-items:center;justify-content:center;flex-direction:column}.theme .big{font-size:53px;margin-bottom:8px}
+.preview{display:grid;grid-template-columns:1fr 1.25fr;gap:18px;align-items:start}.previewInfo{background:#091728;border:1px solid #1d3853;border-radius:18px;padding:15px}
+.infoList{display:grid;gap:8px;max-height:450px;overflow:auto}.info{display:flex;gap:11px;align-items:center;background:#0d2034;border:1px solid #203d58;border-radius:13px;padding:9px}.infoEmoji{font-size:32px}.info b{display:block}.info small{display:block;color:var(--muted);line-height:1.35;margin-top:3px}
+.gameHeader{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;margin-bottom:10px}.stat{background:#091728;border:1px solid #203c57;border-radius:14px;padding:9px 12px}.stat span{display:block;color:var(--muted);font-size:12px}.stat strong{font-size:23px}.turn{text-align:center;color:var(--gold);font-weight:900}
+.gameControls{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:12px 0}.message{text-align:center;color:var(--muted);min-height:23px;margin-bottom:10px}
+.gameArea{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:15px}.board{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.card{aspect-ratio:1/1.1;perspective:900px;cursor:pointer}.inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .48s}.card.flipped .inner,.card.matched .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;border-radius:16px;border:2px solid #274764;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:7px}
+.back{background:linear-gradient(145deg,#153655,#091c30);font-size:42px;color:var(--green)}.back:after{content:"✦";opacity:.4}
+.front{transform:rotateY(180deg);background:linear-gradient(145deg,#183b5a,#0c2339);border-color:var(--green)}.front .emoji{font-size:clamp(34px,6vw,58px);line-height:1}.front b{font-size:clamp(10px,1.8vw,15px);margin-top:7px}.matched .front{box-shadow:0 0 20px #35e6a330}
+.side{background:#091728;border:1px solid #203c57;border-radius:18px;padding:14px}.side h3{margin:0 0 10px}.found{display:grid;gap:7px;max-height:420px;overflow:auto}.found button{border:1px solid #23435f;background:#10253b;color:#fff;border-radius:10px;padding:9px;text-align:left;cursor:pointer}.found button span{font-size:19px;margin-right:6px}.empty{color:var(--muted);font-size:13px;line-height:1.45}
+.modal{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal.show{display:flex}.modalBox{width:min(510px,100%);background:#0d1b2e;border:1px solid #315474;border-radius:22px;padding:24px;text-align:center;box-shadow:var(--shadow)}.modalEmoji{font-size:75px}.modalBox p{color:var(--muted);line-height:1.55}
+.toast{position:fixed;left:50%;bottom:20px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#102942;border:1px solid #315473;border-radius:12px;padding:10px 15px;transition:.2s;z-index:30}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:850px){.options{grid-template-columns:1fr}.themeGrid{grid-template-columns:repeat(2,1fr)}.preview{grid-template-columns:1fr}.gameArea{grid-template-columns:1fr}.side{order:2}.gameHeader{grid-template-columns:1fr 1fr}.turn{grid-column:1/-1;order:-1}}
+@media(max-width:520px){body{padding:8px}.panel{border-radius:18px;padding:14px}.board{gap:6px}.card{aspect-ratio:1/.92}.front .emoji{font-size:34px}.face{border-radius:12px}.gameHeader{gap:6px}.stat{padding:7px 8px}.themeGrid{gap:8px}.theme{min-height:125px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="logo">🧠 MEMÓRIA <span>EDUCATIVA</span></div><button class="sound" id="soundBtn">🔊 Som</button></header>
+
+<section class="screen active" id="s1">
+<div class="panel hero">
+<div class="heroIcon">🧠✨</div><h2>Jogo da Memória  </h2><br><h1>🏙️ Expresso do Dia a Dia</h1>
+<p class="subtitle">Mergulhe no universo das mais diversas carreiras, sinta a adrenalina dos esportes e divirta-se com os mais variados meios de transporte. Embarque nos veículos mais incríveis, conheça as profissões que constroem o futuro e sinta a energia dos esportes mais populares do planeta.</p>
+<div class="settings">
+<div class="setting"><div class="settingTitle"><span>🎯 Nível</span><span class="value" id="levelValue">Básico</span></div>
+<div class="options">
+<button class="opt selected" data-level="basic">Básico<small> 6 pares · 12 cartas</small></button>
+<button class="opt" data-level="medium">Intermediário<small> 8 pares · 16 cartas</small></button>
+<button class="opt" data-level="advanced">Avançado<small> 10 pares · 20 cartas</small></button>
+</div></div>
+<div class="setting"><div class="settingTitle"><span>⏱️ Cronômetro por tentativa</span><span class="value" id="timerValue">Desativado</span></div>
+<div class="switchrow"><div class="switch" id="timerSwitch"><i></i></div><span>Ativar</span><div class="stepper" id="stepper"><button id="minus">−</button><strong id="seconds">10s</strong><button id="plus">+</button></div></div>
+<small style="color:var(--muted);display:block;margin-top:8px">Defina de 1 a 60 segundos. O tempo reinicia a cada tentativa.</small></div>
+<div class="setting"><div class="settingTitle"><span>👥 Nº de Jogadores</span><span class="value" id="playersValue">1 jogador</span></div>
+<div class="options" style="grid-template-columns:1fr 1fr"><button class="opt selected" id="one">👤 1 Jogador<small> Jogue para superar sua pontuação.</small></button><button class="opt" id="two">👥 2 Jogadores<small> Alternem as jogadas.</small></button></div></div>
+</div>
+<div class="actions"><button class="primary" id="toThemes">ENTRAR →</button></div>
+</div>
+</section>
+
+<section class="screen" id="s2"><div class="panel">
+<h2>🎨 Tema do jogo</h2><p class="subtitle" style="text-align:left">Escolha um tema. No modo Aleatório, os pares são selecionados entre os três assuntos.</p>
+<div class="themeGrid">
+<button class="opt theme" data-theme="professions"><span class="big">👷</span><b>Profissões</b><small>Profissões e suas características</small></button>
+<button class="opt theme" data-theme="sports"><span class="big">🏆</span><b>Esportes</b><small>Esportes e suas características</small></button>
+<button class="opt theme" data-theme="transport"><span class="big">🚗</span><b>Meios de Transporte</b><small>Meios de Transporte e suas características</small></button>
+<button class="opt theme" data-theme="random"><span class="big">🎲</span><b>Aleatório</b><small>Mistura dos três temas</small></button>
+</div>
+<div class="actions"><button class="secondary" id="back1">← Voltar</button></div>
+</div></section>
+
+<section class="screen" id="s3"><div class="panel">
+<h2 id="previewTitle">📚 Tema</h2>
+<div class="preview"><div class="hero"><div class="heroIcon" id="previewEmoji">📚</div><p class="subtitle" id="previewText"></p>
+<div class="actions"><button class="primary" id="play">🎮 JOGAR</button><button class="secondary" id="back2">← Tema</button></div></div>
+<div class="previewInfo"><h3>📖 Características:</h3><div class="infoList" id="infoList"></div></div></div>
+</div></section>
+
+<section class="screen" id="s4"><div class="panel">
+<div class="gameHeader"><div class="stat"><span>🏆 Jogador 1</span><strong id="score1">0</strong> pares</div><div class="turn" id="turn">Sua vez</div><div class="stat" id="score2Box"><span>🏆 Jogador 2</span><strong id="score2">0</strong> pares</div></div>
+<div class="gameControls"><button class="primary" id="start">▶️ COMEÇAR</button><button class="secondary" id="newRound">🔄 Nova rodada</button><button class="secondary" id="content">📚 Conteúdo</button></div>
+<div class="message" id="message">Pressione COMEÇAR para iniciar.</div>
+<div class="gameArea"><div class="board" id="board"></div><aside class="side"><h3>✅ Pares encontrados</h3><div class="found" id="found"><div class="empty">Os pares acertados aparecerão aqui.</div></div></aside></div>
+</div></section>
+</div>
+
+<div class="modal" id="modal"><div class="modalBox"><div class="modalEmoji" id="mEmoji">🌟</div><h2 id="mTitle">Informação</h2><p id="mText"></p><button class="primary" id="closeModal">FECHAR</button></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA={
+professions:[
+['astronaut','👨‍🚀','Astronauta','Profissional treinado para viajar e realizar pesquisas no espaço sideral.'],
+['doctor','👩‍⚕️','Médico(a)','Especialista em diagnosticar e tratar doenças para cuidar da saúde humana.'],
+['cook','👨‍🍳','Cozinheiro(a) / Chef','Profissional especialista em preparar pratos e criar receitas na culinária.'],
+['teacher','👩‍🏫','Professor(a)','Responsável por ensinar, orientar e educar alunos em escolas ou universidades.'],
+['firefighter','👨‍🚒','Bombeiro(a)','Profissional treinado para combater incêndios e realizar resgates de emergência.'],
+['painter','👩‍🎨','Pintor(a) / Artista Plástico','Pessoa que cria obras de arte usando tintas, telas e outras técnicas visuais.'],
+['judge','👨‍⚖️','Juiz(a)','Autoridade pública responsável por analisar e julgar processos em tribunais de justiça.'],
+['scientist','👩‍🔬','Cientista','Pesquisador(a) que realiza experimentos e estudos para expandir o conhecimento.'],
+['police','👮','Policial','Agente de segurança pública responsável por manter a ordem e proteger a população.'],
+['farmer','👨‍🌾','Agricultor(a)','Profissional que trabalha na terra, plantando, cultivando e colhendo alimentos.']],
+sports:[
+['soccer','⚽','Futebol','Esporte coletivo jogado com os pés, onde duas equipes tentam marcar gols.'],
+['basketball','🏀','Basquete','Jogo onde o objetivo é fazer a bola passar por uma cesta posicionada no alto.'],
+['tennis','🎾','Tênis','Esporte disputado com raquetes, rebatendo uma pequena bola por cima de uma rede.'],
+['volleyball','🏐','Vôlei','Duas equipes separadas por uma rede tentam fazer a bola tocar o chão do adversário.'],
+['swimming','🏊','Natação','Esporte aquático que envolve se deslocar na água usando diferentes estilos de braçadas.'],
+['boxing','🥊','Boxe','Esporte de combate onde os atletas usam luvas acolchoadas para golpear o adversário.'],
+['cycling','🚴','Ciclismo','Corrida ou prática esportiva realizada utilizando bicicletas em pistas ou ruas.'],
+['artisticgymnastics','🤸','Ginástica Artística','Esporte que envolve sequências de movimentos que exigem força, flexibilidade e equilíbrio.'],
+['snowboarding','🏂','Snowboard','Esporte radical de inverno onde o atleta desliza na neve sobre uma única prancha.'],
+['martialarts','🥋','Artes Marciais (Judô/Karatê)','Práticas de combate e defesa pessoal que também trabalham a disciplina mental.']],
+transport:[
+['car','🚗','Carro','Veículo motorizado de quatro rodas, muito comum para transporte pessoal diário.'],
+['airplane','✈️','Avião','Veículo aéreo capaz de voar grandes distâncias em muito pouco tempo.'],
+['train','🚂','Trem','Meio de transporte composto por vários vagões que se deslocam sobre trilhos.'],
+['ship','🚢','Navio','Grande embarcação utilizada para transportar pessoas ou muitas cargas pelo mar.'],
+['helicopter','🚁','Helicóptero','Aeronave que voa graças a grandes hélices no topo, podendo pairar no ar.'],
+['bicycle','🚲','Bicicleta','Veículo de duas rodas movido a pedaladas, ótimo para exercícios e para o meio ambiente.'],
+['rocket','🚀','Foguete','Veículo espacial projetado com muita potência para viajar para fora da atmosfera terrestre.'],
+['bus','🚌','Ônibus','Veículo grande projetado para transportar muitos passageiros em rotas urbanas ou viagens.'],
+['motorcycle','🛵','Motocicleta (Moto)','Veículo motorizado de duas rodas, conhecido por ser ágil e rápido para o trânsito.'],
+['canoe','🛶','Canoa','Pequena embarcação movida a remos, muito usada em rios e lagos tranquilos.']]};
+const LEVELS={basic:6,medium:8,advanced:10};
+const LABELS={professions:'Profissões',sports:'Esportes',transport:'Meios de Transporte',random:'Aleatório'};
+const state={level:'basic',timer:false,seconds:10,players:1,theme:null,started:false,turn:1,scores:[0,0],cards:[],first:null,second:null,locked:false,found:[],attemptTimer:null,attemptLeft:0,sound:true,audio:null};
+
+const $=id=>document.getElementById(id);
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');scrollTo(0,0)}
+function beep(freq=560,dur=.06){if(!state.sound)return;try{state.audio=state.audio||new(window.AudioContext||window.webkitAudioContext)();let o=state.audio.createOscillator(),g=state.audio.createGain();o.frequency.value=freq;o.type='sine';g.gain.value=.04;o.connect(g);g.connect(state.audio.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,state.audio.currentTime+dur);o.stop(state.audio.currentTime+dur)}catch(e){}}
+function shuffle(a){for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function pool(){
+  if(state.theme==='random') return [...DATA.professions,...DATA.sports,...DATA.transport];
+  return DATA[state.theme] || [];
+}
+function itemById(id){
+  return [...DATA.professions,...DATA.sports,...DATA.transport].find(x=>x[0]===id);
+}
+function buildInfoList(){
+  const list=$('infoList');
+  if(!list) return;
+  const all=pool();
+  const amount=Math.min(LEVELS[state.level] || 6, all.length);
+  if(!state.theme || !all.length){
+    list.innerHTML='<div class="empty">Escolha um tema para carregar os itens.</div>';
+    return;
+  }
+  const items=state.theme==='random' ? shuffle([...all]).slice(0,amount) : all.slice(0,amount);
+  list.innerHTML=items.map(x=>`<div class="info"><span class="infoEmoji">${x[1]}</span><div><b>${x[2]}</b><small>${x[3]}</small></div></div>`).join('');
+}
+function toast(t){$('toast').textContent=t;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),1200)}
+
+document.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>{state.level=b.dataset.level;document.querySelectorAll('[data-level]').forEach(x=>x.classList.toggle('selected',x===b));$('levelValue').textContent=b.dataset.level==='basic'?'Básico':b.dataset.level==='medium'?'Intermediário':'Avançado';beep()});
+$('timerSwitch').onclick=()=>{state.timer=!state.timer;$('timerSwitch').classList.toggle('on',state.timer);$('stepper').style.display=state.timer?'flex':'none';$('timerValue').textContent=state.timer?state.seconds+' segundos':'Desativado';beep()};
+$('minus').onclick=()=>{state.seconds=Math.max(1,state.seconds-1);$('seconds').textContent=state.seconds+'s';$('timerValue').textContent=state.seconds+' segundos';beep()};
+$('plus').onclick=()=>{state.seconds=Math.min(60,state.seconds+1);$('seconds').textContent=state.seconds+'s';$('timerValue').textContent=state.seconds+' segundos';beep()};
+$('one').onclick=()=>setPlayers(1);$('two').onclick=()=>setPlayers(2);
+function setPlayers(n){state.players=n;$('one').classList.toggle('selected',n===1);$('two').classList.toggle('selected',n===2);$('playersValue').textContent=n===1?'1 jogador':'2 jogadores';beep()}
+$('soundBtn').onclick=()=>{state.sound=!state.sound;$('soundBtn').textContent=state.sound?'🔊 Som':'🔇 Som';if(state.sound)beep()};
+$('toThemes').onclick=()=>{show('s2');beep()};$('back1').onclick=()=>show('s1');$('back2').onclick=()=>show('s2');
+document.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{state.theme=b.dataset.theme;document.querySelectorAll('[data-theme]').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');buildPreview();show('s3');beep()});
+function buildPreview(){
+  const p=pool();
+  const count=Math.min(LEVELS[state.level] || 6,p.length);
+  $('previewTitle').textContent='📚 '+(LABELS[state.theme] || 'Tema');
+  $('previewEmoji').textContent=state.theme==='professions'?'👷':state.theme==='sports'?'🏆':state.theme==='transport'?'🚗':'🎲';
+  $('previewText').innerHTML = `O nível escolhido usará ${count} pares.<br>Se quiser, conheça um pouco sobre eles antes de começar.`;
+  buildInfoList();
+}
+$('play').onclick=()=>{show('s4');newRound();beep(800,.1)};$('content').onclick=()=>{buildPreview();show('s3');};
+$('newRound').onclick=()=>newRound();$('start').onclick=()=>begin();
+function newRound(){clearInterval(state.attemptTimer);state.started=false;state.turn=1;state.scores=[0,0];state.first=null;state.second=null;state.locked=false;state.found=[];$('score1').textContent=0;$('score2').textContent=0;$('score2Box').style.display=state.players===2?'block':'none';$('turn').textContent=state.players===2?'Vez do Jogador 1':'Sua vez';$('start').style.display='inline-block';$('message').textContent='Pressione COMEÇAR para iniciar.';renderBoard();renderFound()}
+function renderBoard(){let chosen=shuffle([...pool()]).slice(0,LEVELS[state.level]);state.cards=shuffle([...chosen,...chosen].map((x,i)=>({id:x[0],uid:i})));$('board').innerHTML=state.cards.map(c=>`<div class="card" data-uid="${c.uid}"><div class="inner"><div class="face back">?</div><div class="face front"><div class="emoji">${itemById(c.id)[1]}</div><b>${itemById(c.id)[2]}</b></div></div></div>`).join('');document.querySelectorAll('.card').forEach(el=>el.onclick=()=>flip(el))}
+function begin(){if(state.started)return;state.started=true;$('start').style.display='none';$('message').textContent='Encontre os pares!';beep(900,.1)}
+function flip(el){if(!state.started||state.locked||el.classList.contains('flipped')||el.classList.contains('matched'))return;beep(570);el.classList.add('flipped');let uid=+el.dataset.uid;let data=state.cards.find(c=>c.uid===uid);if(!state.first){state.first={el,data};startAttempt();return}state.second={el,data};clearInterval(state.attemptTimer);state.locked=true;setTimeout(check,450)}
+function startAttempt(){if(!state.timer)return;clearInterval(state.attemptTimer);state.attemptLeft=state.seconds;updateTimerText();state.attemptTimer=setInterval(()=>{state.attemptLeft--;updateTimerText();if(state.attemptLeft<=0){clearInterval(state.attemptTimer);if(state.first&&!state.second){state.first.el.classList.remove('flipped');state.first=null;state.locked=false;$('message').textContent='⏱️ Tempo esgotado!'}}},1000)}
+function updateTimerText(){$('message').textContent=state.timer?`⏱️ Tempo da tentativa: ${state.attemptLeft}s`:'Encontre o par correspondente!'}
+function check(){let a=itemById(state.first.data.id),b=itemById(state.second.data.id);if(a[0]===b[0]){state.first.el.classList.add('matched');state.second.el.classList.add('matched');state.scores[state.turn-1]++;state.found.push(a);$('score1').textContent=state.scores[0];$('score2').textContent=state.scores[1];renderFound();beep(900,.1);beep(1200,.08);state.first=state.second=null;state.locked=false;$('message').textContent='🎉 Parabéns! Você encontrou um par.';if(state.found.length===LEVELS[state.level])setTimeout(endGame,500)}else{beep(220,.12);setTimeout(()=>{state.first.el.classList.remove('flipped');state.second.el.classList.remove('flipped');state.first=state.second=null;state.locked=false;if(state.players===2){state.turn=state.turn===1?2:1;$('turn').textContent='Vez do Jogador '+state.turn}$('message').textContent='Não foi dessa vez. Tente novamente.'},650)}}
+function renderFound(){if(!state.found.length){$('found').innerHTML='<div class="empty">Os pares acertados aparecerão aqui.</div>';return}$('found').innerHTML=state.found.map(x=>`<button data-info="${x[0]}"><span>${x[1]}</span>${x[2]}</button>`).join('');document.querySelectorAll('[data-info]').forEach(b=>b.onclick=()=>openInfo(b.dataset.info))}
+function openInfo(id){let x=itemById(id);$('mEmoji').textContent=x[1];$('mTitle').textContent=x[2];$('mText').textContent=x[3];$('modal').classList.add('show');beep(720,.07)}
+$('closeModal').onclick=()=>$('modal').classList.remove('show');$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').classList.remove('show')};
+function endGame(){state.started=false;let text;if(state.players===1)text=`Você encontrou ${state.scores[0]} de ${LEVELS[state.level]} pares.`;else if(state.scores[0]===state.scores[1])text=`Empate! Ambos fizeram ${state.scores[0]} pares.`;else text=`Jogador ${state.scores[0]>state.scores[1]?1:2} venceu com ${Math.max(...state.scores)} pares!`;$('message').textContent='🏆 '+text;$('mEmoji').textContent='🏆';$('mTitle').textContent='Rodada concluída!';$('mText').textContent=text;$('modal').classList.add('show');beep(1100,.2)}
+$('score2Box').style.display='none';
+</script>
+</body>
+</html>
