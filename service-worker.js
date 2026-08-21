@@ -15,7 +15,7 @@
 /* ============================================================
    1. CONFIGURAÇÃO
    ============================================================ */
-const CACHE_NAME = "SolyxLojista-v30";
+const CACHE_NAME = "SolyxLojista-v31";
 const OFFLINE_PAGE = "./offline.html";
 
 /*
@@ -28,10 +28,10 @@ const PRECACHE_FILES = [
     "./fid_game1.html",
     "./fid_game2.html",
     "./fid_game3.html",
-    "./fid_game4.html"
+    "./fid_game4.html",
+    "./fid_game5.html",
+    "./fid_game6.html"
 ];
-
-
 /* ============================================================
    2. INSTALAÇÃO
    ============================================================ */
