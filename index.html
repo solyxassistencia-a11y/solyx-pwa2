@@ -4,8 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-     <meta name="theme-color" content="#B51217" />
+    <meta name="theme-color" content="#B51217" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta
@@ -13,50 +12,38 @@
       content="black-translucent"
     />
     <meta name="apple-mobile-web-app-title" content="Solyx Lojista" />
-
     <link rel="manifest" href="./manifest.json">
-
     <link
       rel="apple-touch-icon"
       href="https://www.dropbox.com/scl/fi/opjoobbx6fa16a10cq1tm/SF_512x512_Admin.png?rlkey=0etj9gau7r85g3aeqm2wwtm71&raw=1"
     />
     <meta name="mobile-web-app-capable" content="yes" />
-
     <meta name="application-name" content="Solyx Lojista" />
-
     <meta name="msapplication-TileColor" content="#B51217" />
-
     <meta name="msapplication-tap-highlight" content="no" />
     <meta name="color-scheme" content="dark" />
-
     <link
       rel="icon"
       type="image/png"
       sizes="32x32"
       href="https://www.dropbox.com/scl/fi/opjoobbx6fa16a10cq1tm/SF_512x512_Admin.png?rlkey=0etj9gau7r85g3aeqm2wwtm71&raw=1"
     />
-
     <link
       rel="icon"
       type="image/png"
       sizes="192x192"
       href="https://www.dropbox.com/scl/fi/opjoobbx6fa16a10cq1tm/SF_512x512_Admin.png?rlkey=0etj9gau7r85g3aeqm2wwtm71&raw=1"
     />
-
     <!-- Fonte Oficial -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-
 <title>
     Lojista <span class="nome-dinamico"></span>
 </title>
 <meta name="description" id="metaDescription" content="Programa de Fidelidade - Escolha seu tipo de acesso.">
 
-<meta name="theme-color" content="#B51217">
-
 <link rel="apple-touch-icon" href="./icon-192.png">
-  
+ 
     <style>
         /* =========================================================
            FIDELIDADE.NET.BR
@@ -180,37 +167,28 @@
         .splash-card {
             width: 100%;
             max-width: 480px;
-
             display: flex;
             flex-direction: column;
             align-items: center;
-
             padding: 46px 36px 40px;
-
             border: 1px solid rgba(255, 255, 255, 0.08);
-
             border-radius: 28px;
-
             background:
                 linear-gradient(
                     145deg,
                     rgba(255, 255, 255, 0.055),
                     rgba(255, 255, 255, 0.018)
                 );
-
             box-shadow:
                 0 30px 80px rgba(0, 0, 0, 0.55),
                 inset 0 1px 0 rgba(255, 255, 255, 0.04);
-
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
         }
 
-
         /* =========================================================
            LOGO
            ========================================================= */
-
         .logo-wrapper {
             width: 100%;
 
@@ -220,39 +198,28 @@
 
             margin-bottom: 28px;
         }
-
         .logo {
             display: block;
 
             width: auto;
             max-width: 300px;
             max-height: 150px;
-
             height: auto;
-
             object-fit: contain;
-
             filter:
                 drop-shadow(0 12px 25px rgba(0, 0, 0, 0.35));
         }
 
-
         /* =========================================================
            TEXTO
            ========================================================= */
-
         .welcome-text {
             margin-bottom: 28px;
-
             color: rgba(255, 255, 255, 0.72);
-
             font-size: 15px;
             font-weight: 400;
-
             line-height: 1.5;
-
             text-align: center;
-
             letter-spacing: 0.2px;
         }
 
@@ -430,20 +397,15 @@
             outline-offset: 4px;
         }
 
-
         /* =========================================================
            RODAPÉ
            ========================================================= */
 
         .footer {
             margin-top: 30px;
-
             color: rgba(255, 255, 255, 0.34);
-
             font-size: 11px;
-
             text-align: center;
-
             letter-spacing: 0.5px;
         }
 
@@ -460,12 +422,10 @@
 
             .splash-card {
                 max-width: 440px;
-
                 padding:
                     38px
                     24px
                     32px;
-
                 border-radius: 24px;
             }
 
@@ -578,28 +538,17 @@
       .install-button {
     width: 100%;
     min-height: 58px;
-
     margin-top: 20px;
-
     padding: 12px 20px;
-
     border: 1px solid rgba(255, 255, 255, 0.15);
-
     border-radius: 15px;
-
     background: rgba(255, 255, 255, 0.05);
-
     color: rgba(255, 255, 255, 0.85);
-
     font-family: inherit;
-
     font-size: 14px;
     font-weight: 600;
-
     cursor: pointer;
-
     display: none;
-
     transition:
         transform 0.2s ease,
         background 0.2s ease,
@@ -625,42 +574,16 @@
 
 <body>
 <!-- REDIRECIONAMENTO OFFLINE -->
-
-    <script>
-(function () {
-
-    const OFFLINE_PAGE = "./offline.html";
-
-    function abrirOffline() {
-
-        if (!window.location.pathname.endsWith("/offline.html")) {
-            window.location.replace(OFFLINE_PAGE);
-        }
-
-    }
-
-    if (!navigator.onLine) {
-        abrirOffline();
-        return;
-    }
-
-    window.addEventListener("offline", abrirOffline);
-
-})();
-</script>
     <main class="splash-page">
 
         <section class="splash-card" aria-label="Solyx Fidelidade">
 
             <!-- LOGO -->
             <div class="logo-wrapper">
-
                 <img
                     class="logo logo-dinamica"
                     src=""
-                    alt="Logo Fidelidade"
-                >
-
+                    alt="Logo Fidelidade">
             </div>
 
 
@@ -671,16 +594,13 @@
             <button
                 id="installButton"
                 class="install-button"
-                type="button"
-            >
+                type="button" >
                 📲 Instalar aplicativo
             </button>
                    <!-- BOTÃO MOBILE -->
-
 <br>
             <!-- ACESSOS -->
             <nav class="access-list" aria-label="Opções de acesso">
-
                 <!-- ACESSO LOJISTA -->
                 <a
                     class="access-button merchant-button"
@@ -692,11 +612,9 @@
 
 
                 <!-- ACESSO CLIENTE -->
-                <a
-                    class="access-button customer-button"
+                <a  class="access-button customer-button"
                     href="https://appsolyxfidelidade.blogspot.com/p/dvsvdsvbggfn1f56n16f51n56f15n1f6n1f65n1.html"
-                    aria-label="Acesso Cliente"
-                >
+                    aria-label="Acesso Cliente" >
                     🎁&nbsp;&nbsp;Acesso Cliente
                 </a>
 
