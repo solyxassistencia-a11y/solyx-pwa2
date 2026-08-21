@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Bíblico do Milhão</title>
+    <style>
+        :root {
+            --bg-dark: #050b18;
+            --bg-card: #0a1836;
+            --blue-glow: #00d2ff;
+            --yellow-gold: #ffd700;
+            --yellow-gold-dark: #b89600;
+            --red-alert: #ff3333;
+            --green-success: #00e676;
+            --white: #ffffff;
+            --text-muted: #a0aec0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--white);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+            background: radial-gradient(circle at center, #0d214d 0%, var(--bg-dark) 100%);
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--bg-card);
+            border: 3px solid var(--yellow-gold);
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(0, 210, 255, 0.2), inset 0 0 15px rgba(255, 215, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        .header {
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+            padding-bottom: 12px;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--yellow-gold);
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            color: var(--blue-glow);
+            margin-top: 4px;
+        }
+
+        /* DASHBOARD (INFO) */
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .dash-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .dash-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .dash-val {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--yellow-gold);
+        }
+
+        /* TIMER */
+        .timer-box {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #000;
+            border: 3px solid var(--blue-glow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: var(--yellow-gold);
+            box-shadow: 0 0 10px var(--blue-glow);
+        }
+
+        .timer-warning {
+            border-color: var(--red-alert) !important;
+            color: var(--red-alert) !important;
+            box-shadow: 0 0 12px var(--red-alert) !important;
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.08); }
+        }
+
+        /* QUESTION CONTAINER */
+        .question-box {
+            background: linear-gradient(180deg, #102552 0%, #08142e 100%);
+            border: 2px solid var(--blue-glow);
+            border-radius: 12px;
+            padding: 20px;
+            min-height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .question-text {
+            font-size: 1.15rem;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+
+        /* OPTIONS */
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: linear-gradient(180deg, #162f65 0%, #0d1d40 100%);
+            border: 2px solid #2a4c96;
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--white);
+            font-size: 1rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            border-color: var(--yellow-gold);
+            background: linear-gradient(180deg, #1e3d82 0%, #122754 100%);
+            transform: translateX(4px);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .option-prefix {
+            background: var(--yellow-gold);
+            color: var(--bg-dark);
+            font-weight: bold;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .option-btn.selected {
+            border-color: var(--yellow-gold);
+            background: var(--yellow-gold-dark);
+            color: #fff;
+        }
+
+        .option-btn.correct {
+            border-color: var(--green-success) !important;
+            background: #006837 !important;
+            color: #fff !important;
+        }
+
+        .option-btn.wrong {
+            border-color: var(--red-alert) !important;
+            background: #8b0000 !important;
+            color: #fff !important;
+        }
+
+        /* CONTROLS / HELPS */
+        .controls-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            padding-top: 15px;
+        }
+
+        .help-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            background: linear-gradient(180deg, #2b3a55 0%, #121a29 100%);
+            border: 1px solid var(--yellow-gold);
+            color: var(--yellow-gold);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-action:hover:not(:disabled) {
+            background: var(--yellow-gold);
+            color: var(--bg-dark);
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-action:disabled {
+            border-color: #4a5568;
+            color: #4a5568;
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .btn-stop {
+            border-color: var(--red-alert);
+            color: var(--red-alert);
+        }
+
+        .btn-stop:hover:not(:disabled) {
+            background: var(--red-alert);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.4);
+        }
+
+        /* MODALS */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(3, 8, 20, 0.92);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border: 2px solid var(--yellow-gold);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.3);
+        }
+
+        .modal-title {
+            color: var(--yellow-gold);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        /* CARDS HELP */
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .card-item {
+            width: 70px;
+            height: 100px;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            border: 2px solid var(--yellow-gold);
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--yellow-gold);
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .card-item:hover {
+            transform: translateY(-8px);
+        }
+
+        .card-item.revealed {
+            background: #fff;
+            color: #111;
+        }
+
+        /* PLACAS HELP BAR CHART */
+        .chart-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            height: 150px;
+            margin: 20px 0;
+            padding-top: 20px;
+            border-bottom: 2px solid var(--blue-glow);
+        }
+
+        .chart-bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 20%;
+        }
+
+        .chart-bar {
+            width: 100%;
+            background: linear-gradient(0deg, var(--yellow-gold-dark), var(--yellow-gold));
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s ease;
+        }
+
+        .chart-label {
+            margin-top: 8px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .chart-val {
+            font-size: 0.8rem;
+            margin-bottom: 4px;
+            color: var(--blue-glow);
+        }
+
+        /* HIDDEN CLASS */
+        .hidden {
+            display: none !important;
+        }
+
+        @media (min-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    
+        /* Tela de abertura estilo programa de TV */
+        .intro-screen{position:fixed;inset:0;background:radial-gradient(circle,#162d5c,#020611);display:flex;align-items:center;justify-content:center;z-index:9999;}
+        .intro-card{max-width:650px;text-align:center;padding:45px;border:3px solid #ffd700;border-radius:25px;background:rgba(5,15,40,.95);box-shadow:0 0 50px #ffd700;}
+        .intro-card h1{font-size:3rem;color:#ffd700;text-shadow:0 0 20px #ffd700;margin-bottom:15px}
+        .intro-card button{display:block;width:80%;margin:15px auto;padding:18px;border-radius:30px;border:2px solid #ffd700;background:#0b3d91;color:white;font-size:1.2rem;font-weight:bold;cursor:pointer}
+        .intro-card button:hover{transform:scale(1.05);background:#1558c0}
+        .hidden-screen{display:none!important}
+
+/* PALCO COM LUZES */
+.stage-lights{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:0;}
+.stage-lights span{position:absolute;width:180px;height:600px;top:-120px;background:linear-gradient(180deg,rgba(255,215,0,.25),transparent);filter:blur(12px);transform-origin:top center;animation:sweep 5s infinite alternate;}
+.stage-lights span:nth-child(1){left:10%;animation-delay:0s;transform:rotate(-25deg)}
+.stage-lights span:nth-child(2){left:45%;animation-delay:1s;transform:rotate(0deg)}
+.stage-lights span:nth-child(3){right:10%;animation-delay:2s;transform:rotate(25deg)}
+@keyframes sweep{from{opacity:.25}to{opacity:.8;transform:translateY(30px) rotate(0deg)}}
+</style>
+</head>
+<body>
+<div class="stage-lights"><span></span><span></span><span></span></div>
+<div id="intro-screen" class="intro-screen">
+<div class="intro-card">
+<h1>Quiz Bíblico<br>do Milhão</h1>
+<p>Participe da jornada até <b>1.000.000 de Pontos</b></p>
+<button onclick="showInstructions()">📖 Instruções</button>
+<button onclick="beginGame()">▶ Iniciar Perguntas</button>
+</div></div>
+
+
+    <div class="game-container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>Quiz Bíblico do Milhão</h1>
+            <p>Jornada até 1 Milhão de Pontos!</p>
+        </div>
+
+        <!-- DASHBOARD -->
+        <div class="dashboard">
+            <div class="dash-box">
+                <span class="dash-label">Rodada</span>
+                <span id="txt-round" class="dash-val">1 / 10</span>
+            </div>
+            <div class="dash-box">
+                <span class="dash-label">Valendo</span>
+                <span id="txt-prize-current" class="dash-val">1.000</span>
+            </div>
+            <div class="timer-box" id="timer-display">30</div>
+            <div class="dash-box">
+                <span class="dash-label">Parar</span>
+                <span id="txt-prize-stop" class="dash-val">0</span>
+            </div>
+            <div class="dash-box">
+                <span class="dash-label">Errar</span>
+                <span id="txt-prize-fail" class="dash-val">0</span>
+            </div>
+        </div>
+
+        <!-- QUESTION BOX -->
+        <div class="question-box">
+            <div id="txt-question" class="question-text">Carregando pergunta...</div>
+        </div>
+
+        <!-- OPTIONS GRID -->
+        <div class="options-grid" id="options-container">
+            <button class="option-btn" onclick="selectOption(0)">
+                <span class="option-prefix">A</span>
+                <span class="option-text">Opção 1</span>
+            </button>
+            <button class="option-btn" onclick="selectOption(1)">
+                <span class="option-prefix">B</span>
+                <span class="option-text">Opção 2</span>
+            </button>
+            <button class="option-btn" onclick="selectOption(2)">
+                <span class="option-prefix">C</span>
+                <span class="option-text">Opção 3</span>
+            </button>
+            <button class="option-btn" onclick="selectOption(3)">
+                <span class="option-prefix">D</span>
+                <span class="option-text">Opção 4</span>
+            </button>
+        </div>
+
+        <!-- CONTROLS -->
+        <div class="controls-panel">
+            <div class="help-group">
+                <button id="btn-seminaristas" class="btn-action" onclick="useSeminaristas()">
+                    🎓 Seminaristas
+                </button>
+                <button id="btn-cartas" class="btn-action" onclick="useCartas()">
+                    🃏 Cartas
+                </button>
+                <button id="btn-placas" class="btn-action" onclick="usePlacas()">
+                    📊 Placas
+                </button>
+                <button id="btn-pulos" class="btn-action" onclick="usePulo()">
+                    ⏭️ Pular (<span id="txt-pulos">3</span>)
+                </button>
+            </div>
+            <button id="btn-stop" class="btn-action btn-stop" onclick="confirmStop()">
+                🛑 Parar
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL CONTAINER -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 id="modal-title" class="modal-title">Título do Modal</h2>
+            <div id="modal-body" class="modal-body">Conteúdo do modal...</div>
+            <button id="modal-btn-close" class="btn-action" style="margin: 0 auto;" onclick="closeModal()">Continuar</button>
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================================================
+           BANCO DE DADOS DE PERGUNTAS EXTRAÍDO DO DOCUMENTO (FASES 1 A 10)
+           ========================================================================== */
+        const QUESTION_DATABASE = {
+            1: [
+                { q: "Todas essas orações são descritas na Bíblia, EXCETO:", opts: ["A oração de Joana", "A oração de Jonas", "A oração de Jabez", "A oração de Ana"], ans: 0 },
+                { q: "É um dos 4 Evangelhos:", opts: ["João", "1 João", "2 João", "3 João"], ans: 0 },
+                { q: "É uma epístola paulina:", opts: ["1 Timóteo", "1 Pedro", "Daniel", "Lucas"], ans: 0 },
+                { q: "Segundo as Escrituras, o maná tinha um sabor semelhante a:", opts: ["Bolo de mel", "Nozes açucaradas", "Figo maduro", "Torta de maçã"], ans: 0 },
+                { q: "Na Carta aos Romanos, Paulo afirma que não se envergonha do Evangelho, porque é o poder de Deus para a salvação...", opts: ["...dos que creem", "...dos gentios", "...dos judeus", "...dos samaritanos"], ans: 0 },
+                { q: "Complete o versículo de João 11:25: 'Disse Jesus: Eu sou a ressurreição e a vida...'", opts: ["...quem crê em mim, ainda que morra, viverá;", "...e eis que estou convosco todos os dias.", "...negue-se a si mesmo, e tome cada dia a sua cruz.", "...do seu interior fluirão rios de água viva."], ans: 0 },
+                { q: "Deus mandou que Abraão olhasse para o quê, quando lhe fez uma promessa?", opts: ["Para as estrelas do céu, para que as contasse", "Para o arco-íris no céu", "Para a areia do mar", "Para a floresta da terra prometida"], ans: 0 },
+                { q: "Qual dos discípulos negou a Jesus por 3 vezes?", opts: ["Pedro", "Judas Iscariotes", "Judas Tadeu", "Tomé"], ans: 0 },
+                { q: "Quantos casais humanos entraram na arca de Noé?", opts: ["4 casais", "1 casal", "6 casais", "3 casais"], ans: 0 },
+                { q: "Qual foi a primeira praga enviada ao Egito em Êxodo?", opts: ["Águas tornam-se em sangue", "Trevas", "Peste nos animais", "Chuva de pedras"], ans: 0 },
+                { q: "Qual o nome do irmão gêmeo de Jacó?", opts: ["Esaú", "Isaque", "Ismael", "Rúben"], ans: 0 },
+                { q: "Quantos dias choveu sobre a Terra durante o Dilúvio?", opts: ["40 dias", "30 dias", "20 dias", "10 dias"], ans: 0 },
+                { q: "Quem foi a primeira mãe descrita na Bíblia?", opts: ["Eva", "Maria", "Sara", "Ana"], ans: 0 },
+                { q: "Quem recebeu um grande milagre ao tocar na borda da roupa de Jesus?", opts: ["A mulher do fluxo de sangue", "A viúva de Naim", "A mulher da mão ressequida", "A viúva de Sarepta"], ans: 0 },
+                { q: "Durante a fuga de Sodoma, no que se transformou a mulher de Ló?", opts: ["Numa estátua de sal", "Numa grande ave", "Num monte de cinzas", "Numa coluna de fogo"], ans: 0 }
+            ],
+            2: [
+                { q: "Estes livros são divididos em 2 Epístolas no Novo Testamento:", opts: ["Coríntios e Tessalonicenses", "Colossenses e Filipenses", "Coríntios e Romanos", "Timóteo e Colossenses"], ans: 0 },
+                { q: "Qual destes livros NÃO faz parte do Antigo Testamento?", opts: ["João", "Joel", "Jó", "Jonas"], ans: 0 },
+                { q: "Único livro da Bíblia que possui 3 Epístolas escritas:", opts: ["João", "Lucas", "Pedro", "Tiago"], ans: 0 },
+                { q: "NÃO é uma epístola paulina:", opts: ["1 Pedro", "1 Timóteo", "Filipenses", "Filemom"], ans: 0 },
+                { q: "Que profeta tinha por hábito orar 3 vezes ao dia?", opts: ["Daniel", "Isaías", "Eliseu", "Samuel"], ans: 0 },
+                { q: "A Bíblia menciona diversas frutas em suas passagens, EXCETO:", opts: ["Banana e Coco", "Maçã e Melão", "Tâmara e Romã", "Uva e Figo"], ans: 0 },
+                { q: "Dos 12 espias enviados à Terra Prometida, quais os 2 que creram na promessa?", opts: ["Josué e Calebe", "Elias e Eliseu", "Dã e Naftali", "Moisés e Arão"], ans: 0 },
+                { q: "Lugar onde Jesus passou muito tempo ensinando e orando com os discípulos:", opts: ["Monte das Oliveiras", "Monte Horebe", "Monte Sinai", "Monte Ararate"], ans: 0 },
+                { q: "Em quais Evangelhos é narrada a história do nascimento de Jesus?", opts: ["Mateus e Lucas", "Isaías e Apocalipse", "Mateus e João", "Mateus e Marcos"], ans: 0 },
+                { q: "Que sinal Deus deu a Noé de que nunca mais haveria dilúvio sobre a Terra?", opts: ["O arco nas nuvens", "O estremecer da terra", "A abertura do Mar Vermelho", "O sol parar"], ans: 0 },
+                { q: "Qual a jovem órfã que foi eleita rainha na Pérsia?", opts: ["Ester", "Débora", "Vasti", "Atália"], ans: 0 },
+                { q: "A Bíblia Sagrada protestante é composta por quantos livros ao todo?", opts: ["66 livros", "88 livros", "37 livros", "100 livros"], ans: 0 },
+                { q: "Quem foi o juiz hebreu que Dalila seduziu para entregar aos filisteus?", opts: ["Sansão", "Salomão", "Samuel", "Saul"], ans: 0 },
+                { q: "Qual o nome da cidade onde Jesus nasceu?", opts: ["Belém", "Nazaré", "Jerusalém", "Galileia"], ans: 0 },
+                { q: "Quando bebê, como Moisés foi salvo do decreto do Faraó?", opts: ["Colocado num cesto no rio", "Levado às pressas para fora", "Escondido em caverna", "Entregue ao Templo"], ans: 0 }
+            ],
+            3: [
+                { q: "Paulo se referia a estes homens como seus 'filhos na fé':", opts: ["Timóteo e Tito", "Silas e Barnabé", "Diótrefes e Demétrio", "Janes e Jambres"], ans: 0 },
+                { q: "Acerca de Áquila e Priscila, é correto dizer que:", opts: ["Faziam tendas e eram amigos de Paulo", "Eram fazendeiros e parentes de Paulo", "Eram governadores romanos", "Eram profetas do Antigo Testamento"], ans: 0 },
+                { q: "Quem foi Zebulom segundo o Livro de Gênesis?", opts: ["Um dos filhos de Jacó", "Um profeta do Antigo Testamento", "Um companheiro de Paulo", "Um sacerdote de Jerusalém"], ans: 0 },
+                { q: "Ao nascer, Jesus foi colocado numa manjedoura, que se tratava de um:", opts: ["Comedouro de animais", "Poleiro de galinhas", "Carrinho de mão", "Baú de ferramentas"], ans: 0 },
+                { q: "Sensata e formosa, assim é descrita uma das esposas do Rei Davi:", opts: ["Abigail", "Bate-Seba", "Mical", "Ainoã"], ans: 0 },
+                { q: "Em Cânticos, a qual animal a noiva Sulamita foi comparada carinhosamente?", opts: ["Égua e Pomba", "Leoa e Ovelha", "Rolinha e Cervo", "Gazela e Raposa"], ans: 0 },
+                { q: "Quem foi André no Novo Testamento?", opts: ["Discípulo, pescador e irmão de Pedro", "Um amigo de Paulo e escriba", "Um coletor de impostos", "Um profeta antigo"], ans: 0 },
+                { q: "João Batista viveu no deserto se alimentando de:", opts: ["Gafanhotos e mel silvestre", "Lebres e flores do campo", "Grilos e ervas amargas", "Cereais e leite de cabra"], ans: 0 },
+                { q: "Segundo Jesus, quais são os mandamentos mais importantes da Bíblia?", opts: ["Amar a Deus sobre tudo e ao próximo como a si", "Não matar e guardar o sábado", "Cumprir os 10 mandamentos e batizar", "Não furtar e não adulterar"], ans: 0 },
+                { q: "Qual foi o primeiro milagre de Jesus registrado na Bíblia?", opts: ["Transformou água em vinho num casamento", "Curu o cego Bartimeu", "Andou sobre as águas", "Multiplicou pães e peixes"], ans: 0 },
+                { q: "Com 176 versículos, qual é o maior capítulo de toda a Bíblia?", opts: ["Salmo 119", "Salmo 150", "Salmo 117", "Salmo 105"], ans: 0 },
+                { q: "Qual profeta fez o ferro de um machado flutuar na água?", opts: ["Eliseu", "Josué", "Arão", "Moisés"], ans: 0 },
+                { q: "Quem foi a mulher estéril que orou por um filho e o consagrou ao Senhor?", opts: ["Ana", "Maria", "Sara", "Isabel"], ans: 0 },
+                { q: "Qual mulher traiu Sansão revelando o segredo de sua força?", opts: ["Dalila", "Sua esposa de Timna", "Leí", "Mulher de Gaza"], ans: 0 },
+                { q: "Dos 10 leprosos curados por Jesus, qual era a origem do único que voltou para agradecer?", opts: ["Samaria", "Nazaré", "Síria", "Sodoma"], ans: 0 }
+            ],
+            4: [
+                { q: "Qual profeta foi lançado numa cisterna lamacenta por pregar a Palavra?", opts: ["Jeremias", "Daniel", "Samuel", "Isaías"], ans: 0 },
+                { q: "Quem orou dizendo: 'Senhor dos Exércitos... se me deres um filho varão, ao Senhor o consagrarei'?", opts: ["Ana (mãe de Samuel)", "A mãe de Sansão", "A mãe de João Batista", "A mãe de José"], ans: 0 },
+                { q: "Quem fez a oração 'Na minha aflição clamei por socorro...' de dentro de um grande peixe?", opts: ["Jonas", "Pedro", "Davi", "Moisés"], ans: 0 },
+                { q: "Quais os primeiros animais criados no mundo, segundo Gênesis 1?", opts: ["Os marinhos e as aves", "Os terrestres domésticos", "Os terrestres selvagens", "Os anfíbios e répteis"], ans: 0 },
+                { q: "A Bíblia descreve estes dois homens como tendo beleza extraordinária:", opts: ["Saul e Absalão", "Davi e Salomão", "Roboão e Jeroboão", "Absalão e Sansão"], ans: 0 },
+                { q: "A Bíblia destaca a beleza extraordinária destas mulheres, EXCETO:", opts: ["Rainha de Sabá e Lia", "Sara, Raquel e Rebeca", "Rainha Ester e Bate-Seba", "As filhas de Jó e Abigail"], ans: 0 },
+                { q: "São histórias ensinadas por Jesus através de parábolas, EXCETO:", opts: ["A cura dos 10 leprosos", "A ovelha perdida", "O fariseu e o publicano", "O filho pródigo"], ans: 0 },
+                { q: "Ao explicar a Parábola do Semeador, Jesus disse que a semente representa:", opts: ["A Palavra de Deus", "A boa terra", "Os passarinhos", "O semeador"], ans: 0 },
+                { q: "Quem foi o sobrinho de Abraão que viveu próximo a Sodoma?", opts: ["Ló", "Naum", "Saul", "Amós"], ans: 0 },
+                { q: "Sobre o apóstolo Pedro é INCORRETO afirmar que:", opts: ["Foi líder dos escribas no Templo", "Foi chamado Simão e Cefas", "Pregou no Pentecontes", "Era pescador antes de ser discípulo"], ans: 0 },
+                { q: "Quais cidades bíblicas possuem nomes idênticos a um estado brasileiro e sua capital?", opts: ["Pará e Belém", "Ceará e Fortaleza", "Bahia e Salvador", "São Paulo e São Paulo"], ans: 0 },
+                { q: "Qual o nome do filho de Abraão com a serva Agar?", opts: ["Ismael", "Isaque", "Zinrã", "Jocsã"], ans: 0 },
+                { q: "Quantas pedras lisas do riacho Davi separou para enfrentar Golias?", opts: ["5 (Cinco)", "6 (Seis)", "4 (Quatro)", "3 (Três)"], ans: 0 },
+                { q: "Qual parábola de Jesus ilustra perfeitamente a compaixão e o perdão do Pai?", opts: ["Parábola do Filho Pródigo", "Parábola do Joio e Trigo", "Parábola das Dez Virgens", "Parábola do Semeador"], ans: 0 },
+                { q: "Com que idade aproximada Jesus iniciou o seu ministério público?", opts: ["Aproximadamente 30 anos", "18 anos", "12 anos", "Aproximadamente 7 anos"], ans: 0 }
+            ],
+            5: [
+                { q: "Todas essas histórias se encontram no livro de Gênesis, EXCETO:", opts: ["O nascimento de Moisés", "A Torre de Babel", "A destruição de Sodoma", "O Dilúvio e a Arca"], ans: 0 },
+                { q: "Em qual livro do Novo Testamento encontramos a galeria dos 'Heróis da Fé'?", opts: ["Hebreus", "Romanos", "Gálatas", "Apocalipse"], ans: 0 },
+                { q: "Em qual livro do Antigo Testamento lemos a história do juiz Sansão?", opts: ["Juízes", "1 Reis", "Gênesis", "Provérbios"], ans: 0 },
+                { q: "Discípulo de Jesus, cobrador de impostos, também chamado de Levi:", opts: ["Mateus", "Marcos", "Lucas", "João"], ans: 0 },
+                { q: "Mulher corajosa que cedeu sua casa para as reuniões da igreja em Jerusalém:", opts: ["Maria (mãe de João Marcos)", "Maria de Roma", "Maria Madalena", "Maria de Betânia"], ans: 0 },
+                { q: "Em que livro lemos: 'Todas as coisas me são lícitas, mas nem todas convêm'?", opts: ["1 Coríntios", "Romanos", "1 Timóteo", "1 Tessalonicenses"], ans: 0 },
+                { q: "Em que livro está escrito: 'Se alguém está em Cristo, nova criatura é...'?", opts: ["2 Coríntios", "2 Tessalonicenses", "Romanos", "Efésios"], ans: 0 },
+                { q: "Todos estes são casais descritos na Bíblia, EXCETO:", opts: ["Absalão e Tamar (eram irmãos)", "Davi e Abigail", "Acsa e Otoniel", "José e Asenate"], ans: 0 },
+                { q: "Sobre a juíza e profetisa Débora, é correto afirmar:", opts: ["Venceu os cananeus com Baraque", "Foi casada com Assuero", "Foi rainha e esposa de Acabe", "Golpeou o general Sísera"], ans: 0 },
+                { q: "Quem foi julgada como embriagada pelo sacerdote Eli enquanto orava em silêncio?", opts: ["Ana", "Raquel", "Abigail", "Sara"], ans: 0 },
+                { q: "Qual destas NÃO é uma parábola contada por Jesus no Novo Testamento?", opts: ["A panela fervendo e a vinha", "O joio e o trigo", "As dez virgens", "O amigo importuno"], ans: 0 },
+                { q: "Qual apóstolo foi mordido por uma cobra venenosa na ilha de Malta e nada sofreu?", opts: ["Paulo", "João", "Pedro", "Lucas"], ans: 0 },
+                { q: "Qual parábola ensina diretamente sobre o amor e a compaixão ao próximo?", opts: ["O Bom Samaritano", "O Joio", "A Rede", "Os Dois Filhos"], ans: 0 },
+                { q: "Que idade Sara tinha aproximadamente quando deu à luz Isaque?", opts: ["90 anos", "45 anos", "68 anos", "130 anos"], ans: 0 },
+                { q: "Qual o nome do filho de Isabel e Zacarias, precursor de Jesus?", opts: ["João Batista", "José de Arimatéia", "Simão Pedro", "João Marcos"], ans: 0 }
+            ],
+            6: [
+                { q: "No Apocalipse, o título de Jesus 'Alfa e Ômega' significa que Ele é:", opts: ["O Princípio e o Fim", "A Videira Verdadeira", "O Pão da Vida", "A Luz do Mundo"], ans: 0 },
+                { q: "Qual livro relata a salvação dos judeus na Pérsia contra o plano de Hamã?", opts: ["Ester", "Esdras", "Eclesiastes", "Êxodo"], ans: 0 },
+                { q: "Qual rei de Judá adoeceu gravemente dos pés, mas buscou apenas aos médicos e não a Deus?", opts: ["Asa", "Saul", "Ezequias", "Salomão"], ans: 0 },
+                { q: "Na Bíblia, Perez e Zera, filhos de Judá e Tamar, eram:", opts: ["Irmãos gêmeos", "Pai e filho", "Inimigos de guerra", "Tio e sobrinho"], ans: 0 },
+                { q: "Quais frutas foram trazidas de amostra pelos espias de Canaã?", opts: ["Uvas, romãs e figos", "Uvas, tâmaras e maçãs", "Uvas, abacaxis e melões", "Uvas, figos e maçãs"], ans: 0 },
+                { q: "A frota de navios de Salomão trazia a cada três anos vários bens, incluindo:", opts: ["Ouro, prata, marfim e pavões", "Armas e cavalos de guerra", "Madeiras e perfumes finos", "Tecidos e grãos raros"], ans: 0 },
+                { q: "Qual o nome do casal que caiu morto após mentir ao Espírito Santo sobre uma oferta?", opts: ["Ananias e Safira", "Acabe e Jezabel", "Áquila e Priscila", "Félix e Drusila"], ans: 0 },
+                { q: "Em qual ilha o apóstolo Paulo náufragou a caminho de Roma?", opts: ["Malta", "Creta", "Patmos", "Sicília"], ans: 0 },
+                { q: "Que elemento associado ao apóstolo Pedro curava os enfermos nas ruas?", opts: ["Sua sombra ao passar", "Sua oração em alto som", "Suas vestes sagradas", "Seus remédios medicinais"], ans: 0 },
+                { q: "Qual destas pragas no Egito os magos do Faraó NÃO conseguiram imitar?", opts: ["Praga de piolhos", "Vara virar serpente", "Água virar sangue", "Praga de rãs"], ans: 0 },
+                { q: "Qual homem justo recebeu a promessa de não morrer sem antes ver o Cristo?", opts: ["Simeão", "Tomé", "Zacarias", "João Batista"], ans: 0 },
+                { q: "Quem foi o renomado mestre da lei e professor do apóstolo Paulo?", opts: ["Gamaliel", "Jeremias", "Timóteo", "Ananias"], ans: 0 },
+                { q: "Quantos provérbios a Bíblia registra que o Rei Salomão proferiu?", opts: ["Três mil", "Mil", "Mil e cinco", "Três mil e cinco"], ans: 0 },
+                { q: "Quem exclamou no Templo: 'Agora, Senhor, podes despedir em paz o teu servo...'?", opts: ["Simeão", "Soldado romano", "Mago do Oriente", "Cego Bartimeu"], ans: 0 },
+                { q: "Qual era o nome da esposa egípcia de José no Egito?", opts: ["Asenate", "Potífera", "Zípora", "Quetura"], ans: 0 }
+            ],
+            7: [
+                { q: "Em qual dos quatro Evangelhos encontramos registrada a história de Zaqueu?", opts: ["Lucas", "Mateus", "Marcos", "João"], ans: 0 },
+                { q: "Qual destes milagres de Jesus está registrado nos QUATRO Evangelhos?", opts: ["Multiplicação dos pães e peixes", "Sermão do Monte", "Parábola da Ovelha Perdida", "Cura da mulher hemorrágica"], ans: 0 },
+                { q: "Além da multiplicação dos pães, qual evento está nos 4 Evangelhos?", opts: ["O Batismo de Jesus", "A Última Ceia", "A Genealogia de Jesus", "A oração do Pai Nosso"], ans: 0 },
+                { q: "Por qual motivo Deus não permitiu que o Rei Davi construísse o Templo?", opts: ["Derramou muito sangue em guerras", "Cometeu adultério", "Não tinha terreno", "Não tinha materiais"], ans: 0 },
+                { q: "A 'quarta vigília da noite', quando Jesus andou sobre o mar, corresponde a:", opts: ["De madrugada (3h às 6h)", "Início da noite", "Fim da tarde", "Meia-noite"], ans: 0 },
+                { q: "De qual região vinham o ouro e pedras preciosas usados no Templo de Salomão?", opts: ["Parvaim", "Edom", "Líbano", "Sabá"], ans: 0 },
+                { q: "No Evangelho de João, qual destas é uma das declarações 'EU SOU' de Jesus?", opts: ["Eu sou a Porta", "Eu sou a Direção", "Eu sou o Princípio e o Fim", "Eu sou o Cordeiro"], ans: 0 },
+                { q: "Sobre a família terrena de Jesus, é correto afirmar segundo os Evangelhos:", opts: ["Tinha irmãos e irmãs", "Foi filho único", "Nasceu em Nazaré", "Seu sobrenome era Cristo"], ans: 0 },
+                { q: "Qual rei de Judá foi ferido com lepra após tentar queimar incenso no Templo?", opts: ["Uzias", "Josias", "Josafá", "Acazias"], ans: 0 },
+                { q: "Segundo 1 Reis 4:32, quantos cânticos/canções Salomão compôs?", opts: ["Mais de mil e cinco", "Quinhentos", "Cinquenta", "Três mil"], ans: 0 },
+                { q: "Qual era a profissão de Priscila e de seu marido Áquila?", opts: ["Fabricantes de tendas", "Vendedores de púrpura", "Escultores", "Costureiros de luxo"], ans: 0 },
+                { q: "Quem era a irmã de Lia, primeira esposa de Jacó?", opts: ["Raquel", "Rebeca", "Diná", "Agar"], ans: 0 },
+                { q: "Qual destes filhos de Jacó NÃO era filho de Lia?", opts: ["José (filho de Raquel)", "Simeão", "Judá", "Rúben"], ans: 0 },
+                { q: "Em quais línguas foi escrita a placa da cruz de Cristo?", opts: ["Hebraico, Latim e Grego", "Hebraico, Árabe e Grego", "Latim, Francês e Grego", "Aramaico, Copta e Latim"], ans: 0 },
+                { q: "Na parábola de Jesus, o Reino dos Céus é comparado a qual semente?", opts: ["Grão de mostarda", "Semente de trigo", "Semente de joio", "Semente de uva"], ans: 0 }
+            ],
+            8: [
+                { q: "Qual destas moedas/unidades NÃO é de origem bíblica antiga?", opts: ["Libra (moeda moderna)", "Siclo", "Dracma", "Talento"], ans: 0 },
+                { q: "A moeda achada por Pedro na boca do peixe para pagar o imposto era um:", opts: ["Estáter", "Denário", "Mina", "Asse"], ans: 0 },
+                { q: "A qual tribo de Israel pertencia o apóstolo Paulo?", opts: ["Benjamim", "Judá", "Levi", "Dã"], ans: 0 },
+                { q: "Em qual epístola paulina encontramos a passagem sobre o 'Fruto do Espírito'?", opts: ["Gálatas", "Romanos", "Efésios", "Filipenses"], ans: 0 },
+                { q: "Qual é o único Evangelho que registra a Parábola do Filho Pródigo?", opts: ["Lucas", "Mateus", "Marcos", "João"], ans: 0 },
+                { q: "Qual profeta teve a visão de um cesto de frutos de verão maduros?", opts: ["Amós", "Daniel", "Davi", "Jonas"], ans: 0 },
+                { q: "Qual apóstolo teve a visão de um lençol baixado do céu com animais puros e impuros?", opts: ["Pedro", "Paulo", "Cornélio", "Barnabé"], ans: 0 },
+                { q: "Quais profetas e historiadores registraram os atos do Rei Davi?", opts: ["Samuel, Natã e Gade", "Isaías, Jeremias e Oséias", "Elias e Eliseu", "João Batista e Zaqueu"], ans: 0 },
+                { q: "Silas, companheiro de missões de Paulo, também era chamado nas cartas de:", opts: ["Silvano", "Silva", "Silvério", "Silano"], ans: 0 },
+                { q: "Quantos anos viveu Sara, esposa de Abraão?", opts: ["127 anos", "120 anos", "97 anos", "90 anos"], ans: 0 },
+                { q: "Quantos dias Jesus passou aparecendo aos discípulos entre a ressurreição e a ascensão?", opts: ["40 dias", "3 dias", "7 dias", "14 dias"], ans: 0 },
+                { q: "Qual ex-mágico tentou comprar o dom do Espírito Santo dos apóstolos?", opts: ["Simão", "Barjesus", "Crispo", "Ágabo"], ans: 0 },
+                { q: "Qual jovem dormiu durante a pregação de Paulo, caiu do 3º andar e foi restaurado?", opts: ["Êutico", "Ananias", "Estêvão", "Barnabé"], ans: 0 },
+                { q: "Quantos anos viveu o patriarca Abraão?", opts: ["175 anos", "127 anos", "100 anos", "180 anos"], ans: 0 },
+                { q: "Quem recebeu Mical por esposa após entregar 200 prepúcios de filisteus ao rei Saul?", opts: ["Davi", "Esaú", "José", "Sansão"], ans: 0 }
+            ],
+            9: [
+                { q: "O livro do profeta Obadias contém uma profecia direta contra qual nação?", opts: ["Edom", "Egito", "Judá", "Nínive"], ans: 0 },
+                { q: "A quem o profeta Natã contou a parábola do homem rico e do homem pobre?", opts: ["Ao Rei Davi", "A Zaqueu", "Aos Fariseus", "Aos Discípulos"], ans: 0 },
+                { q: "Qual é o décimo livro na ordem do Novo Testamento?", opts: ["Efésios", "2 Samuel", "2 Coríntios", "Filipenses"], ans: 0 },
+                { q: "Onde se lê: 'Porque pela graça sois salvos, por meio da fé; e isto não vem de vós...'?", opts: ["Efésios 2:8", "Romanos 8:1", "Gálatas 5:14", "Colossenses 3:2"], ans: 0 },
+                { q: "Qual sábio conselheiro era tio de Davi e educador de seus filhos?", opts: ["Jônatas", "Jessé", "Joabe", "Josias"], ans: 0 },
+                { q: "Além de pastor de gado, o profeta Amós colhia qual fruto no campo?", opts: ["Figos (sicômoros)", "Maçãs", "Bananas", "Milho"], ans: 0 },
+                { q: "Quem foi Elifaz na história bíblica?", opts: ["Um dos três amigos de Jó", "Filho de Jacó", "Discípulo de Elias", "Soldado de Davi"], ans: 0 },
+                { q: "Qual mulher judia era esposa do governador Félix e ouviu Paulo falar da fé?", opts: ["Drusila", "Berenice", "Dâmaris", "Júnias"], ans: 0 },
+                { q: "Qual texto dos Salmos o diabo citou para tentar Jesus no deserto?", opts: ["Salmo 91:11-12", "Salmo 90:11-12", "Salmo 96:11-12", "Salmo 119:11-12"], ans: 0 },
+                { q: "Por qual motivo Rúben perdeu seu direito de primogenitura?", opts: ["Profanou o leito do seu pai", "Mentiu sobre José", "Apoiou guerras", "Teve inveja"], ans: 0 },
+                { q: "Quem foi morto por quebrar seu juramento ao sair de Jerusalém atrás de escravos?", opts: ["Simei", "Simeão", "Absalão", "Labão"], ans: 0 },
+                { q: "Em qual profeta se lê que sacerdotes ensinavam por interesse e profetas por dinheiro?", opts: ["Miquéias 3:11", "Números 15:28", "Deuteronômio 21:5", "1 Pedro 2:9"], ans: 0 },
+                { q: "Quais dois discípulos foram chamados por Jesus de 'Boanerges' (Filhos do Trovão)?", opts: ["João e Tiago", "João e Pedro", "Pedro e Tiago", "Judas e Tomé"], ans: 0 },
+                { q: "Quem foi o misterioso personagem que era Rei e Sacerdote de Salém ao mesmo tempo?", opts: ["Melquisedeque", "Joacaz", "Manassés", "Saul"], ans: 0 },
+                { q: "Quais os nomes das duas esposas de Lameque, o primeiro bígamo da Bíblia?", opts: ["Ada e Zilá", "Ana e Penina", "Lia e Raquel", "Zilpa e Bila"], ans: 0 }
+            ],
+            10: [
+                { q: "Que costume especial costumava ser realizado no funeral dos reis de Judá?", opts: ["Queima de especiarias aromáticas", "Sacrifício de touro", "Monumento de bronze", "Plantio de carvalho"], ans: 0 },
+                { q: "Além de Salomão, qual o outro nome que o profeta Natã deu ao filho de Davi?", opts: ["Jedidias", "Anadias", "Malaquias", "Abias"], ans: 0 },
+                { q: "De quais materiais nobres era feito o majestoso trono de Salomão?", opts: ["Ouro e Marfim", "Bronze e Safiras", "Prata e Rubis", "Carvalho e Esmeraldas"], ans: 0 },
+                { q: "Quem foi a diaconisa Febe mencionada por Paulo na Carta aos Romanos?", opts: ["Protetora de muitos e de Paulo", "Esposa de Pedro", "Rainha da Pérsia", "Mãe de Timóteo"], ans: 0 },
+                { q: "Deuteronômio 8 fala dos 7 frutos abundantes da Terra Prometida, incluindo:", opts: ["Trigo, cevada, uva, figo, romã, azeite e mel", "Milho, feijão e arroz", "Maçã, melão e banana", "Laranja, limão e tâmara"], ans: 0 },
+                { q: "Segundo 1 Coríntios 1, quais destas poucas pessoas Paulo batizou pessoalmente?", opts: ["Crispo, Gaio e Estéfanas", "Timóteo e Cloe", "Áquila e Priscila", "Apolo e Silas"], ans: 0 },
+                { q: "Por que a esposa egípcia de Salomão não podia morar no Palácio de Davi?", opts: ["Porque o local abrigara a Arca Sagrada", "Pois as israelitas não queriam", "Por ser muito distante", "Ela recusou"], ans: 0 },
+                { q: "Por quantos anos ao todo o Rei Davi reinou sobre Israel e Judá?", opts: ["40 anos", "30 anos", "60 anos", "20 anos"], ans: 0 },
+                { q: "Na visão do Apocalipse, quantos são os Cavaleiros do Apocalipse?", opts: ["4 cavaleiros", "5 cavaleiros", "7 cavaleiros", "10 cavaleiros"], ans: 0 },
+                { q: "Qual o nome dado à serpente de bronze feita por Moisés que depois virou ídolo?", opts: ["Neustã", "Aserá", "Leviatã", "Besta"], ans: 0 },
+                { q: "Quais discípulos perguntaram se podiam mandar descer fogo do céu sobre os samaritanos?", opts: ["João e Tiago", "Pedro e Tiago", "Pedro e João", "Pedro e André"], ans: 0 },
+                { q: "A quem o apóstolo Paulo chamou carinhosamente de 'meu companheiro de lutas'?", opts: ["Arquipo", "Apolo", "Áfia", "Timóteo"], ans: 0 },
+                { q: "Quais foram os 3 principais e mais poderosos guerreiros do exército de Davi?", opts: ["Josebe-Bassebete, Eleazar e Samá", "Eliabe, Joabe e Asael", "Saul, Jônatas e Absalão", "Sadraque, Mesaque e Abede-Nego"], ans: 0 },
+                { q: "Onde é narrado o evento dos rapazes que zombaram do profeta Eliseu chamando-o de careca?", opts: ["2 Reis 2:23-24", "Juízes 7:6", "Juízes 15:15", "Números 16:34"], ans: 0 },
+                { q: "Qual rei contratou o profeta Balaão para amaldiçoar Israel, mas viu o povo ser abençoado?", opts: ["Balaque, rei de Moabe", "Nabucodonosor", "Asa, rei de Judá", "Senaqueribe"], ans: 0 }
+            ]
+        };
+
+        /* ==========================================================================
+           REGRAS DE PONTUAÇÃO E ESTRUTURA DO JOGO
+           ========================================================================== */
+        const PRIZE_LADDER = [
+            { round: 1, current: 1000, stop: 0, fail: 0 },
+            { round: 2, current: 2000, stop: 1000, fail: 500 },
+            { round: 3, current: 5000, stop: 2000, fail: 1000 },
+            { round: 4, current: 10000, stop: 5000, fail: 2500 },
+            { round: 5, current: 25000, stop: 10000, fail: 5000 },
+            { round: 6, current: 50000, stop: 25000, fail: 12500 },
+            { round: 7, current: 100000, stop: 50000, fail: 25000 },
+            { round: 8, current: 250000, stop: 100000, fail: 50000 },
+            { round: 9, current: 500000, stop: 250000, fail: 125000 },
+            { round: 10, current: 1000000, stop: 500000, fail: 0 }
+        ];
+
+        // Estado do Jogo
+        let currentRound = 1; // 1 a 10
+        let currentQuestionObj = null;
+        let shuffledOptions = [];
+        let correctShuffledIndex = -1;
+        let timerInterval = null;
+        let timeLeft = 30;
+        let jumpsLeft = 3;
+
+        // Ajudas
+        let helpSeminaristasUsed = false;
+        let helpCartasUsed = false;
+        let helpPlacasUsed = false;
+
+        // Registro de perguntas usadas para não repetir
+        let usedQuestionIndicesByPhase = {
+            1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [], 8: [], 9: [], 10: []
+        };
+
+        /* ==========================================================================
+           INICIALIZAÇÃO DO JOGO
+           ========================================================================== */
+        
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function beep(freq=600,dur=.15){try{let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.frequency.value=freq;g.gain.value=.08;o.start();o.stop(audioCtx.currentTime+dur);}catch(e){}}
+        function beginGame(){
+    try {
+        const intro=document.getElementById('intro-screen');
+        const modal=document.getElementById('modal-overlay');
+        if(intro) intro.classList.add('hidden-screen');
+        if(modal){ modal.classList.add('hidden'); modal.style.display='none'; }
+        const game=document.querySelector('.game-container');
+        if(game){ game.style.display='flex'; game.style.zIndex='2'; }
+        audioCtx.resume();
+        beep(900,.25);
+        startNewGame();
+    } catch(e){
+        console.error('Erro ao iniciar jogo:', e);
+    }
+}
+        function showInstructions(){
+    const html = `<b>Objetivo:</b> chegar a 1.000.000 de pontos.<br><br>
+    São 10 fases com perguntas bíblicas.<br><br>
+    Você possui:<br>
+    🎓 3 ajudas: Seminaristas, Cartas e Placas<br>
+    ⏭️ 3 pulos de perguntas<br>
+    ⏱️ 30 segundos para responder cada pergunta.<br><br>
+    Depois da resposta será exibida a referência bíblica da questão.<br><br>
+    Clique em Voltar para retornar ao menu inicial.`;
+
+    const modal=document.getElementById('modal-overlay');
+    const btn=document.getElementById('modal-btn-close');
+    document.getElementById('modal-title').innerText='📖 Como Jogar';
+    document.getElementById('modal-body').innerHTML=html;
+    btn.innerText='Voltar';
+    btn.onclick=function(){
+        modal.classList.add('hidden');
+        modal.style.display='none';
+        document.getElementById('intro-screen').classList.remove('hidden-screen');
+    };
+    modal.style.display='flex';
+    modal.style.zIndex='9999';
+    modal.classList.remove('hidden');
+}
+
+
+        window.onload = function() {
+        };
+
+        function startNewGame() {
+            currentRound = 1;
+            jumpsLeft = 3;
+            helpSeminaristasUsed = false;
+            helpCartasUsed = false;
+            helpPlacasUsed = false;
+
+            for (let i = 1; i <= 10; i++) {
+                usedQuestionIndicesByPhase[i] = [];
+            }
+
+            updateHelpsUI();
+            loadRound(currentRound);
+        }
+
+        /* ==========================================================================
+           CARREGAMENTO DE RODADA E PERGUNTA
+           ========================================================================== */
+        function loadRound(roundNumber) {
+            currentRound = roundNumber;
+            const prizeInfo = PRIZE_LADDER[roundNumber - 1];
+
+            // Atualiza Dashboard
+            document.getElementById('txt-round').innerText = `${roundNumber} / 10`;
+            document.getElementById('txt-prize-current').innerText = prizeInfo.current.toLocaleString('pt-BR');
+            document.getElementById('txt-prize-stop').innerText = prizeInfo.stop.toLocaleString('pt-BR');
+            document.getElementById('txt-prize-fail').innerText = prizeInfo.fail.toLocaleString('pt-BR');
+
+            // Regra especial da pergunta do milhão: não pode usar ajudas nem pulos
+            if (roundNumber === 10) {
+                disableAllHelpsForMillion();
+            }
+
+            // Seleciona pergunta aleatória da fase correspondente
+            const phaseQuestions = QUESTION_DATABASE[roundNumber];
+            if (!phaseQuestions || phaseQuestions.length === 0) {
+                console.error("Fase sem perguntas:", roundNumber);
+                return;
+            }
+            let availableIndices = [];
+            for (let i = 0; i < phaseQuestions.length; i++) {
+                if (!usedQuestionIndicesByPhase[roundNumber].includes(i)) {
+                    availableIndices.push(i);
+                }
+            }
+
+            // Se esgotou (caso pulou muito), reseta o histórico da fase
+            if (availableIndices.length === 0) {
+                usedQuestionIndicesByPhase[roundNumber] = [];
+                availableIndices = phaseQuestions.map((_, idx) => idx);
+            }
+
+            const randomIdx = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+            usedQuestionIndicesByPhase[roundNumber].push(randomIdx);
+
+            currentQuestionObj = phaseQuestions[randomIdx];
+
+            // Embaralha opções mantendo a rastreabilidade da resposta correta
+            prepareShuffledOptions(currentQuestionObj);
+
+            // Renderiza na tela
+            renderQuestionUI();
+
+            // Inicia Cronômetro
+            resetTimer();
+        }
+
+        function prepareShuffledOptions(qObj) {
+            const rawOptions = qObj.opts.map((opt, idx) => ({
+                text: opt,
+                isCorrect: (idx === qObj.ans)
+            }));
+
+            // Embaralhamento Fisher-Yates
+            for (let i = rawOptions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [rawOptions[i], rawOptions[j]] = [rawOptions[j], rawOptions[i]];
+            }
+
+            shuffledOptions = rawOptions;
+            correctShuffledIndex = shuffledOptions.findIndex(o => o.isCorrect);
+        }
+
+        function renderQuestionUI() {
+            document.getElementById('txt-question').innerText = currentQuestionObj.q;
+
+            const container = document.getElementById('options-container');
+            const prefixes = ['A', 'B', 'C', 'D'];
+
+            container.innerHTML = '';
+            shuffledOptions.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.id = `opt-btn-${idx}`;
+                btn.onclick = () => selectOption(idx);
+                btn.innerHTML = `
+                    <span class="option-prefix">${prefixes[idx]}</span>
+                    <span class="option-text">${opt.text}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        /* ==========================================================================
+           CRONÔMETRO (30 SEGUNDOS)
+           ========================================================================== */
+        function pauseTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resumeTimer() {
+            if (timerInterval || timeLeft <= 0) return;
+
+            const display = document.getElementById('timer-display');
+            if (!display) return;
+
+            display.classList.toggle('timer-warning', timeLeft <= 5);
+            display.innerText = timeLeft;
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                display.innerText = timeLeft;
+
+                if (timeLeft <= 5) {
+                    display.classList.add('timer-warning');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timeLeft = 30;
+            const display = document.getElementById('timer-display');
+            display.classList.remove('timer-warning');
+            display.innerText = timeLeft;
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                display.innerText = timeLeft;
+
+                if (timeLeft <= 5) {
+                    display.classList.add('timer-warning');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeOut();
+                }
+            }, 1000);
+        }
+
+        function handleTimeOut() {
+            const prizeInfo = PRIZE_LADDER[currentRound - 1];
+            showModal(
+                "⏰ Tempo Esgotado!",
+                `O tempo de 30 segundos terminou.<br>Você perdeu o jogo e sai com <b>${prizeInfo.fail.toLocaleString('pt-BR')} pontos</b>.`,
+                () => startNewGame()
+            );
+        }
+
+        /* ==========================================================================
+           LÓGICA DE RESPOSTA E FLUXO DO JOGO
+           ========================================================================== */
+        function selectOption(index) {
+            clearInterval(timerInterval);
+
+            // Desabilita botões para evitar duplo clique
+            const buttons = document.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = true);
+
+            const selectedBtn = document.getElementById(`opt-btn-${index}`);
+            selectedBtn.classList.add('selected'); beep(500,.1);
+
+            setTimeout(() => {
+                if (index === correctShuffledIndex) {
+                    // Resposta Correta
+                    selectedBtn.classList.remove('selected');
+                    selectedBtn.classList.add('correct'); beep(1000,.25);
+
+                    setTimeout(() => {
+                        if (currentRound === 10) {
+                            // Venceu o jogo (1 MILHÃO)
+                            showModal(
+                                "🎉 PARABÉNS! VOCÊ VENCEU! 🎉",
+                                "Você respondeu corretamente à pergunta final e conquistou o prêmio máximo de <b>1.000.000 DE PONTOS</b>!",
+                                () => startNewGame()
+                            );
+                        } else {
+                            // Avança para a próxima rodada
+                            setTimeout(() => {
+                                loadRound(currentRound + 1);
+                            }, 100);
+                        }
+                    }, 1200);
+
+                } else {
+                    // Resposta Errada
+                    selectedBtn.classList.remove('selected');
+                    selectedBtn.classList.add('wrong'); beep(200,.35);
+                    
+                    // Revela a correta
+                    const correctBtn = document.getElementById(`opt-btn-${correctShuffledIndex}`);
+                    correctBtn.classList.add('correct');
+
+                    const prizeInfo = PRIZE_LADDER[currentRound - 1];
+                    setTimeout(() => {
+                        showModal(
+                            "❌ Resposta Incorreta!",
+                            `A resposta certa era a opção com o texto verde.<br><br><b>Referência bíblica:</b> ${currentQuestionObj.ref || 'Referência bíblica não cadastrada neste item do banco'}<br>Você encerrou a partida e levou <b>${prizeInfo.fail.toLocaleString('pt-BR')} pontos</b>.`,
+                            () => startNewGame()
+                        );
+                    }, 1500);
+                }
+            }, 1000);
+        }
+
+        function confirmStop() {
+            clearInterval(timerInterval);
+            const prizeInfo = PRIZE_LADDER[currentRound - 1];
+            
+            showModal(
+                "🛑 Deseja Parar?",
+                `Se você parar agora, levará <b>${prizeInfo.stop.toLocaleString('pt-BR')} pontos</b>.<br>Deseja encerrar sua jornada aqui?`,
+                () => startNewGame(),
+                true // Exibe botão de cancelar para voltar ao jogo
+            );
+        }
+
+        /* ==========================================================================
+           SISTEMA DE AJUDAS E PULOS
+           ========================================================================== */
+        function updateHelpsUI() {
+            document.getElementById('txt-pulos').innerText = jumpsLeft;
+            document.getElementById('btn-pulos').disabled = (jumpsLeft <= 0 || currentRound === 10);
+            document.getElementById('btn-seminaristas').disabled = (helpSeminaristasUsed || currentRound === 10);
+            document.getElementById('btn-cartas').disabled = (helpCartasUsed || currentRound === 10);
+            document.getElementById('btn-placas').disabled = (helpPlacasUsed || currentRound === 10);
+        }
+
+        function disableAllHelpsForMillion() {
+            document.getElementById('btn-pulos').disabled = true;
+            document.getElementById('btn-seminaristas').disabled = true;
+            document.getElementById('btn-cartas').disabled = true;
+            document.getElementById('btn-placas').disabled = true;
+        }
+
+        // 1. AJUDA DOS SEMINARISTAS
+        function useSeminaristas() {
+            if (helpSeminaristasUsed || currentRound === 10) return;
+            helpSeminaristasUsed = true;
+            pauseTimer();
+            updateHelpsUI();
+
+            const letters = ['A', 'B', 'C', 'D'];
+            const correctLetter = letters[correctShuffledIndex];
+
+            // Regra: Sempre 2 ou 3 acertam. Nunca erram 2 ou 3.
+            // S1 e S2 sempre acertam. S3 tem 70% de chance de acertar e 30% de errar.
+            let s1 = correctLetter;
+            let s2 = correctLetter;
+            let s3 = correctLetter;
+
+            if (Math.random() > 0.7) {
+                // S3 erra
+                const wrongLetters = letters.filter((_, idx) => idx !== correctShuffledIndex);
+                s3 = wrongLetters[Math.floor(Math.random() * wrongLetters.length)];
+            }
+
+            const content = `
+                <div style="text-align:center; margin-bottom:14px;">
+                    <div style="font-size:2.7rem; letter-spacing:8px; line-height:1;">👨‍🏫 👨‍🏫 👨‍🏫</div>
+                    <div style="margin-top:6px; color:var(--blue-glow); font-weight:bold;">Os 3 seminaristas estão votando</div>
+                </div>
+                <div style="text-align:left; background:rgba(0,0,0,0.3); padding:12px; border-radius:8px;">
+                    <p style="margin-bottom:8px;"><b>👨‍🏫 Seminarista 1:</b> "Estudei essa passagem, a resposta certa é a opção <b>${s1}</b>."</p>
+                    <p style="margin-bottom:8px;"><b>👨‍🏫 Seminarista 2:</b> "Com certeza, concordo com a opção <b>${s2}</b>."</p>
+                    <p><b>👨‍🏫 Seminarista 3:</b> "Eu voto na opção <b>${s3}</b>."</p>
+                </div>
+            `;
+
+            showCustomModal("🎓 Ajuda dos Seminaristas", content);
+        }
+
+        // 2. AJUDA DAS CARTAS
+        function useCartas() {
+            if (helpCartasUsed || currentRound === 10) return;
+            helpCartasUsed = true;
+            pauseTimer();
+            updateHelpsUI();
+
+            const content = `
+                <p style="margin-bottom: 12px;">Escolha uma das cartas para eliminar opções incorretas:</p>
+                <div class="cards-container">
+                    <div class="card-item" onclick="pickCard(this, 0)">🎴</div>
+                    <div class="card-item" onclick="pickCard(this, 1)">🎴</div>
+                    <div class="card-item" onclick="pickCard(this, 2)">🎴</div>
+                    <div class="card-item" onclick="pickCard(this, 3)">🎴</div>
+                </div>
+                <div id="card-result-txt" style="min-height: 24px; font-weight: bold; color: var(--yellow-gold);"></div>
+            `;
+
+            showCustomModal("🃏 Jogo das Cartas", content, false);
+        }
+
+        function pickCard(cardElement, index) {
+            // Define os valores das 4 cartas (Rei = 0, Ás = 1, Ás de Ouros/2 = 2, 3 = 3)
+            const cardsPool = [
+                { title: "Rei (0)", removeCount: 0 },
+                { title: "Ás (1)", removeCount: 1 },
+                { title: "2 (Duque)", removeCount: 2 },
+                { title: "3 (Terno)", removeCount: 3 }
+            ];
+
+            // Embaralha as cartas disponíveis no clique
+            const selectedCard = cardsPool[Math.floor(Math.random() * cardsPool.length)];
+
+            cardElement.classList.add('revealed');
+            cardElement.innerText = selectedCard.title.split(' ')[0];
+
+            // Desabilita clique nas outras cartas
+            const cards = document.querySelectorAll('.card-item');
+            cards.forEach(c => c.onclick = null);
+
+            // Elimina as opções erradas na interface principal
+            eliminateWrongOptions(selectedCard.removeCount);
+
+            const resultTxt = document.getElementById('card-result-txt');
+            if (selectedCard.removeCount === 0) {
+                resultTxt.innerText = "Você tirou o Rei! Nenhuma opção incorreta foi eliminada.";
+            } else {
+                resultTxt.innerText = `Você tirou o ${selectedCard.title}! Foram eliminadas ${selectedCard.removeCount} opção(ões) errada(s).`;
+            }
+        }
+
+        function eliminateWrongOptions(count) {
+            if (count <= 0) return;
+
+            let wrongIndices = [];
+            shuffledOptions.forEach((_, idx) => {
+                if (idx !== correctShuffledIndex) {
+                    wrongIndices.push(idx);
+                }
+            });
+
+            // Embaralha as erradas para remover aleatoriamente
+            wrongIndices.sort(() => Math.random() - 0.5);
+
+            const toRemove = wrongIndices.slice(0, count);
+            toRemove.forEach(idx => {
+                const btn = document.getElementById(`opt-btn-${idx}`);
+                if (btn) {
+                    btn.disabled = true;
+                    btn.style.opacity = "0.2";
+                }
+            });
+        }
+
+        // 3. AJUDA DAS PLACAS
+        function usePlacas() {
+            if (helpPlacasUsed || currentRound === 10) return;
+            helpPlacasUsed = true;
+            pauseTimer();
+            updateHelpsUI();
+
+            // Plateia de 10 pessoas (40% a 75% para a correta, garantindo que seja sempre a maior porcentagem)
+            const correctPercent = Math.floor(Math.random() * 36) + 40; // 40% a 75%
+            let remainingPercent = 100 - correctPercent;
+
+            // Distribui o restante entre as 3 incorretas de forma que NENHUMA ultrapasse a correta
+            let wrongVotes = [0, 0, 0];
+            for (let i = 0; i < remainingPercent; i++) {
+                let r = Math.floor(Math.random() * 3);
+                // Garante que nenhuma errada iguale ou supere a correta
+                if (wrongVotes[r] + 1 < correctPercent) {
+                    wrongVotes[r]++;
+                } else {
+                    // Repassa para outra
+                    r = (r + 1) % 3;
+                    wrongVotes[r]++;
+                }
+            }
+
+            let votesDistribution = [0, 0, 0, 0];
+            votesDistribution[correctShuffledIndex] = correctPercent;
+
+            let wIdx = 0;
+            for (let i = 0; i < 4; i++) {
+                if (i !== correctShuffledIndex) {
+                    votesDistribution[i] = wrongVotes[wIdx];
+                    wIdx++;
+                }
+            }
+
+            const letters = ['A', 'B', 'C', 'D'];
+            let chartHTML = `
+                <div style="text-align:center; margin-bottom:12px;">
+                    <div style="font-size:2.5rem; letter-spacing:4px; line-height:1;">👥 👥 👥 👥 👥</div>
+                    <div style="margin-top:6px; color:var(--blue-glow); font-weight:bold;">Votação da plateia — 10 pessoas</div>
+                </div>
+                <p>Resultado da votação da plateia:</p><div class="chart-container">`;
+
+            for (let i = 0; i < 4; i++) {
+                chartHTML += `
+                    <div class="chart-bar-group">
+                        <span class="chart-val">${votesDistribution[i]}%</span>
+                        <div class="chart-bar" style="height: ${votesDistribution[i] * 1.2}px;"></div>
+                        <span class="chart-label">${letters[i]}</span>
+                    </div>
+                `;
+            }
+            chartHTML += `</div>`;
+
+            showCustomModal("📊 Votação das Placas", chartHTML);
+        }
+
+        // 4. PULOS
+        function usePulo() {
+            if (jumpsLeft <= 0 || currentRound === 10) return;
+
+            jumpsLeft--;
+            updateHelpsUI();
+
+            // Recarrega uma nova pergunta da mesma fase sem penalidade
+            loadRound(currentRound);
+        }
+
+        /* ==========================================================================
+           CONTROLE DE MODAIS
+           ========================================================================== */
+        function showModal(title, textHTML, onCloseCallback, showCancel = false) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerHTML = textHTML;
+
+            const modalOverlay = document.getElementById('modal-overlay');
+            const closeBtn = document.getElementById('modal-btn-close');
+
+            closeBtn.innerText = "OK";
+            closeBtn.onclick = () => {
+                modalOverlay.classList.add('hidden');
+                if (onCloseCallback) onCloseCallback();
+            };
+
+            // Trata botão de cancelamento se necessário
+            let cancelBtn = document.getElementById('modal-btn-cancel');
+            if (showCancel) {
+                if (!cancelBtn) {
+                    cancelBtn = document.createElement('button');
+                    cancelBtn.id = 'modal-btn-cancel';
+                    cancelBtn.className = 'btn-action btn-stop';
+                    cancelBtn.style.marginTop = '10px';
+                    closeBtn.parentNode.appendChild(cancelBtn);
+                }
+                cancelBtn.innerText = "Continuar Jogando";
+                cancelBtn.classList.remove('hidden');
+                cancelBtn.onclick = () => {
+                    modalOverlay.classList.add('hidden');
+                    resetTimer(); // Retoma o tempo
+                };
+            } else if (cancelBtn) {
+                cancelBtn.classList.add('hidden');
+            }
+
+            // Garante que o modal fique visível mesmo após a tela inicial ter
+            // aplicado display:none inline durante o início da partida.
+            modalOverlay.style.display = 'flex';
+            modalOverlay.classList.remove('hidden');
+        }
+
+        function showCustomModal(title, contentHTML) {
+            pauseTimer();
+
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-body').innerHTML = contentHTML;
+
+            const modalOverlay = document.getElementById('modal-overlay');
+            const closeBtn = document.getElementById('modal-btn-close');
+
+            let cancelBtn = document.getElementById('modal-btn-cancel');
+            if (cancelBtn) cancelBtn.classList.add('hidden');
+
+            closeBtn.innerText = "Voltar ao Jogo";
+            closeBtn.onclick = () => {
+                modalOverlay.classList.add('hidden');
+                resumeTimer();
+            };
+
+            // Mantém o mesmo comportamento de visibilidade para os modais de ajuda.
+            modalOverlay.style.display = 'flex';
+            modalOverlay.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
