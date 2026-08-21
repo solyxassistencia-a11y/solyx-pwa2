@@ -1,6 +1,6 @@
 /* ============================================================
-   SOLYX LOJISTA - SERVICE WORKER V3
-   PWA OFFLINE ROBUSTO
+   SOLYX LOJISTA - SERVICE WORKER V4
+   PWA OFFLINE + JOGOS OFFLINE
    ============================================================
 
    COMPORTAMENTO:
@@ -9,22 +9,21 @@
        index.html funciona normalmente.
 
    OFFLINE:
-       qualquer navegação de documento
-       -> offline.html
+       abertura principal do aplicativo
+           ↓
+       offline.html
 
    OFFLINE:
-       offline.html
-       -> jogos disponíveis
+       offline.html → jogo
+           ↓
+       jogo armazenado no cache
+           ↓
+       jogo abre normalmente
 
-   ARQUIVOS OFFLINE:
-       offline.html
-       fid_game1.html
-       fid_game2.html
-       fid_game3.html
-       fid_game4.html
-       fid_game5.html
-       fid_game6.html
-
+   IMPORTANTE:
+       Os jogos NÃO devem ser redirecionados para
+       offline.html quando já estiverem armazenados
+       no cache.
    ============================================================ */
 
 
@@ -32,26 +31,16 @@
    1. CONFIGURAÇÃO
    ============================================================ */
 
-/*
- * IMPORTANTE:
- *
- * Toda vez que alterarmos arquivos essenciais do
- * aplicativo, podemos aumentar esta versão.
- */
-
-const CACHE_NAME = "SolyxLojista-v32";
-
-
-/*
- * Caminho da página oficial offline.
- */
+const CACHE_NAME = "SolyxLojista-v40";
 
 const OFFLINE_PAGE = "./offline.html";
 
 
 /*
- * Arquivos essenciais que precisam existir
- * mesmo sem conexão com a Internet.
+ * Arquivos que obrigatoriamente devem estar disponíveis
+ * quando não houver internet.
+ *
+ * Incluímos TODOS os jogos existentes no offline.html.
  */
 
 const PRECACHE_FILES = [
@@ -75,7 +64,7 @@ const PRECACHE_FILES = [
 self.addEventListener("install", event => {
 
     console.log(
-        "[Solyx SW V3] Instalando:",
+        "[Solyx SW V4] Instalando:",
         CACHE_NAME
     );
 
@@ -84,80 +73,21 @@ self.addEventListener("install", event => {
 
         caches.open(CACHE_NAME)
 
-            .then(async cache => {
+            .then(cache => {
 
                 console.log(
-                    "[Solyx SW V3] Armazenando arquivos offline..."
+                    "[Solyx SW V4] Armazenando arquivos offline..."
                 );
 
 
-                /*
-                 * Em vez de cache.addAll(), adicionamos
-                 * os arquivos individualmente.
-                 *
-                 * Isso facilita identificar exatamente
-                 * qual arquivo eventualmente falhou.
-                 */
-
-                for (const arquivo of PRECACHE_FILES) {
-
-                    try {
-
-                        const resposta =
-                            await fetch(
-                                arquivo,
-                                {
-                                    cache: "no-cache"
-                                }
-                            );
-
-
-                        if (!resposta.ok) {
-
-                            throw new Error(
-                                `HTTP ${resposta.status}`
-                            );
-
-                        }
-
-
-                        await cache.put(
-                            arquivo,
-                            resposta
-                        );
-
-
-                        console.log(
-                            "[Solyx SW V3] OK:",
-                            arquivo
-                        );
-
-                    }
-
-                    catch (erro) {
-
-                        console.error(
-                            "[Solyx SW V3] FALHA:",
-                            arquivo,
-                            erro
-                        );
-
-                        /*
-                         * Um arquivo essencial com problema
-                         * não deve impedir que os outros sejam
-                         * armazenados.
-                         */
-
-                    }
-
-                }
+                return cache.addAll(PRECACHE_FILES);
 
             })
 
             .then(() => {
 
                 console.log(
-                    "[Solyx SW V3] Instalação concluída."
+                    "[Solyx SW V4] Arquivos offline armazenados."
                 );
 
 
@@ -166,6 +96,17 @@ self.addEventListener("install", event => {
                  */
 
                 return self.skipWaiting();
+
+            })
+
+            .catch(error => {
+
+                console.error(
+                    "[Solyx SW V4] ERRO ao criar cache:",
+                    error
+                );
+
+                throw error;
 
             })
 
@@ -181,7 +122,7 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
 
     console.log(
-        "[Solyx SW V3] Ativando:",
+        "[Solyx SW V4] Ativando:",
         CACHE_NAME
     );
 
@@ -196,11 +137,6 @@ self.addEventListener("activate", event => {
 
                     cacheNames.map(cacheName => {
 
-                        /*
-                         * Remove somente caches antigos
-                         * deste aplicativo.
-                         */
-
                         if (
 
                             cacheName.startsWith(
@@ -214,7 +150,7 @@ self.addEventListener("activate", event => {
                         ) {
 
                             console.log(
-                                "[Solyx SW V3] Removendo cache antigo:",
+                                "[Solyx SW V4] Apagando cache antigo:",
                                 cacheName
                             );
 
@@ -237,7 +173,7 @@ self.addEventListener("activate", event => {
             .then(() => {
 
                 console.log(
-                    "[Solyx SW V3] Cache antigo limpo."
+                    "[Solyx SW V4] Service Worker ativo."
                 );
 
 
@@ -256,7 +192,7 @@ self.addEventListener("activate", event => {
 
 
 /* ============================================================
-   4. OBTÉM OFFLINE.HTML
+   4. FUNÇÃO — OBTER OFFLINE.HTML
    ============================================================ */
 
 async function obterPaginaOffline() {
@@ -266,58 +202,36 @@ async function obterPaginaOffline() {
 
 
     /*
-     * Caminho absoluto da página offline.
-     */
-
-    const urlOffline =
-        new URL(
-            OFFLINE_PAGE,
-            self.registration.scope
-        ).href;
-
-
-    console.log(
-        "[Solyx SW V3] Procurando offline.html:",
-        urlOffline
-    );
-
-
-    /*
-     * Primeira tentativa:
-     * URL absoluta.
+     * Primeiro tenta encontrar pelo caminho relativo.
      */
 
     let resposta =
-        await cache.match(urlOffline);
-
-
-    if (resposta) {
-
-        console.log(
-            "[Solyx SW V3] offline.html encontrado no cache."
-        );
-
-
-        return resposta;
-
-    }
-
-
-    /*
-     * Segunda tentativa:
-     * caminho relativo.
-     */
-
-    resposta =
         await cache.match(OFFLINE_PAGE);
 
 
     if (resposta) {
 
-        console.log(
-            "[Solyx SW V3] offline.html encontrado por caminho relativo."
-        );
+        return resposta;
 
+    }
+
+
+    /*
+     * Depois tenta pelo URL absoluto.
+     */
+
+    const urlOffline =
+        new URL(
+            OFFLINE_PAGE,
+            self.location
+        ).href;
+
+
+    resposta =
+        await cache.match(urlOffline);
+
+
+    if (resposta) {
 
         return resposta;
 
@@ -325,64 +239,8 @@ async function obterPaginaOffline() {
 
 
     /*
-     * Terceira tentativa:
-     * procura especificamente entre todas
-     * as entradas do cache.
+     * Fallback extremo.
      */
-
-    const chaves =
-        await cache.keys();
-
-
-    for (const request of chaves) {
-
-        const url =
-            new URL(
-                request.url
-            );
-
-
-        if (
-            url.pathname.endsWith(
-                "/offline.html"
-            )
-        ) {
-
-            console.log(
-                "[Solyx SW V3] offline.html encontrado por inspeção do cache:",
-                request.url
-            );
-
-
-            const respostaEncontrada =
-                await cache.match(request);
-
-
-            if (respostaEncontrada) {
-
-                return respostaEncontrada;
-
-            }
-
-        }
-
-    }
-
-
-    /*
-     * Se chegamos aqui, o offline.html realmente
-     * não está disponível no cache.
-     *
-     * NÃO vamos mais retornar aquela mensagem
-     * genérica "Os Jogos offline estão disponíveis".
-     *
-     * Vamos informar claramente o problema.
-     */
-
-    console.error(
-        "[Solyx SW V3] ERRO CRÍTICO: offline.html não encontrado no cache."
-    );
-
 
     return new Response(
 
@@ -400,100 +258,28 @@ async function obterPaginaOffline() {
                 content="width=device-width, initial-scale=1.0"
             >
 
-            <meta
-                name="theme-color"
-                content="#B51217"
-            >
-
             <title>Solyx - Offline</title>
 
             <style>
 
-                * {
-                    box-sizing: border-box;
-                }
-
                 body {
-
                     margin: 0;
-
                     min-height: 100vh;
 
                     display: flex;
-
                     align-items: center;
-
                     justify-content: center;
 
-                    padding: 24px;
-
                     background: #080808;
+                    color: #fff;
 
-                    color: #ffffff;
-
-                    font-family:
-                        Arial,
-                        Helvetica,
-                        sans-serif;
+                    font-family: Arial, sans-serif;
 
                     text-align: center;
-
                 }
 
                 main {
-
-                    width: 100%;
-
-                    max-width: 500px;
-
-                    padding: 35px 25px;
-
-                    border-radius: 20px;
-
-                    background: #151515;
-
-                    border:
-                        1px solid
-                        rgba(255,255,255,.1);
-
-                }
-
-                h1 {
-
-                    margin:
-                        0 0 15px;
-
-                    color: #B51217;
-
-                }
-
-                p {
-
-                    line-height: 1.6;
-
-                    opacity: .75;
-
-                }
-
-                button {
-
-                    margin-top: 20px;
-
-                    padding:
-                        13px 24px;
-
-                    border: none;
-
-                    border-radius: 10px;
-
-                    background: #B51217;
-
-                    color: #ffffff;
-
-                    font-weight: bold;
-
-                    cursor: pointer;
-
+                    padding: 30px;
                 }
 
             </style>
@@ -507,15 +293,8 @@ async function obterPaginaOffline() {
                 <h1>Modo Offline</h1>
 
                 <p>
-                    A página offline ainda não foi armazenada
-                    neste dispositivo.
+                    Os jogos offline estão disponíveis.
                 </p>
-
-                <button
-                    onclick="location.reload()"
-                >
-                    Tentar novamente
-                </button>
 
             </main>
 
@@ -525,7 +304,7 @@ async function obterPaginaOffline() {
         `,
 
         {
-            status: 503,
+            status: 200,
 
             headers: {
                 "Content-Type":
@@ -540,34 +319,127 @@ async function obterPaginaOffline() {
 
 
 /* ============================================================
-   5. FETCH
+   5. FUNÇÃO — IDENTIFICAR JOGOS OFFLINE
+   ============================================================ */
+
+function ehJogoOffline(url) {
+
+    const nomeArquivo =
+        url.pathname
+            .split("/")
+            .pop()
+            .toLowerCase();
+
+
+    return /^fid_game[1-6]\.html$/.test(
+        nomeArquivo
+    );
+
+}
+
+
+/* ============================================================
+   6. FUNÇÃO — JOGO PELO CACHE
+   ============================================================ */
+
+async function obterJogoDoCache(request) {
+
+    /*
+     * Primeiro procura exatamente a requisição.
+     */
+
+    let resposta =
+        await caches.match(request);
+
+
+    if (resposta) {
+
+        console.log(
+            "[Solyx SW V4] Jogo encontrado no cache:",
+            request.url
+        );
+
+        return resposta;
+
+    }
+
+
+    /*
+     * Segurança adicional:
+     *
+     * procura pelo URL absoluto.
+     */
+
+    const url =
+        new URL(request.url);
+
+
+    resposta =
+        await caches.match(url.href);
+
+
+    if (resposta) {
+
+        console.log(
+            "[Solyx SW V4] Jogo encontrado pelo URL absoluto:",
+            url.href
+        );
+
+        return resposta;
+
+    }
+
+
+    return null;
+
+}
+
+
+/* ============================================================
+   7. FETCH
    ============================================================ */
 
 self.addEventListener("fetch", event => {
 
-    const request =
-        event.request;
-
-
     /*
-     * Só interceptamos GET.
+     * Trabalhamos somente com GET.
      */
 
-    if (
-        request.method !== "GET"
-    ) {
+    if (event.request.method !== "GET") {
 
         return;
 
     }
 
 
+    const request =
+        event.request;
+
+
+    const url =
+        new URL(request.url);
+
+
     /* ========================================================
-       5.1 NAVEGAÇÃO
-       ======================================================== */
+       7.1 JOGOS OFFLINE
+       ========================================================
+
+       ESTA PARTE É MUITO IMPORTANTE.
+
+       Se o usuário clicar em um jogo enquanto estiver
+       offline, NÃO devemos enviar offline.html.
+
+       Devemos entregar o jogo diretamente do cache.
+    */
 
     if (
+
         request.mode === "navigate"
+
+        &&
+
+        ehJogoOffline(url)
+
     ) {
 
         event.respondWith(
@@ -575,55 +447,35 @@ self.addEventListener("fetch", event => {
             (async () => {
 
                 /*
-                 * PRIMEIRO:
-                 *
-                 * tenta acessar a Internet.
-                 *
-                 * Se funcionar, mantém exatamente
-                 * o comportamento normal do aplicativo.
+                 * PRIMEIRO tenta o cache.
+                 */
+
+                const jogo =
+                    await obterJogoDoCache(request);
+
+
+                if (jogo) {
+
+                    return jogo;
+
+                }
+
+
+                /*
+                 * Se não estiver no cache, tenta internet.
                  */
 
                 try {
 
-                    const respostaRede =
-                        await fetch(
-                            request
-                        );
-
-
-                    console.log(
-                        "[Solyx SW V3] Navegação ONLINE:",
-                        request.url
-                    );
-
-
-                    return respostaRede;
+                    return await fetch(request);
 
                 }
 
-                catch (erro) {
+                catch (error) {
 
                     /*
-                     * INTERNET INDISPONÍVEL.
-                     *
-                     * NÃO fazemos:
-                     *
-                     * caches.match(request)
-                     *
-                     * Portanto:
-                     *
-                     * index.html
-                     * páginas antigas
-                     * documentos anteriormente visitados
-                     *
-                     * não serão usados como fallback.
+                     * O jogo não está disponível.
                      */
-
-                    console.log(
-                        "[Solyx SW V3] Navegação OFFLINE:",
-                        request.url
-                    );
-
 
                     return obterPaginaOffline();
 
@@ -640,67 +492,134 @@ self.addEventListener("fetch", event => {
 
 
     /* ========================================================
-       5.2 RECURSOS NÃO-NAVEGAÇÃO
+       7.2 NAVEGAÇÃO NORMAL
        ========================================================
 
-       Estratégia:
+       Para qualquer outra página:
 
-           CACHE FIRST
+       ONLINE
+           ↓
+       rede
 
-       Se já estiver no cache:
-           -> usa o cache
-
-       Caso contrário:
-           -> tenta Internet
-           -> salva no cache
+       OFFLINE
+           ↓
+       offline.html
     */
 
+    if (request.mode === "navigate") {
+
+        event.respondWith(
+
+            (async () => {
+
+                try {
+
+                    /*
+                     * Primeiro tenta a internet.
+                     */
+
+                    const networkResponse =
+                        await fetch(request);
+
+
+                    return networkResponse;
+
+                }
+
+                catch (error) {
+
+                    console.log(
+                        "[Solyx SW V4] Navegação offline:",
+                        request.url
+                    );
+
+
+                    /*
+                     * IMPORTANTE:
+                     *
+                     * NÃO usamos caches.match(request)
+                     * aqui.
+                     *
+                     * Assim evitamos que index.html ou
+                     * alguma página externa anteriormente
+                     * visitada seja aberta offline.
+                     */
+
+                    return obterPaginaOffline();
+
+                }
+
+            })()
+
+        );
+
+
+        return;
+
+    }
+
+
+    /* ========================================================
+       7.3 RECURSOS INTERNOS DO APLICATIVO
+       ========================================================
+
+       CSS
+       JS
+       imagens
+       fontes
+       etc.
+
+       Estratégia:
+           CACHE FIRST
+    */
 
     event.respondWith(
 
         (async () => {
 
             /*
-             * Procura primeiro no cache.
+             * Primeiro procura no cache.
              */
 
-            const respostaCache =
-                await caches.match(
-                    request
-                );
+            const cachedResponse =
+                await caches.match(request);
 
 
-            if (respostaCache) {
+            if (cachedResponse) {
 
-                return respostaCache;
+                return cachedResponse;
 
             }
 
 
             /*
-             * Não encontrou.
+             * Não está no cache.
              *
-             * Tenta a Internet.
+             * Tenta a internet.
              */
 
             try {
 
-                const respostaRede =
-                    await fetch(
-                        request
-                    );
+                const networkResponse =
+                    await fetch(request);
 
 
                 /*
-                 * Somente respostas normais
-                 * do próprio domínio são armazenadas.
+                 * Guarda somente respostas válidas
+                 * do próprio domínio.
                  */
 
                 if (
 
-                    respostaRede &&
-                    respostaRede.ok &&
-                    respostaRede.type === "basic"
+                    networkResponse
+
+                    &&
+
+                    networkResponse.status === 200
+
+                    &&
+
+                    networkResponse.type === "basic"
 
                 ) {
 
@@ -712,33 +631,30 @@ self.addEventListener("fetch", event => {
 
                     await cache.put(
                         request,
-                        respostaRede.clone()
+                        networkResponse.clone()
                     );
 
                 }
 
 
-                return respostaRede;
+                return networkResponse;
 
             }
 
-            catch (erro) {
-
-                /*
-                 * Não encontramos no cache
-                 * e também não existe Internet.
-                 *
-                 * Deixamos o navegador lidar
-                 * normalmente com o erro.
-                 */
+            catch (error) {
 
                 console.warn(
-                    "[Solyx SW V3] Recurso indisponível:",
+                    "[Solyx SW V4] Recurso não disponível:",
                     request.url
                 );
 
 
-                throw erro;
+                /*
+                 * Não transformar recursos como
+                 * imagens/scripts em offline.html.
+                 */
+
+                throw error;
 
             }
 
@@ -750,45 +666,40 @@ self.addEventListener("fetch", event => {
 
 
 /* ============================================================
-   6. MENSAGENS
+   8. MENSAGENS
    ============================================================ */
 
-self.addEventListener(
-    "message",
-    event => {
+self.addEventListener("message", event => {
 
-        if (
-            !event.data
-        ) {
+    if (!event.data) {
 
-            return;
-
-        }
-
-
-        if (
-            event.data.action ===
-            "SKIP_WAITING"
-        ) {
-
-            console.log(
-                "[Solyx SW V3] Atualização solicitada."
-            );
-
-
-            self.skipWaiting();
-
-        }
+        return;
 
     }
-);
+
+
+    if (
+        event.data.action ===
+        "SKIP_WAITING"
+    ) {
+
+        console.log(
+            "[Solyx SW V4] Atualização solicitada."
+        );
+
+
+        self.skipWaiting();
+
+    }
+
+});
 
 
 /* ============================================================
-   7. DIAGNÓSTICO
+   9. FINAL
    ============================================================ */
 
 console.log(
-    "[Solyx SW V3] Carregado:",
+    "[Solyx SW V4] Carregado:",
     CACHE_NAME
 );
