@@ -810,6 +810,19 @@ document.getElementById("anoAtual").textContent =
     // Dispara a mágica assim que a página é lida
     document.addEventListener("DOMContentLoaded", carregarEConfigurarIdentidade);
 </script>
+    <!-- Reload Inicial-->
+    <script>
+  window.onload = function() {
+    // Verifica se a página já foi recarregada nesta sessão
+    if (!sessionStorage.getItem('ja_recarregou')) {
+      // Cria a marcação para indicar que já recarregou
+      sessionStorage.setItem('ja_recarregou', 'true');
+      
+      // Executa o reload da página
+      window.location.reload();
+    }
+  };
+</script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
