@@ -582,7 +582,7 @@
             <div class="logo-wrapper">
                 <img
                     class="logo logo-dinamica"
-                    src=""
+                    src="#"
                     alt="Logo Fidelidade">
             </div>
 
@@ -701,115 +701,109 @@ window.addEventListener(
 document.getElementById("anoAtual").textContent =
     new Date().getFullYear();
 </script>
-<!--ID VISUAL FIDELIDADE.NET.BR-->
-<script>
-    // A ÚNICA URL QUE FICA FIXA (A Ponte de Conexão com o Banco de Dados)
-    const API_URL = "https://script.google.com/macros/s/AKfycbwgFUB1b-yKqzxY7ncvZTywv6NimIM_OiBI7ws09kkU2atTMgN7AiM2uezrh6RTwyvTXA/exec";
 
-    async function carregarEConfigurarIdentidade() {
-        try {
-            const cache = sessionStorage.getItem('identidadeGlobal');
-            if (cache) {
-                aplicarIdentidadeVisual(JSON.parse(cache));
-                return;
-            }
+   <!--IDENTIDADE VISUAL FIDELIDADE.NET.BR-->
+    <script>
+        // A ÚNICA URL QUE FICA FIXA (A Ponte de Conexão com o Banco de Dados)
+        const API_URL = "https://script.google.com/macros/s/AKfycbySLSbcAqPyq2exmYmUa8vhKZ2nZ1YQ7a3N1q-n2T9Rw48RM-PsufD5Uszok5FA_ZHVJA/exec";
 
-            const res = await (await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'buscar_identidade' })
-            })).json();
-
-            if (res.status === 'success' && res.identidade) {
-                sessionStorage.setItem('identidadeGlobal', JSON.stringify(res.identidade));
-                aplicarIdentidadeVisual(res.identidade);
-            }
-        } catch (e) {
-            console.error("Erro ao carregar identidade visual:", e);
-        }
-    }
-
-    function aplicarIdentidadeVisual(iden) {
-        // 1.1 SALVA AS VARIÁVEIS GLOBAIS - LOGO
-        window.LOGO_URL = iden.Logo_URL || "";
-        // 1.2 SALVA AS VARIÁVEIS GLOBAIS - NOME E MOEDA
-        window.CIFRAO_MOEDA = iden.Cifrao_Moeda || "SFC";
-        window.NOME_PROGRAMA = iden.Nome_Programa || "Fidelity Solyx";
-        window.PRIMEIRO_NOME = iden.Nome_Programa ? iden.Nome_Programa.split(" ")[0] : "Fidelity";
-        window.NOME_MOEDA = iden.Nome_Moeda || "FidelityCoin(s)";
-        // Cria a versão no singular removendo o "(s)" do final do texto
-        window.NOME_MOEDA_SINGULAR = window.NOME_MOEDA.replace(/\(s\)$/i, '');
-        // Pega apenas a primeira letra do Cifrão (Ex: "S" de "SFC")
-        window.PRIMEIRA_LETRA_CIFRAO = window.CIFRAO_MOEDA.charAt(0);
-
-      
-        // SALVA TODAS AS URLs (ROTAS) NA MEMÓRIA
-        window.ROTAS_FIDELITY = iden; 
-
-        // 2. APLICA O BACKGROUND (Gradiente Dinâmico)
-        if (iden.BG_COR1 && iden.BG_COR2) {
-            document.body.style.background = `linear-gradient(335deg, ${iden.BG_COR1} 0%, ${iden.BG_COR2} 150%)`;
-            document.body.style.minHeight = "100vh";
-            document.body.style.backgroundRepeat = "no-repeat";
-            document.body.style.backgroundAttachment = "fixed";
-        }
-
-        // 3. ATUALIZA A LOGO E TEXTOS NAS CLASSES VAZIAS
-        if (window.LOGO_URL) {
-                    document.querySelectorAll('.logo-dinamica').forEach(logo => {
-                        logo.src = window.LOGO_URL;
-                        logo.alt = window.NOME_PROGRAMA; // ✨ A MÁGICA AQUI: Injeta o nome no alt!
-                    });
+        async function carregarEConfigurarIdentidade() {
+            try {
+                const cache = sessionStorage.getItem('identidadeGlobal');
+                if (cache) {
+                    aplicarIdentidadeVisual(JSON.parse(cache));
+                    return;
                 }
-        document.querySelectorAll('.nome-dinamico').forEach(el => el.innerText = window.NOME_PROGRAMA);
-        document.querySelectorAll('.primeiro-nome-dinamico').forEach(el => el.innerText = window.PRIMEIRO_NOME);
-        document.querySelectorAll('.moeda-dinamica').forEach(el => el.innerText = window.CIFRAO_MOEDA);
-              // Aplica o nome da Moeda no Singular nas classes corretas
-        document.querySelectorAll('.nome-moeda-singular').forEach(el => {
-            el.innerText = window.NOME_MOEDA_SINGULAR;
-        });
-        document.querySelectorAll('.nome-moeda-dinamico').forEach(el => {
-            el.innerText = window.NOME_MOEDA;
-        });
-                // Aplica a primeira letra do Cifrão nas classes corretas
-        document.querySelectorAll('.letra-moeda-dinamica').forEach(el => {
-            el.innerText = window.PRIMEIRA_LETRA_CIFRAO;
-        });
-      
-        // 4. INJEÇÃO AUTOMÁTICA DE URLs NOS LINKS (Tags <a>)
-        document.querySelectorAll('[data-rota]').forEach(link => {
-            const rotaAlvo = link.getAttribute('data-rota');
-            if (window.ROTAS_FIDELITY[rotaAlvo]) {
-                link.href = window.ROTAS_FIDELITY[rotaAlvo];
+
+                const res = await (await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'buscar_identidade' })
+                })).json();
+
+                if (res.status === 'success' && res.identidade) {
+                    sessionStorage.setItem('identidadeGlobal', JSON.stringify(res.identidade));
+                    aplicarIdentidadeVisual(res.identidade);
+                }
+            } catch (e) {
+                console.error("Erro ao carregar identidade visual:", e);
             }
-        });
-        // Injeta o nome do programa no atributo ALT das imagens
-        document.querySelectorAll('.alt-dinamico').forEach(img => img.alt = window.NOME_PROGRAMA);
-      
-        // 5. ATUALIZA O TÍTULO DA ABA DO NAVEGADOR
-        document.title = window.NOME_PROGRAMA;
-
-        // Atualiza dinamicamente a Meta Description
-        const metaDesc = document.getElementById('metaDescription');
-        if (metaDesc && window.NOME_PROGRAMA) {
-            metaDesc.setAttribute("content", `${window.NOME_PROGRAMA} - Escolha seu tipo de acesso.`);
         }
-        
-    }
 
-    // ==========================================
-    // FUNÇÃO UNIVERSAL DE NAVEGAÇÃO
-    // ==========================================
-    function irParaRota(rotaAlvo) {
-        if (window.ROTAS_FIDELITY && window.ROTAS_FIDELITY[rotaAlvo]) {
-            window.location.href = window.ROTAS_FIDELITY[rotaAlvo];
-        } else {
-            alert("Carregando o link de destino, tente novamente em 1 segundo...");
+        function aplicarIdentidadeVisual(iden) {
+            // 1.1 SALVA AS VARIÁVEIS GLOBAIS - LOGO
+            window.LOGO_URL = iden.Logo_URL || "";
+            // 1.2 SALVA AS VARIÁVEIS GLOBAIS - NOME E MOEDA
+            window.CIFRAO_MOEDA = iden.Cifrao_Moeda || "SFC";
+            window.NOME_PROGRAMA = iden.Nome_Programa || "Fidelity Solyx";
+            window.PRIMEIRO_NOME = iden.Nome_Programa ? iden.Nome_Programa.split(" ")[0] : "Fidelity";
+            window.NOME_MOEDA = iden.Nome_Moeda || "FidelityCoin(s)";
+            // Cria a versão no singular removendo o "(s)" do final do texto
+            window.NOME_MOEDA_SINGULAR = window.NOME_MOEDA.replace(/\(s\)$/i, '');
+            // Pega apenas a primeira letra do Cifrão (Ex: "S" de "SFC")
+            window.PRIMEIRA_LETRA_CIFRAO = window.CIFRAO_MOEDA.charAt(0);
+
+
+            // SALVA TODAS AS URLs (ROTAS) NA MEMÓRIA
+            window.ROTAS_FIDELITY = iden;
+
+            // 2. APLICA O BACKGROUND (Gradiente Dinâmico)
+            if (iden.BG_COR1 && iden.BG_COR2) {
+                document.body.style.background = `linear-gradient(335deg, ${iden.BG_COR1} 0%, ${iden.BG_COR2} 150%)`;
+                document.body.style.minHeight = "100vh";
+                document.body.style.backgroundRepeat = "no-repeat";
+                document.body.style.backgroundAttachment = "fixed";
+            }
+
+            // 3. ATUALIZA A LOGO E TEXTOS NAS CLASSES VAZIAS
+            if (window.LOGO_URL) {
+                        document.querySelectorAll('.logo-dinamica').forEach(logo => {
+                            logo.src = window.LOGO_URL;
+                            logo.alt = window.NOME_PROGRAMA; // ✨ A MÁGICA AQUI: Injeta o nome no alt!
+                        });
+                    }
+            document.querySelectorAll('.nome-dinamico').forEach(el => el.innerText = window.NOME_PROGRAMA);
+            document.querySelectorAll('.primeiro-nome-dinamico').forEach(el => el.innerText = window.PRIMEIRO_NOME);
+            document.querySelectorAll('.moeda-dinamica').forEach(el => el.innerText = window.CIFRAO_MOEDA);
+                  // Aplica o nome da Moeda no Singular nas classes corretas
+            document.querySelectorAll('.nome-moeda-singular').forEach(el => {
+                el.innerText = window.NOME_MOEDA_SINGULAR;
+            });
+            document.querySelectorAll('.nome-moeda-dinamico').forEach(el => {
+                el.innerText = window.NOME_MOEDA;
+            });
+                    // Aplica a primeira letra do Cifrão nas classes corretas
+            document.querySelectorAll('.letra-moeda-dinamica').forEach(el => {
+                el.innerText = window.PRIMEIRA_LETRA_CIFRAO;
+            });
+
+            // 4. INJEÇÃO AUTOMÁTICA DE URLs NOS LINKS (Tags <a>)
+            document.querySelectorAll('[data-rota]').forEach(link => {
+                const rotaAlvo = link.getAttribute('data-rota');
+                if (window.ROTAS_FIDELITY[rotaAlvo]) {
+                    link.href = window.ROTAS_FIDELITY[rotaAlvo];
+                }
+            });
+      // Injeta o nome do programa no atributo ALT das imagens
+            document.querySelectorAll('.alt-dinamico').forEach(img => img.alt = window.NOME_PROGRAMA);
+
+            // 5. ATUALIZA O TÍTULO DA ABA DO NAVEGADOR
+            document.title = window.NOME_PROGRAMA;
         }
-    }
 
-    // Dispara a mágica assim que a página é lida
-    document.addEventListener("DOMContentLoaded", carregarEConfigurarIdentidade);
-</script>
+        // ==========================================
+        // FUNÇÃO UNIVERSAL DE NAVEGAÇÃO
+        // ==========================================
+        function irParaRota(rotaAlvo) {
+            if (window.ROTAS_FIDELITY && window.ROTAS_FIDELITY[rotaAlvo]) {
+                window.location.href = window.ROTAS_FIDELITY[rotaAlvo];
+            } else {
+                alert("Carregando o link de destino, tente novamente em 1 segundo...");
+            }
+        }
+
+        // Dispara a mágica assim que a página é lida
+        document.addEventListener("DOMContentLoaded", carregarEConfigurarIdentidade);
+    </script>
     <!-- Reload Inicial-->
     <script>
   window.onload = function() {
