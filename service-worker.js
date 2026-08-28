@@ -31,7 +31,7 @@
    1. CONFIGURAÇÃO
    ============================================================ */
 
-const CACHE_NAME = "SolyxLojista-v45";
+const CACHE_NAME = "SolyxLojista-v46";
 
 const OFFLINE_PAGE = "./offline.html";
 
