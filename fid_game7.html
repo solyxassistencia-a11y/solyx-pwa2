@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>🎮 Forca Educativa</title>
+<style>
+  :root{
+    --bg:#08111f; --panel:#101c2e; --panel2:#15243a; --text:#f4f7fb;
+    --muted:#aab8cb; --primary:#5eead4; --primary2:#38bdf8; --danger:#fb7185;
+    --gold:#facc15; --line:#30435e; --shadow:0 18px 50px rgba(0,0,0,.28);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+       color:var(--text);background:radial-gradient(circle at 20% 0%,#16345a 0,#08111f 38%,#050a12 100%)}
+  button{font:inherit}
+  .app{width:min(1100px,100%);margin:auto;padding:18px}
+  .screen{display:none}.screen.active{display:block}
+  .hero{text-align:center;padding:34px 12px 22px}
+  .logo{font-size:clamp(2.2rem,8vw,4.8rem);line-height:1;margin:0 0 10px}
+  h1{font-size:clamp(1.8rem,5vw,3rem);margin:0 0 8px}
+  h2{margin:0 0 14px}.subtitle{color:var(--muted);max-width:720px;margin:auto;line-height:1.55}
+  .panel{background:linear-gradient(145deg,rgba(21,36,58,.96),rgba(11,21,36,.96));
+         border:1px solid rgba(148,163,184,.16);border-radius:24px;padding:22px;box-shadow:var(--shadow)}
+  .menu{max-width:620px;margin:20px auto;display:grid;gap:12px}
+  .btn{border:0;border-radius:16px;padding:15px 18px;font-weight:800;color:#07111d;cursor:pointer;
+       transition:.18s transform,.18s filter;background:linear-gradient(135deg,var(--primary),var(--primary2))}
+  .btn:hover{transform:translateY(-2px);filter:brightness(1.06)} .btn.secondary{color:var(--text);background:#20314a}
+  .btn.danger{color:#fff;background:linear-gradient(135deg,#f43f5e,#e11d48)}
+  .btn.small{padding:10px 13px;border-radius:12px;font-size:.92rem}
+  .section-title{color:var(--muted);font-size:.85rem;text-transform:uppercase;letter-spacing:.12em;margin:20px 0 10px}
+  .themes{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+  .theme{padding:17px;text-align:left;border:1px solid var(--line);border-radius:17px;background:#0c1728;color:var(--text);cursor:pointer}
+  .theme strong{display:block;font-size:1.05rem}.theme span{display:block;color:var(--muted);font-size:.82rem;margin-top:4px}
+  .theme:hover{border-color:var(--primary);background:#112238}
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .badge{background:#0a1727;border:1px solid var(--line);padding:8px 12px;border-radius:999px;color:#dce7f4;font-size:.9rem}
+  .scoreboard{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;margin-bottom:14px}
+  .score{background:#0b1727;border:1px solid var(--line);border-radius:18px;padding:12px;text-align:center}
+  .score.active{border-color:var(--primary);box-shadow:0 0 0 2px rgba(94,234,212,.1)}
+  .score .name{color:var(--muted);font-size:.8rem}.score .pts{font-size:1.8rem;font-weight:900;color:var(--gold)}
+  .round{text-align:center}.round b{display:block;font-size:1.1rem}
+  .gamegrid{display:grid;grid-template-columns:minmax(240px,.8fr) minmax(0,1.2fr);gap:16px}
+  .hangbox{min-height:350px;display:flex;align-items:center;justify-content:center}
+  svg{max-width:100%;height:auto}.stroke{stroke:#dce7f4;stroke-width:7;stroke-linecap:round;fill:none}
+  .word{text-align:center;letter-spacing:.25em;font-size:clamp(1.5rem,6vw,3rem);font-weight:900;min-height:65px;
+        word-break:break-word;padding:8px}
+  .hint{margin:10px 0;padding:13px 15px;border-radius:14px;background:#17283e;border-left:4px solid var(--gold);line-height:1.4}
+  .hint.hidden{display:none}.info{color:var(--muted);text-align:center;min-height:25px}
+  .keyboard{display:grid;grid-template-columns:repeat(7,1fr);gap:7px;margin-top:14px}
+  .key{border:1px solid var(--line);background:#132238;color:var(--text);border-radius:10px;padding:11px 4px;font-weight:800;cursor:pointer}
+  .key:disabled{opacity:.32;cursor:not-allowed}.key.correct{background:#126b62;border-color:#2dd4bf}.key.wrong{background:#5c2130;border-color:#fb7185}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.actions .btn{flex:1;min-width:130px}
+  .curiosity{margin-top:15px;background:linear-gradient(135deg,#172b45,#10243b);border:1px solid #2d4667;padding:16px;border-radius:17px}
+  .curiosity h3{margin:0 0 6px;color:var(--gold)}.curiosity p{margin:0;line-height:1.5;color:#d9e4f2}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:18px;z-index:5}
+  .modal.show{display:flex}.modal-card{width:min(650px,100%);max-height:90vh;overflow:auto;background:#0d1a2c;border:1px solid var(--line);border-radius:22px;padding:22px}
+  .modal-card li{margin:9px 0;color:#d5dfeb;line-height:1.45}.close{float:right}
+  .winner{text-align:center}.winner .trophy{font-size:5rem}.winner h2{font-size:2rem}
+  .choice{display:grid;gap:10px;margin-top:18px}
+  .muted{color:var(--muted)} .hidden{display:none!important}
+  @media(max-width:760px){
+    .app{padding:10px}.hero{padding-top:22px}.panel{padding:15px;border-radius:20px}
+    .gamegrid{grid-template-columns:1fr}.hangbox{min-height:260px}.keyboard{grid-template-columns:repeat(6,1fr)}
+    .scoreboard{grid-template-columns:1fr 1fr}.round{grid-column:1/-1;grid-row:1;order:-1}
+  }
+  @media(max-width:390px){.keyboard{grid-template-columns:repeat(5,1fr)}.key{padding:10px 2px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <section id="home" class="screen active">
+    <div class="hero">
+      <div class="logo">🎮</div><h1>FORCA EDUCATIVA</h1>
+      <p class="subtitle">Aprenda brincando! Descubra palavras, acumule pontos e aprenda uma curiosidade a cada acerto.</p>
+    </div>
+    <div class="panel menu">
+      <button class="btn" onclick="showMode()">🚀 INICIAR JOGO</button>
+      <button class="btn secondary" onclick="openInstructions()">📖 INSTRUÇÕES</button>
+    </div>
+  </section>
+
+  <section id="mode" class="screen">
+    <div class="panel">
+      <h2>👥 Quantos jogadores?</h2><p class="muted">Escolha como será a partida.</p>
+      <div class="choice">
+        <button class="btn" onclick="choosePlayers(1)">👤 1 Jogador</button>
+        <button class="btn" onclick="choosePlayers(2)">👥 2 Jogadores</button>
+        <button class="btn secondary" onclick="goHome()">← Voltar</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="themes" class="screen">
+    <div class="panel">
+      <div class="topbar"><div><h2>📚 Escolha o tema</h2><span class="muted">Serão 10 rodadas no tema escolhido.</span></div>
+      <button class="btn small secondary" onclick="goHome()">Início</button></div>
+      <div class="themes">
+        <button class="theme" onclick="startGame('geografia')">🇧🇷 <strong>Geografia</strong><span>Países, estados e lugares</span></button>
+        <button class="theme" onclick="startGame('animais')">🐾 <strong>Animais</strong><span>Fauna e curiosidades</span></button>
+        <button class="theme" onclick="startGame('ciencias')">🔬 <strong>Ciências</strong><span>Natureza e conhecimento científico</span></button>
+        <button class="theme" onclick="startGame('frutas')">🍎 <strong>Frutas e Verduras</strong><span>Alimentos vegetais</span></button>
+        <button class="theme" onclick="startGame('solar')">🚀 <strong>Sistema Solar</strong><span>Planetas e espaço</span></button>
+        <button class="theme" onclick="startGame('portugues')">📚 <strong>Língua Portuguesa</strong><span>Gramática e linguagem</span></button>
+        <button class="theme" onclick="startGame('matematica')">➗ <strong>Matemática</strong><span>Números e conceitos</span></button>
+        <button class="theme" onclick="startGame('gerais')">🌎 <strong>Conhecimentos Gerais</strong><span>Fatos e cultura geral</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="game" class="screen">
+    <div class="topbar">
+      <button class="btn small secondary" onclick="confirmExit()">← Sair</button>
+      <div class="badge" id="themeBadge">Tema</div><div class="badge" id="modeBadge">Modo</div>
+    </div>
+    <div class="scoreboard">
+      <div id="score1" class="score"><div class="name">Jogador 1</div><div class="pts">0</div></div>
+      <div class="round"><span class="muted">RODADA</span><b id="roundText">1 / 10</b></div>
+      <div id="score2" class="score hidden"><div class="name">Jogador 2</div><div class="pts">0</div></div>
+    </div>
+    <div class="panel">
+      <div class="gamegrid">
+        <div class="hangbox">
+          <svg viewBox="0 0 260 300" aria-label="Forca">
+            <path class="stroke" d="M30 275H235M65 275V25H195M195 25V60M65 65H105"/>
+            <circle id="head" class="stroke hidden" cx="195" cy="88" r="28"/>
+            <path id="body" class="stroke hidden" d="M195 116V190"/>
+            <path id="arm1" class="stroke hidden" d="M195 135L160 165"/>
+            <path id="arm2" class="stroke hidden" d="M195 135L230 165"/>
+            <path id="leg1" class="stroke hidden" d="M195 190L160 235"/>
+            <path id="leg2" class="stroke hidden" d="M195 190L230 235"/>
+          </svg>
+        </div>
+        <div>
+          <div class="info" id="turnInfo">Sua vez!</div>
+          <div class="word" id="word"></div>
+          <div id="hint" class="hint hidden"></div>
+          <div class="actions" id="actions">
+            <button id="hintBtn" class="btn small secondary" onclick="useHint()">💡 Usar dica (-1 ponto por letra)</button>
+          </div>
+          <div class="keyboard" id="keyboard"></div>
+          <div id="message" class="info"></div>
+        </div>
+      </div>
+      <div id="curiosity" class="curiosity hidden"></div>
+    </div>
+  </section>
+
+  <section id="end" class="screen">
+    <div class="panel winner">
+      <div class="trophy">🏆</div><h2 id="endTitle">Fim de jogo!</h2>
+      <p id="endSummary" class="muted"></p>
+      <button class="btn" onclick="showThemesAgain()">🔄 Jogar novamente</button>
+      <button class="btn secondary" onclick="goHome()" style="margin-top:10px">🏠 Tela inicial</button>
+    </div>
+  </section>
+</div>
+
+<div id="modal" class="modal" onclick="if(event.target===this)closeModal()">
+ <div class="modal-card">
+  <button class="btn small secondary close" onclick="closeModal()">Fechar</button>
+  <h2>📖 Como jogar</h2>
+  <ul>
+   <li>Escolha <b>1 ou 2 jogadores</b> e depois um dos 8 temas educativos.</li>
+   <li>Em cada rodada, uma palavra é sorteada aleatoriamente. O objetivo é descobrir a palavra antes de completar a forca.</li>
+   <li>Use o teclado na tela para escolher letras. <b>Cada letra acertada vale 2 pontos</b>, inclusive letras repetidas.</li>
+   <li>Ao pedir a dica, a palavra recebe uma pista e <b>cada letra acertada passa a valer 1 ponto</b>.</li>
+   <li>No modo de 2 jogadores, as letras são alternadas. Quem acertar pode continuar jogando; ao errar, a vez passa ao outro jogador.</li>
+   <li>Se a palavra for descoberta, aparece uma curiosidade educativa. Se ninguém descobrir, a palavra é revelada e a partida segue.</li>
+   <li>A partida termina após <b>10 rodadas</b>. No modo de 2 jogadores, vence quem tiver mais pontos.</li>
+  </ul>
+  <p class="muted">💡 As palavras não se repetem dentro das 10 rodadas da mesma partida.</p>
+ </div>
+</div>
+
+<script>
+/*
+===========================================================
+📌 COMO ADICIONAR MAIS PALAVRAS
+1) Procure a constante "BANCO".
+2) Entre no tema desejado, copie um objeto existente e altere:
+   palavra: "NOVA PALAVRA",
+   dica: "Uma pista curta sobre a palavra.",
+   curiosidade: "📖 Você sabia? ...",
+3) Use palavras relacionadas ao tema.
+4) Não é obrigatório informar palavra sem acentos: o jogo
+   normaliza letras para comparar, mas mostra a forma original.
+5) Para jogar 10 rodadas sem repetir palavras, coloque pelo
+   menos 10 palavras diferentes no tema. Se houver menos de
+   10, o jogo avisará que o banco é insuficiente.
+6) Você pode colocar QUANTAS palavras quiser em cada tema.
+   O jogo sorteia sem repetir até acabar a partida.
+===========================================================
+*/
+const BANCO = {
+ geografia:[
+  {palavra:"AMAZONAS",dica:"É um estado brasileiro da Região Norte.",curiosidade:"📖 Você sabia? O Amazonas abriga grande parte da Floresta Amazônica e possui o maior estado do Brasil em área."},
+  {palavra:"BRASILIA",dica:"É a capital do Brasil.",curiosidade:"📖 Você sabia? Brasília foi inaugurada como capital do Brasil em 1960 e foi planejada por Lúcio Costa."},
+  {palavra:"PANTANAL",dica:"É uma das maiores áreas úmidas continentais do planeta.",curiosidade:"📖 Você sabia? O Pantanal é uma enorme planície alagável com rica diversidade de animais e plantas."},
+  {palavra:"PARANA",dica:"É um estado brasileiro da Região Sul.",curiosidade:"📖 Você sabia? As Cataratas do Iguaçu ficam no Paraná, na fronteira com a Argentina."},
+  {palavra:"NORDESTE",dica:"É uma das cinco regiões do Brasil.",curiosidade:"📖 Você sabia? A Região Nordeste é formada por nove estados."},
+  {palavra:"CHILE",dica:"País longo e estreito na costa oeste da América do Sul.",curiosidade:"📖 Você sabia? O Chile se estende por milhares de quilômetros ao longo do Oceano Pacífico."},
+  {palavra:"ATLANTICO",dica:"Oceano que banha a costa leste do Brasil.",curiosidade:"📖 Você sabia? O Atlântico é o segundo maior oceano da Terra."},
+  {palavra:"EVEREST",dica:"É a montanha mais alta acima do nível do mar.",curiosidade:"📖 Você sabia? O Everest fica na cordilheira do Himalaia, na Ásia."},
+  {palavra:"SAOPAULO",dica:"Estado brasileiro muito populoso e desenvolvido economicamente.",curiosidade:"📖 Você sabia? São Paulo é o estado mais populoso do Brasil."},
+  {palavra:"CAATINGA",dica:"Bioma predominante em grande parte do sertão nordestino.",curiosidade:"📖 Você sabia? A Caatinga é um bioma exclusivamente brasileiro."}
+ ],
+ animais:[
+  {palavra:"ELEFANTE",dica:"Grande mamífero terrestre com tromba.",curiosidade:"📖 Você sabia? O elefante é o maior animal terrestre atualmente."},
+  {palavra:"GIRAFA",dica:"Mamífero africano conhecido pelo pescoço muito comprido.",curiosidade:"📖 Você sabia? A girafa é o animal terrestre mais alto do mundo."},
+  {palavra:"GOLFINHO",dica:"Mamífero marinho conhecido por sua inteligência.",curiosidade:"📖 Você sabia? Golfinhos respiram ar e precisam subir à superfície para respirar."},
+  {palavra:"PANDA",dica:"Mamífero famoso por se alimentar principalmente de bambu.",curiosidade:"📖 Você sabia? O panda-gigante vive naturalmente em regiões montanhosas da China."},
+  {palavra:"TARTARUGA",dica:"Réptil protegido por um casco.",curiosidade:"📖 Você sabia? Algumas tartarugas marinhas percorrem milhares de quilômetros durante suas migrações."},
+  {palavra:"PINGUIM",dica:"Ave que não voa e vive principalmente no Hemisfério Sul.",curiosidade:"📖 Você sabia? Pinguins são excelentes nadadores e usam as asas como nadadeiras."},
+  {palavra:"CANGURU",dica:"Marsupial muito associado à Austrália.",curiosidade:"📖 Você sabia? O filhote de canguru completa boa parte de seu desenvolvimento dentro da bolsa da mãe."},
+  {palavra:"JAGUAR",dica:"Grande felino encontrado nas Américas.",curiosidade:"📖 Você sabia? O jaguar é o maior felino das Américas."},
+  {palavra:"CORUJA",dica:"Ave de hábitos geralmente noturnos e visão adaptada à pouca luz.",curiosidade:"📖 Você sabia? Muitas corujas conseguem girar a cabeça em grande amplitude, mas não completamente."},
+  {palavra:"ABELHA",dica:"Inseto importante para a polinização.",curiosidade:"📖 Você sabia? As abelhas ajudam a polinizar muitas plantas que produzem alimentos."}
+ ],
+ ciencias:[
+  {palavra:"ATOMO",dica:"Unidade básica que compõe a matéria.",curiosidade:"📖 Você sabia? Os átomos são formados por partículas subatômicas, como prótons, nêutrons e elétrons."},
+  {palavra:"GRAVIDADE",dica:"Força que atrai corpos com massa uns em direção aos outros.",curiosidade:"📖 Você sabia? A gravidade da Terra é responsável por manter pessoas e objetos próximos ao solo."},
+  {palavra:"CELULA",dica:"Unidade básica estrutural e funcional dos seres vivos.",curiosidade:"📖 Você sabia? Alguns seres vivos são formados por uma única célula, enquanto outros possuem trilhões delas."},
+  {palavra:"FOTOSSINTESE",dica:"Processo pelo qual plantas produzem alimento usando luz.",curiosidade:"📖 Você sabia? Na fotossíntese, plantas usam luz, água e gás carbônico para produzir matéria orgânica e liberar oxigênio."},
+  {palavra:"OXIGENIO",dica:"Gás essencial para a respiração de muitos seres vivos.",curiosidade:"📖 Você sabia? O oxigênio corresponde a cerca de 21% da atmosfera terrestre."},
+  {palavra:"DNA",dica:"Molécula que armazena informações genéticas.",curiosidade:"📖 Você sabia? O DNA contém instruções importantes para o funcionamento e desenvolvimento dos seres vivos."},
+  {palavra:"ECOSSISTEMA",dica:"Conjunto de seres vivos e fatores não vivos que interagem.",curiosidade:"📖 Você sabia? Um ecossistema inclui organismos, água, solo, ar, luz e as relações entre esses elementos."},
+  {palavra:"VULCAO",dica:"Estrutura geológica que pode liberar lava, cinzas e gases.",curiosidade:"📖 Você sabia? Vulcões podem ser encontrados tanto em terra firme quanto no fundo dos oceanos."},
+  {palavra:"MICROBIO",dica:"Ser ou agente biológico muito pequeno, geralmente observado com microscópio.",curiosidade:"📖 Você sabia? Microrganismos estão presentes em praticamente todos os ambientes da Terra."},
+  {palavra:"ENERGIA",dica:"Grandeza relacionada à capacidade de realizar trabalho ou provocar transformações.",curiosidade:"📖 Você sabia? A energia pode se transformar de uma forma em outra, como de elétrica para luminosa."}
+ ],
+ frutas:[
+  {palavra:"BANANA",dica:"Fruta amarela muito popular e rica em potássio.",curiosidade:"📖 Você sabia? A banana é uma das frutas mais consumidas no mundo."},
+  {palavra:"MORANGO",dica:"Fruto vermelho usado em sobremesas e bebidas.",curiosidade:"📖 Você sabia? O morango é uma das frutas mais populares em preparações doces."},
+  {palavra:"ABACAXI",dica:"Fruta tropical de casca áspera e sabor doce e ácido.",curiosidade:"📖 Você sabia? O abacaxi é uma fruta tropical rica em água e muito usada em sucos."},
+  {palavra:"MANGA",dica:"Fruta tropical de polpa doce.",curiosidade:"📖 Você sabia? A mangueira é uma árvore tropical cultivada em muitos países."},
+  {palavra:"CENOURA",dica:"Raiz geralmente alaranjada usada na alimentação.",curiosidade:"📖 Você sabia? A cenoura é rica em carotenoides, pigmentos que podem ser convertidos em vitamina A pelo organismo."},
+  {palavra:"BROCOLIS",dica:"Vegetal verde da família das brássicas.",curiosidade:"📖 Você sabia? O brócolis pertence à mesma família botânica da couve-flor e do repolho."},
+  {palavra:"TOMATE",dica:"Fruto muito usado em saladas, molhos e diversos pratos.",curiosidade:"📖 Você sabia? Botanicamente, o tomate é um fruto, embora na culinária seja muito usado como hortaliça."},
+  {palavra:"MELANCIA",dica:"Fruta grande e muito rica em água.",curiosidade:"📖 Você sabia? A melancia tem alto teor de água, sendo bastante consumida em dias quentes."},
+  {palavra:"LARANJA",dica:"Fruta cítrica muito usada em sucos.",curiosidade:"📖 Você sabia? A laranja é uma importante fonte alimentar de vitamina C."},
+  {palavra:"BETERRABA",dica:"Raiz de cor geralmente vermelha ou arroxeada.",curiosidade:"📖 Você sabia? A beterraba deve sua cor característica principalmente a pigmentos chamados betalaínas."}
+ ],
+ solar:[
+  {palavra:"MERCURIO",dica:"É o planeta mais próximo do Sol.",curiosidade:"📖 Você sabia? Mercúrio é o menor planeta do Sistema Solar."},
+  {palavra:"VENUS",dica:"Planeta muito brilhante visto da Terra.",curiosidade:"📖 Você sabia? Vênus possui uma atmosfera extremamente densa e é o planeta mais quente do Sistema Solar."},
+  {palavra:"TERRA",dica:"Planeta onde vivemos.",curiosidade:"📖 Você sabia? A Terra é o único planeta conhecido que abriga vida."},
+  {palavra:"MARTE",dica:"Conhecido como o planeta vermelho.",curiosidade:"📖 Você sabia? Marte tem duas pequenas luas chamadas Fobos e Deimos."},
+  {palavra:"JUPITER",dica:"Maior planeta do Sistema Solar.",curiosidade:"📖 Você sabia? Júpiter é um gigante gasoso e possui uma enorme tempestade conhecida como Grande Mancha Vermelha."},
+  {palavra:"SATURNO",dica:"Planeta famoso por seus anéis.",curiosidade:"📖 Você sabia? Os anéis de Saturno são formados principalmente por partículas de gelo e rocha."},
+  {palavra:"URANO",dica:"Gigante de gelo que gira com grande inclinação.",curiosidade:"📖 Você sabia? Urano tem uma inclinação axial tão grande que parece girar de lado."},
+  {palavra:"NETUNO",dica:"É o planeta mais distante do Sol entre os oito planetas.",curiosidade:"📖 Você sabia? Netuno possui ventos extremamente rápidos em sua atmosfera."},
+  {palavra:"ASTEROIDE",dica:"Corpo rochoso que orbita o Sol.",curiosidade:"📖 Você sabia? Muitos asteroides estão concentrados no cinturão localizado entre Marte e Júpiter."},
+  {palavra:"COMETA",dica:"Corpo celeste que pode apresentar uma cauda ao se aproximar do Sol.",curiosidade:"📖 Você sabia? A cauda de um cometa se forma pela ação do calor e do vento solar sobre seu material."}
+ ],
+ portugues:[
+  {palavra:"SUBSTANTIVO",dica:"Classe de palavra que nomeia seres, objetos, lugares, sentimentos e ideias.",curiosidade:"📖 Você sabia? Substantivos podem ser próprios ou comuns, concretos ou abstratos, entre outras classificações."},
+  {palavra:"ADJETIVO",dica:"Palavra que caracteriza ou atribui qualidade a um substantivo.",curiosidade:"📖 Você sabia? Em geral, o adjetivo concorda em gênero e número com o substantivo a que se refere."},
+  {palavra:"VERBO",dica:"Palavra que pode indicar ação, estado ou fenômeno.",curiosidade:"📖 Você sabia? Os verbos podem variar em tempo, modo, pessoa e número."},
+  {palavra:"SINONIMO",dica:"Palavra que apresenta sentido igual ou próximo ao de outra.",curiosidade:"📖 Você sabia? Sinônimos raramente são perfeitamente intercambiáveis em todos os contextos."},
+  {palavra:"ANTONIMO",dica:"Palavra que apresenta sentido contrário ao de outra.",curiosidade:"📖 Você sabia? Exemplos de antônimos são 'alto' e 'baixo', dependendo do contexto."},
+  {palavra:"PARAGRAFO",dica:"Unidade de texto formada por uma ou mais frases relacionadas.",curiosidade:"📖 Você sabia? A organização em parágrafos ajuda a separar ideias e tornar um texto mais claro."},
+  {palavra:"ACENTUACAO",dica:"Conjunto de regras que orienta o uso de acentos gráficos.",curiosidade:"📖 Você sabia? As regras de acentuação ajudam a indicar a pronúncia e diferenciar algumas palavras."},
+  {palavra:"ORTOGRAFIA",dica:"Conjunto de regras sobre a escrita correta das palavras.",curiosidade:"📖 Você sabia? A ortografia padroniza a escrita para facilitar a comunicação entre falantes de uma língua."},
+  {palavra:"PRONOME",dica:"Classe de palavra que pode acompanhar ou substituir um nome.",curiosidade:"📖 Você sabia? Pronomes podem indicar pessoa, posse, localização, quantidade e outras relações."},
+  {palavra:"METAFORA",dica:"Recurso de linguagem que cria uma comparação implícita.",curiosidade:"📖 Você sabia? A metáfora é muito usada em poemas, músicas, publicidade e na fala cotidiana."}
+ ],
+ matematica:[
+  {palavra:"ADICAO",dica:"Operação matemática usada para juntar quantidades.",curiosidade:"📖 Você sabia? A adição possui a propriedade comutativa: trocar a ordem das parcelas não altera a soma."},
+  {palavra:"SUBTRACAO",dica:"Operação matemática relacionada à ideia de retirar ou comparar quantidades.",curiosidade:"📖 Você sabia? A subtração é a operação inversa da adição."},
+  {palavra:"MULTIPLICACAO",dica:"Operação que pode representar parcelas iguais repetidas.",curiosidade:"📖 Você sabia? A multiplicação pode ser vista como uma adição repetida em muitos casos."},
+  {palavra:"DIVISAO",dica:"Operação usada para repartir uma quantidade em partes.",curiosidade:"📖 Você sabia? Uma divisão pode ter quociente e, quando não é exata, também um resto."},
+  {palavra:"FRACAO",dica:"Representação de uma ou mais partes de um todo.",curiosidade:"📖 Você sabia? Em uma fração, o número de cima é o numerador e o de baixo é o denominador."},
+  {palavra:"DECIMAL",dica:"Número que pode ser representado usando parte inteira e parte fracionária na base dez.",curiosidade:"📖 Você sabia? O sistema decimal utiliza dez símbolos básicos, de 0 a 9."},
+  {palavra:"PERIMETRO",dica:"Medida do contorno de uma figura plana.",curiosidade:"📖 Você sabia? O perímetro de um polígono é obtido somando os comprimentos de seus lados."},
+  {palavra:"AREA",dica:"Medida da superfície de uma figura.",curiosidade:"📖 Você sabia? Área é expressa em unidades quadradas, como cm² e m²."},
+  {palavra:"ANGULO",dica:"Figura formada por duas semirretas com a mesma origem.",curiosidade:"📖 Você sabia? Um ângulo reto mede 90 graus."},
+  {palavra:"GEOMETRIA",dica:"Área da matemática que estuda formas, medidas e propriedades espaciais.",curiosidade:"📖 Você sabia? A palavra geometria tem origem grega e está relacionada à ideia de medir a Terra."}
+ ],
+ gerais:[
+  {palavra:"BRASIL",dica:"País localizado na América do Sul.",curiosidade:"📖 Você sabia? O Brasil é o maior país da América do Sul em extensão territorial."},
+  {palavra:"BIBLIOTECA",dica:"Lugar onde livros e outros materiais podem ser organizados e consultados.",curiosidade:"📖 Você sabia? Bibliotecas modernas também podem oferecer acesso a recursos digitais e atividades culturais."},
+  {palavra:"OLIMPIADAS",dica:"Grande evento esportivo internacional realizado em diferentes edições.",curiosidade:"📖 Você sabia? Os Jogos Olímpicos modernos foram retomados em 1896, em Atenas."},
+  {palavra:"TELESCOPIO",dica:"Instrumento usado para observar objetos distantes, especialmente no céu.",curiosidade:"📖 Você sabia? Telescópios permitem estudar objetos celestes que não seriam vistos facilmente a olho nu."},
+  {palavra:"INTERNET",dica:"Grande rede mundial que conecta computadores e dispositivos.",curiosidade:"📖 Você sabia? A internet permite a comunicação e o compartilhamento de informações em escala global."},
+  {palavra:"MUSEU",dica:"Instituição que preserva e apresenta objetos de valor histórico, artístico ou científico.",curiosidade:"📖 Você sabia? Museus podem atuar na preservação, pesquisa, educação e divulgação cultural."},
+  {palavra:"IMPRENSA",dica:"Conjunto de meios e atividades relacionados à divulgação de informações.",curiosidade:"📖 Você sabia? A imprensa teve papel importante na expansão do acesso a notícias e conhecimento."},
+  {palavra:"OCEANO",dica:"Grande massa de água salgada que cobre boa parte da superfície terrestre.",curiosidade:"📖 Você sabia? Os oceanos cobrem cerca de 71% da superfície da Terra."},
+  {palavra:"PIRAMIDE",dica:"Estrutura famosa da Antiguidade, com faces triangulares em muitas construções.",curiosidade:"📖 Você sabia? As pirâmides do Egito são alguns dos monumentos antigos mais conhecidos do mundo."},
+  {palavra:"CALENDARIO",dica:"Sistema usado para organizar dias, meses e anos.",curiosidade:"📖 Você sabia? O calendário gregoriano é hoje o calendário civil mais utilizado no mundo."}
+]};
+
+const NOMES={geografia:"🇧🇷 Geografia",animais:"🐾 Animais",ciencias:"🔬 Ciências",frutas:"🍎 Frutas e Verduras",solar:"🚀 Sistema Solar",portugues:"📚 Língua Portuguesa",matematica:"➗ Matemática",gerais:"🌎 Conhecimentos Gerais"};
+let players=1, tema="", rodadas=[], rodada=0, atual=null, letras=new Set(), erros=0, dica=false, vez=0, pontos=[0,0], finalizada=false;
+const alphabet="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active")}
+function goHome(){show("home");}
+function showMode(){show("mode")}
+function choosePlayers(n){players=n;show("themes")}
+function openInstructions(){document.getElementById("modal").classList.add("show")}
+function closeModal(){document.getElementById("modal").classList.remove("show")}
+function normalize(s){return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase()}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function startGame(t){
+  tema=t;
+  if(BANCO[t].length<10){alert("Este tema precisa de pelo menos 10 palavras para uma partida de 10 rodadas. Adicione mais palavras no BANCO.");return}
+  rodadas=shuffle(BANCO[t]).slice(0,10); rodada=0; pontos=[0,0]; finalizada=false;
+  document.getElementById("themeBadge").textContent=NOMES[t];
+  document.getElementById("modeBadge").textContent=players===1?"👤 1 jogador":"👥 2 jogadores";
+  document.getElementById("score2").classList.toggle("hidden",players===1);
+  show("game"); novaRodada();
+}
+function novaRodada(){
+  // Reinicia completamente os controles da nova rodada.
+  finalizada=false;
+  atual=rodadas[rodada];
+  letras=new Set();
+  erros=0;
+  dica=false;
+  vez=0;
+
+  document.getElementById("roundText").textContent=`${rodada+1} / 10`;
+
+  const hint=document.getElementById("hint");
+  hint.textContent="";
+  hint.classList.add("hidden");
+
+  document.getElementById("curiosity").innerHTML="";
+  document.getElementById("curiosity").classList.add("hidden");
+  document.getElementById("message").textContent="";
+
+  // O container é uma DIV com class="actions". Na rodada anterior
+  // ele recebe o botão "Próxima rodada"; aqui recriamos o botão de dica.
+  const actions=document.querySelector(".actions");
+  actions.innerHTML="";
+  const hintBtn=document.createElement("button");
+  hintBtn.id="hintBtn";
+  hintBtn.className="btn small secondary";
+  hintBtn.textContent="💡 Usar dica (-1 ponto por letra)";
+  hintBtn.onclick=useHint;
+  actions.appendChild(hintBtn);
+
+  desenhar();
+  renderWord();
+  renderKeyboard();
+  turn();
+}
+function renderWord(){
+  const n=normalize(atual.palavra);
+  document.getElementById("word").textContent=[...atual.palavra].map((c,i)=>c===" "?"  ":(letras.has(n[i])?c:"_")).join(" ");
+}
+function renderKeyboard(){
+  const box=document.getElementById("keyboard");box.innerHTML="";
+  alphabet.forEach(l=>{
+    const b=document.createElement("button");b.className="key";b.textContent=l;
+    b.disabled=letras.has(l)||finalizada;b.onclick=()=>jogarLetra(l);box.appendChild(b);
+  });
+}
+function turn(){
+  const el=document.getElementById("turnInfo");
+  if(players===1)el.textContent="🎯 Encontre a palavra!";
+  else el.textContent=`🎯 Vez do Jogador ${vez+1}`;
+  document.getElementById("score1").classList.toggle("active",players===2&&vez===0);
+  document.getElementById("score2").classList.toggle("active",players===2&&vez===1);
+}
+function jogarLetra(l){
+  if(finalizada||letras.has(l))return;
+  letras.add(l);
+  const n=normalize(atual.palavra), hit=n.includes(l);
+  if(hit){
+    pontos[vez]+=dica?1:2;
+    document.getElementById("message").textContent=`✅ Acertou! +${dica?1:2} ponto${dica?"":"s"}. Você pode continuar.`;
+    atualizarPontos();renderWord();renderKeyboard();
+    if([...n].every((c,i)=>c===" "||letras.has(c))){terminarPalavra(true);return}
+  }else{
+    erros++;document.getElementById("message").textContent="❌ Errou! A vez passa para o próximo jogador.";
+    desenhar();renderKeyboard();
+    if(erros>=6){terminarPalavra(false);return}
+    if(players===2){vez=vez?0:1;turn()}
+  }
+}
+function atualizarPontos(){
+  document.querySelector("#score1 .pts").textContent=pontos[0];
+  document.querySelector("#score2 .pts").textContent=pontos[1];
+}
+function desenhar(){
+  ["head","body","arm1","arm2","leg1","leg2"].forEach((id,i)=>document.getElementById(id).classList.toggle("hidden",erros<=i));
+}
+function useHint(){
+  if(dica)return;
+  dica=true;
+  document.getElementById("hint").textContent="💡 Dica: "+atual.dica;
+  document.getElementById("hint").classList.remove("hidden");
+  document.getElementById("hintBtn").disabled=true;
+  document.getElementById("message").textContent="💡 Dica ativada! Agora cada letra acertada vale 1 ponto.";
+}
+function terminarPalavra(acertou){
+  finalizada=true;renderKeyboard();
+  if(!acertou){
+    [...normalize(atual.palavra)].forEach(c=>letras.add(c));
+    renderWord();
+    document.getElementById("message").textContent=`A palavra era: ${atual.palavra}`;
+  }
+  const c=document.getElementById("curiosity");
+  c.innerHTML=`<h3>${acertou?"🎉 Palavra acertada!":"📚 Vamos aprender!"}</h3><p>${atual.curiosidade}</p>`;
+  c.classList.remove("hidden");
+  const actions=document.getElementById("actions");
+  actions.innerHTML="";
+  const b=document.createElement("button");b.className="btn";b.textContent=rodada===9?"🏆 Ver resultado":"➡️ Próxima rodada";
+  b.onclick=()=>{if(rodada===9)fimJogo();else{rodada++;novaRodada()}};
+  actions.appendChild(b);
+}
+function fimJogo(){
+  finalizada=true;show("end");
+  const [a,b]=pontos;
+  if(players===1){document.getElementById("endTitle").textContent="🎉 Parabéns! Você concluiu as 10 rodadas!";document.getElementById("endSummary").textContent=`Pontuação final: ${a} pontos.`}
+  else if(a>b){document.getElementById("endTitle").textContent="🏆 Jogador 1 venceu!";document.getElementById("endSummary").textContent=`Jogador 1: ${a} pontos • Jogador 2: ${b} pontos`}
+  else if(b>a){document.getElementById("endTitle").textContent="🏆 Jogador 2 venceu!";document.getElementById("endSummary").textContent=`Jogador 1: ${a} pontos • Jogador 2: ${b} pontos`}
+  else{document.getElementById("endTitle").textContent="🤝 Empate!";document.getElementById("endSummary").textContent=`Ambos terminaram com ${a} pontos.`}
+}
+function showThemesAgain(){show("themes")}
+function confirmExit(){if(confirm("Sair desta partida? O progresso será perdido."))showThemesAgain()}
+atualizarPontos();
+</script>
+</body>
+</html>
