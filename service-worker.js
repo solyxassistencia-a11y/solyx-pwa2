@@ -1,5 +1,5 @@
 /* ============================================================
-   SOLYX LOJISTA - SERVICE WORKER V4
+   FIDELIDADE.NET.BR - SERVICE WORKER
    PWA OFFLINE + JOGOS OFFLINE
    ============================================================
 
@@ -31,7 +31,7 @@
    1. CONFIGURAÇÃO
    ============================================================ */
 
-const CACHE_NAME = "SolyxLojista-v47";
+const CACHE_NAME = "Fidelidade_Admin-v48";
 
 const OFFLINE_PAGE = "./offline.html";
 
@@ -52,7 +52,9 @@ const PRECACHE_FILES = [
     "./fid_game3.html",
     "./fid_game4.html",
     "./fid_game5.html",
-    "./fid_game6.html"
+    "./fid_game6.html",
+    "./fid_game7.html",
+    "./fid_game8.html"
 
 ];
 
@@ -64,7 +66,7 @@ const PRECACHE_FILES = [
 self.addEventListener("install", event => {
 
     console.log(
-        "[Solyx SW V4] Instalando:",
+        "[Fidelidade SW V4] Instalando:",
         CACHE_NAME
     );
 
@@ -76,7 +78,7 @@ self.addEventListener("install", event => {
             .then(cache => {
 
                 console.log(
-                    "[Solyx SW V4] Armazenando arquivos offline..."
+                    "[Fidelidade SW V4] Armazenando arquivos offline..."
                 );
 
 
@@ -87,7 +89,7 @@ self.addEventListener("install", event => {
             .then(() => {
 
                 console.log(
-                    "[Solyx SW V4] Arquivos offline armazenados."
+                    "[Fidelidade SW V4] Arquivos offline armazenados."
                 );
 
 
@@ -102,7 +104,7 @@ self.addEventListener("install", event => {
             .catch(error => {
 
                 console.error(
-                    "[Solyx SW V4] ERRO ao criar cache:",
+                    "[Fidelidade SW V4] ERRO ao criar cache:",
                     error
                 );
 
@@ -122,7 +124,7 @@ self.addEventListener("install", event => {
 self.addEventListener("activate", event => {
 
     console.log(
-        "[Solyx SW V4] Ativando:",
+        "[Fidelidade SW V4] Ativando:",
         CACHE_NAME
     );
 
@@ -150,7 +152,7 @@ self.addEventListener("activate", event => {
                         ) {
 
                             console.log(
-                                "[Solyx SW V4] Apagando cache antigo:",
+                                "[Fidelidade SW V4] Apagando cache antigo:",
                                 cacheName
                             );
 
@@ -173,7 +175,7 @@ self.addEventListener("activate", event => {
             .then(() => {
 
                 console.log(
-                    "[Solyx SW V4] Service Worker ativo."
+                    "[Fidelidade SW V4] Service Worker ativo."
                 );
 
 
@@ -258,7 +260,7 @@ async function obterPaginaOffline() {
                 content="width=device-width, initial-scale=1.0"
             >
 
-            <title>Solyx - Offline</title>
+            <title>Sistema - Offline</title>
 
             <style>
 
@@ -355,7 +357,7 @@ async function obterJogoDoCache(request) {
     if (resposta) {
 
         console.log(
-            "[Solyx SW V4] Jogo encontrado no cache:",
+            "[Fidelidade SW V4] Jogo encontrado no cache:",
             request.url
         );
 
@@ -381,7 +383,7 @@ async function obterJogoDoCache(request) {
     if (resposta) {
 
         console.log(
-            "[Solyx SW V4] Jogo encontrado pelo URL absoluto:",
+            "[Fidelidade SW V4] Jogo encontrado pelo URL absoluto:",
             url.href
         );
 
@@ -529,7 +531,7 @@ self.addEventListener("fetch", event => {
                 catch (error) {
 
                     console.log(
-                        "[Solyx SW V4] Navegação offline:",
+                        "[Fidelidade SW V4] Navegação offline:",
                         request.url
                     );
 
@@ -644,7 +646,7 @@ self.addEventListener("fetch", event => {
             catch (error) {
 
                 console.warn(
-                    "[Solyx SW V4] Recurso não disponível:",
+                    "[Fidelidade SW V4] Recurso não disponível:",
                     request.url
                 );
 
@@ -684,7 +686,7 @@ self.addEventListener("message", event => {
     ) {
 
         console.log(
-            "[Solyx SW V4] Atualização solicitada."
+            "[Fidelidade SW V4] Atualização solicitada."
         );
 
 
@@ -700,6 +702,6 @@ self.addEventListener("message", event => {
    ============================================================ */
 
 console.log(
-    "[Solyx SW V4] Carregado:",
+    "[Fidelidade SW V4] Carregado:",
     CACHE_NAME
 );
