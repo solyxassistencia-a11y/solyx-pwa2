@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎮 FORCA EDUCATIVA // ARCADE</title>
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --secondary: #2196F3;
+            --danger: #F44336;
+            --warning: #FF9800;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --text: #333;
+            --bg: #f4f7f6;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            position: relative;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen {
+            display: none;
+            flex-direction: column;
+            padding: 20px;
+            height: 100%;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        .screen.active { display: flex; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2 { text-align: center; color: var(--dark); margin-bottom: 20px; }
+        
+        button {
+            border: none;
+            padding: 15px 20px;
+            margin: 10px 0;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, filter 0.2s;
+            color: white;
+        }
+        
+        button:active { transform: scale(0.95); }
+        button:hover { filter: brightness(1.1); }
+
+        .btn-primary { background: var(--primary); }
+        .btn-secondary { background: var(--secondary); }
+        .btn-warning { background: var(--warning); }
+        .btn-danger { background: var(--danger); } /* Nova cor para o botão de sair */
+
+        /* Menu & Instruções */
+        .menu-buttons { display: flex; flex-direction: column; gap: 10px; margin-top: 30px; }
+        .instructions-box { background: var(--light); padding: 15px; border-radius: 10px; font-size: 15px; line-height: 1.5; overflow-y: auto; max-height: 60vh; margin-bottom: 20px;}
+
+        /* Temas */
+        .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .theme-btn { font-size: 16px; padding: 20px 10px; background: var(--secondary); }
+
+        /* Jogo */
+        .header-game { display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 15px; font-size: 14px; background: var(--light); padding: 10px; border-radius: 8px;}
+        .player-turn { text-align: center; font-size: 18px; font-weight: bold; color: var(--warning); margin-bottom: 10px; }
+        
+        .hangman-container { display: flex; justify-content: center; margin-bottom: 15px; }
+        svg { width: 150px; height: 180px; }
+        .hangman-part { stroke: var(--dark); stroke-width: 4; fill: none; display: none; }
+        .hangman-base { stroke: var(--dark); stroke-width: 4; fill: none; }
+
+        .word-display { display: flex; justify-content: center; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; min-height: 40px; }
+        .letter-box { width: 35px; height: 45px; border-bottom: 4px solid var(--dark); display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; text-transform: uppercase; }
+
+        .hint-container { text-align: center; margin-bottom: 15px; }
+        .hint-text { background: #fff3e0; padding: 10px; border-radius: 5px; color: #e65100; font-weight: bold; display: none; font-size: 14px;}
+
+        .keyboard { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; }
+        .key { padding: 10px; width: calc(100% / 7 - 6px); font-size: 18px; background: var(--light); color: var(--text); border-radius: 5px; margin: 0; }
+        .key.correct { background: var(--primary); color: white; }
+        .key.wrong { background: var(--danger); color: white; opacity: 0.5; }
+
+        /* Controles extras do Jogo (Sair / Trocar Tema) */
+        .game-controls { display: flex; gap: 10px; justify-content: center; margin-top: 25px; border-top: 1px solid #ddd; padding-top: 15px;}
+        .game-controls button { font-size: 14px; padding: 10px 15px; flex: 1; }
+
+        /* Curiosidade & Fim */
+        .fact-box { background: #e3f2fd; padding: 20px; border-radius: 10px; text-align: center; margin-top: 20px; }
+        .fact-title { color: var(--secondary); margin-bottom: 10px; font-size: 20px;}
+        .winner-text { font-size: 24px; color: var(--primary); text-align: center; margin: 20px 0; font-weight: bold; }
+        
+        .score-board { background: var(--light); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+        .score-row { display: flex; justify-content: space-between; font-size: 18px; margin-bottom: 5px; }
+
+        /* =========================================================
+           SKIN RETRÔ ARCADE — apenas visual, sem alterar a lógica
+           ========================================================= */
+        :root {
+            --primary: #00ff9d;
+            --secondary: #00d9ff;
+            --danger: #ff3864;
+            --warning: #ffd166;
+            --dark: #07111f;
+            --light: #101d2f;
+            --text: #e8f7ff;
+            --bg: #030712;
+            --panel: #071525;
+            --panel-2: #0b1d31;
+            --grid: rgba(0,217,255,.075);
+            --glow-green: 0 0 8px rgba(0,255,157,.65), 0 0 24px rgba(0,255,157,.18);
+            --glow-blue: 0 0 8px rgba(0,217,255,.65), 0 0 24px rgba(0,217,255,.18);
+        }
+
+        * {
+            font-family: "Courier New", "Lucida Console", monospace;
+        }
+
+        html, body { min-height: 100%; }
+
+        body {
+            background:
+                radial-gradient(circle at 50% 0%, rgba(0,217,255,.10), transparent 35%),
+                linear-gradient(var(--grid) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+                #030712;
+            background-size: auto, 22px 22px, 22px 22px, auto;
+            color: var(--text);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            background: repeating-linear-gradient(
+                to bottom,
+                rgba(255,255,255,.018) 0px,
+                rgba(255,255,255,.018) 1px,
+                transparent 2px,
+                transparent 4px
+            );
+            mix-blend-mode: screen;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9998;
+            box-shadow: inset 0 0 120px rgba(0,0,0,.85);
+        }
+
+        #app {
+            max-width: 720px;
+            min-height: 100vh;
+            background:
+                linear-gradient(180deg, rgba(11,29,49,.98), rgba(3,10,20,.99));
+            border-left: 1px solid rgba(0,217,255,.22);
+            border-right: 1px solid rgba(0,217,255,.22);
+            box-shadow:
+                0 0 35px rgba(0,217,255,.08),
+                0 0 90px rgba(0,0,0,.75);
+        }
+
+        .screen {
+            padding: 24px;
+            position: relative;
+        }
+
+        .screen::before {
+            content: "SYSTEM // ONLINE";
+            position: absolute;
+            top: 9px;
+            right: 18px;
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: rgba(0,255,157,.5);
+        }
+
+        h1, h2 {
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: var(--glow-blue);
+        }
+
+        h1 {
+            font-size: clamp(28px, 7vw, 42px);
+            margin: 30px 0 24px;
+            padding: 22px 12px;
+            border-top: 1px solid rgba(0,217,255,.35);
+            border-bottom: 1px solid rgba(0,217,255,.35);
+            position: relative;
+        }
+
+        h1::before, h1::after {
+            content: "◆";
+            color: var(--primary);
+            font-size: 12px;
+            vertical-align: middle;
+            margin: 0 12px;
+            text-shadow: var(--glow-green);
+        }
+
+        h2 {
+            margin-top: 25px;
+        }
+
+        button {
+            border: 1px solid rgba(0,217,255,.45);
+            padding: 14px 18px;
+            margin: 7px 0;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 900;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            color: #031019;
+            background: #0d263d;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.035), 0 5px 0 #020810;
+            transition: transform .08s, filter .15s, box-shadow .15s, border-color .15s;
+        }
+
+        button:hover {
+            filter: brightness(1.18);
+            border-color: currentColor;
+            box-shadow: 0 0 15px rgba(0,217,255,.18), 0 5px 0 #020810;
+        }
+
+        button:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #020810;
+        }
+
+        .btn-primary {
+            background: linear-gradient(180deg, #00ff9d, #00c978);
+            color: #02130d;
+            box-shadow: var(--glow-green), 0 5px 0 #006b47;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(180deg, #00d9ff, #008fba);
+            color: #021018;
+            box-shadow: var(--glow-blue), 0 5px 0 #00506a;
+        }
+
+        .btn-warning {
+            background: linear-gradient(180deg, #ffe08a, #e7a91d);
+            color: #1c1402;
+            box-shadow: 0 0 12px rgba(255,209,102,.28), 0 5px 0 #805d0c;
+        }
+
+        .btn-danger {
+            background: linear-gradient(180deg, #ff557a, #d51f4c);
+            color: #19030a;
+            box-shadow: 0 0 12px rgba(255,56,100,.25), 0 5px 0 #741127;
+        }
+
+        .menu-buttons {
+            gap: 13px;
+            margin-top: 28px;
+        }
+
+        .instructions-box,
+        .fact-box,
+        .score-board {
+            background:
+                linear-gradient(135deg, rgba(0,217,255,.06), transparent 45%),
+                var(--panel);
+            border: 1px solid rgba(0,217,255,.25);
+            border-radius: 4px;
+            box-shadow: inset 0 0 25px rgba(0,0,0,.3);
+        }
+
+        .instructions-box {
+            padding: 19px;
+            line-height: 1.7;
+        }
+
+        .instructions-box strong {
+            color: var(--primary);
+            text-shadow: 0 0 8px rgba(0,255,157,.35);
+        }
+
+        .theme-grid {
+            gap: 12px;
+        }
+
+        .theme-btn {
+            min-height: 78px;
+            padding: 14px 8px;
+            background: linear-gradient(135deg, #0d2942, #091726);
+            color: var(--secondary);
+            border-color: rgba(0,217,255,.35);
+            text-shadow: 0 0 7px rgba(0,217,255,.35);
+        }
+
+        .theme-btn:hover {
+            background: linear-gradient(135deg, #123b5e, #0b2137);
+        }
+
+        .header-game {
+            margin-top: 10px;
+            margin-bottom: 13px;
+            padding: 12px 14px;
+            background: #050e1a;
+            border: 1px solid rgba(0,217,255,.3);
+            border-radius: 3px;
+            color: var(--secondary);
+            box-shadow: inset 0 0 18px rgba(0,217,255,.035);
+            letter-spacing: 1px;
+        }
+
+        .player-turn {
+            padding: 8px;
+            margin-bottom: 4px;
+            color: var(--warning);
+            text-shadow: 0 0 8px rgba(255,209,102,.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hangman-container {
+            margin: 4px auto 10px;
+            padding: 10px;
+            width: min(100%, 330px);
+            background:
+                radial-gradient(circle, rgba(0,217,255,.06), transparent 65%),
+                #040c17;
+            border: 1px solid rgba(0,217,255,.22);
+            border-radius: 4px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,.55), var(--glow-blue);
+        }
+
+        svg {
+            width: 190px;
+            height: 210px;
+            filter: drop-shadow(0 0 5px rgba(0,217,255,.45));
+        }
+
+        .hangman-part {
+            stroke: var(--danger);
+            stroke-width: 4;
+            filter: drop-shadow(0 0 5px rgba(255,56,100,.7));
+        }
+
+        .hangman-base {
+            stroke: var(--secondary);
+            stroke-width: 4;
+            filter: drop-shadow(0 0 4px rgba(0,217,255,.7));
+        }
+
+        .word-display {
+            gap: 7px;
+            margin: 10px 0 17px;
+        }
+
+        .letter-box {
+            width: 37px;
+            height: 48px;
+            border-bottom: 3px solid var(--secondary);
+            color: var(--primary);
+            text-shadow: var(--glow-green);
+            background: linear-gradient(180deg, rgba(0,217,255,.055), transparent);
+            font-size: 25px;
+        }
+
+        .hint-container {
+            margin-bottom: 12px;
+        }
+
+        .hint-text {
+            background: rgba(255,209,102,.08);
+            border: 1px solid rgba(255,209,102,.45);
+            padding: 10px 12px;
+            border-radius: 3px;
+            color: var(--warning);
+            text-shadow: 0 0 7px rgba(255,209,102,.3);
+        }
+
+        #btn-hint {
+            box-shadow: 0 0 10px rgba(255,209,102,.18), 0 3px 0 #805d0c;
+        }
+
+        .keyboard {
+            gap: 6px;
+            padding: 10px 0;
+        }
+
+        .key {
+            padding: 10px 5px;
+            width: calc(100% / 9 - 6px);
+            min-width: 0;
+            font-size: 16px;
+            background: #0a1828;
+            color: #b9d8e7;
+            border: 1px solid rgba(0,217,255,.22);
+            border-radius: 3px;
+            box-shadow: 0 3px 0 #020810;
+        }
+
+        .key.correct {
+            background: #00b878;
+            color: #02130d;
+            border-color: var(--primary);
+            box-shadow: 0 0 11px rgba(0,255,157,.45), 0 3px 0 #006b47;
+        }
+
+        .key.wrong {
+            background: #741127;
+            color: #ff9db1;
+            border-color: #ff3864;
+            opacity: .65;
+            box-shadow: none;
+        }
+
+        .key:disabled {
+            cursor: default;
+        }
+
+        .game-controls {
+            margin-top: 15px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(0,217,255,.2);
+        }
+
+        .game-controls button {
+            font-size: 12px;
+            padding: 10px;
+        }
+
+        .fact-box {
+            padding: 22px;
+            margin-top: 20px;
+        }
+
+        .fact-title {
+            color: var(--secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-shadow: var(--glow-blue);
+        }
+
+        #fact-text {
+            line-height: 1.65;
+            color: #cde4ef;
+        }
+
+        .winner-text {
+            color: var(--primary);
+            text-shadow: var(--glow-green);
+            text-transform: uppercase;
+        }
+
+        .score-board {
+            padding: 16px;
+        }
+
+        .score-row {
+            padding: 10px 0;
+            border-bottom: 1px dashed rgba(0,217,255,.18);
+            color: #b9d8e7;
+        }
+
+        .score-row strong {
+            color: var(--primary);
+            text-shadow: 0 0 7px rgba(0,255,157,.45);
+        }
+
+        /* Pequenos detalhes de HUD */
+        .header-game span:last-child {
+            color: var(--primary);
+            text-shadow: 0 0 7px rgba(0,255,157,.45);
+        }
+
+        @media (max-width: 520px) {
+            .screen { padding: 18px 14px; }
+            h1 { font-size: 27px; }
+            .key { width: calc(100% / 7 - 6px); font-size: 15px; padding: 9px 3px; }
+            .letter-box { width: 31px; height: 43px; font-size: 22px; }
+            svg { width: 170px; height: 195px; }
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .btn-primary, .btn-secondary {
+                animation: arcadePulse 3s ease-in-out infinite;
+            }
+        }
+
+        @keyframes arcadePulse {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.06); }
+        }
+
+    </style>
+</head>
+<body>
+
+<div id="app">
+
+    <!-- TELA INICIAL -->
+    <div id="screen-menu" class="screen active">
+        <h1>🎮 FORCA EDUCATIVA</h1>
+        <div style="text-align:center;color:rgba(0,217,255,.65);font-size:11px;letter-spacing:3px;margin-top:-14px;margin-bottom:8px;">ARCADE MODE // EDUCAÇÃO // DESAFIO</div>
+        <div class="menu-buttons">
+            <button class="btn-primary" onclick="setPlayers(1)">Jogar (1 Jogador)</button>
+            <button class="btn-secondary" onclick="setPlayers(2)">Jogar (2 Jogadores)</button>
+            <button class="btn-warning" onclick="showScreen('screen-instructions')">Instruções</button>
+        </div>
+    </div>
+
+    <!-- TELA DE INSTRUÇÕES -->
+    <div id="screen-instructions" class="screen">
+        <h2>Instruções</h2>
+        <div class="instructions-box">
+            <p><strong>Regras Clássicas:</strong> Tente adivinhar a palavra letra por letra antes de ser enforcado (6 erros).</p><br>
+            <p><strong>Pontuação:</strong> Cada letra acertada vale 2 pontos (mesmo repetidas).</p><br>
+            <p><strong>Dica:</strong> Você pode pedir uma dica, mas a pontuação por letra cairá para 1 ponto nesta rodada.</p><br>
+            <p><strong>2 Jogadores:</strong> Os turnos se alternam. Se você acertar, continua jogando. Se errar, passa a vez. Quem fizer mais pontos em 10 rodadas, vence!</p>
+        </div>
+        <button class="btn-primary" onclick="showScreen('screen-menu')">Voltar</button>
+    </div>
+
+    <!-- TELA DE TEMAS -->
+    <div id="screen-themes" class="screen">
+        <h2>Escolha um Tema</h2>
+        <div class="theme-grid" id="theme-container">
+            <!-- Botões gerados via JS -->
+        </div>
+        <button class="btn-danger" style="margin-top:20px;" onclick="showScreen('screen-menu')">Voltar ao Menu Principal</button>
+    </div>
+
+    <!-- TELA DE JOGO -->
+    <div id="screen-game" class="screen">
+        <div class="header-game">
+            <span id="round-counter">Rodada: 1/10</span>
+            <span id="score-display">Pts: 0</span>
+        </div>
+        
+        <div id="player-turn-display" class="player-turn">Vez do Jogador 1</div>
+
+        <div class="hangman-container">
+            <svg id="hangman-svg" viewBox="0 0 150 180">
+                <!-- Base e Forca -->
+                <path class="hangman-base" d="M10,170 L70,170 M40,170 L40,10 L100,10 L100,30" />
+                <!-- Partes do corpo (0 a 5) -->
+                <circle class="hangman-part" id="part-0" cx="100" cy="50" r="20" /> <!-- Cabeça -->
+                <line class="hangman-part" id="part-1" x1="100" y1="70" x2="100" y2="120" /> <!-- Corpo -->
+                <line class="hangman-part" id="part-2" x1="100" y1="80" x2="70" y2="110" /> <!-- Braço Esq -->
+                <line class="hangman-part" id="part-3" x1="100" y1="80" x2="130" y2="110" /> <!-- Braço Dir -->
+                <line class="hangman-part" id="part-4" x1="100" y1="120" x2="70" y2="160" /> <!-- Perna Esq -->
+                <line class="hangman-part" id="part-5" x1="100" y1="120" x2="130" y2="160" /> <!-- Perna Dir -->
+            </svg>
+        </div>
+
+        <div class="hint-container">
+            <button id="btn-hint" class="btn-warning" style="padding: 5px 15px; font-size: 14px;" onclick="useHint()">Pedir Dica (Reduz Pontos)</button>
+            <div id="hint-display" class="hint-text"></div>
+        </div>
+
+        <div class="word-display" id="word-container"></div>
+        
+        <div class="keyboard" id="keyboard"></div>
+
+        <!-- NOVOS BOTÕES DE CONTROLE ADICIONADOS AQUI -->
+        <div class="game-controls">
+            <button class="btn-secondary" onclick="changeTheme()">Trocar Tema</button>
+            <button class="btn-danger" onclick="quitGame()">Sair do Jogo</button>
+        </div>
+    </div>
+
+    <!-- TELA DE CURIOSIDADE / FIM DE RODADA -->
+    <div id="screen-fact" class="screen">
+        <h2 id="fact-result-title">Você Acertou!</h2>
+        <div class="word-display" id="fact-word-reveal" style="color: var(--primary); font-size: 28px; font-weight: bold; border-bottom: none;"></div>
+        
+        <div class="fact-box">
+            <div class="fact-title">📖 Você sabia?</div>
+            <p id="fact-text"></p>
+        </div>
+
+        <button class="btn-primary" style="margin-top: 30px;" onclick="nextRound()">Próxima Rodada</button>
+    </div>
+
+    <!-- TELA FINAL -->
+    <div id="screen-end" class="screen">
+        <h2>Fim de Jogo!</h2>
+        <div id="winner-announcement" class="winner-text"></div>
+        
+        <div class="score-board">
+            <div class="score-row" id="final-score-p1"><span>Jogador 1:</span> <strong id="fs1">0</strong></div>
+            <div class="score-row" id="final-score-p2" style="display:none;"><span>Jogador 2:</span> <strong id="fs2">0</strong></div>
+        </div>
+
+        <button class="btn-primary" onclick="location.reload()">Jogar Novamente</button>
+    </div>
+
+</div>
+
+<script>
+    // ==========================================
+    // BANCO DE DADOS DAS PALAVRAS
+    // ==========================================
+    const bancoDePalavras = {
+        "🇧🇷 Geografia": [
+            { word: "BRASIL", hint: "Maior país da América do Sul", fact: "O Brasil tem a maior biodiversidade do mundo." },
+            { word: "PANTANAL", hint: "Bioma alagado", fact: "É a maior planície inundável do planeta." },
+            { word: "AMAZONAS", hint: "Maior rio em volume de água", fact: "O Rio Amazonas lança cerca de 209 mil metros cúbicos de água por segundo no oceano." },
+            { word: "CAATINGA", hint: "Bioma exclusivamente brasileiro", fact: "O nome significa 'Mata Branca' em tupi-guarani." },
+            { word: "EVEREST", hint: "Montanha mais alta do mundo", fact: "Fica na cordilheira do Himalaia e tem 8.848 metros de altitude." },
+            { word: "JAPAO", hint: "Terra do Sol Nascente", fact: "O país é formado por quase 7.000 ilhas." },
+            { word: "SAARA", hint: "Maior deserto quente", fact: "O Deserto do Saara tem quase o tamanho dos Estados Unidos." },
+            { word: "PACIFICO", hint: "Maior oceano", fact: "Cobre mais de 30% da superfície da Terra." },
+            { word: "EQUADOR", hint: "Linha imaginária que divide a Terra", fact: "Divide o planeta em Hemisfério Norte e Sul." },
+            { word: "EUROPA", hint: "Continente onde fica a França", fact: "É o segundo menor continente do mundo." }
+        ],
+        "🐾 Animais": [
+            { word: "ELEFANTE", hint: "Possui tromba", fact: "O elefante é o maior animal terrestre atualmente." },
+            { word: "GIRAFA", hint: "Pescoço muito longo", fact: "O coração de uma girafa pode pesar até 11 quilos." },
+            { word: "ONCA PINTADA", hint: "Maior felino das Américas", fact: "Sua mordida é forte o suficiente para quebrar o casco de uma tartaruga." },
+            { word: "BALEIA AZUL", hint: "Maior animal do planeta", fact: "Sua língua pode pesar tanto quanto um elefante." },
+            { word: "ORNITORRINCO", hint: "Mamífero que bota ovo", fact: "É nativo da Austrália e não possui estômago." },
+            { word: "CAPIVARA", hint: "Maior roedor do mundo", fact: "São excelentes nadadoras e podem prender a respiração por 5 minutos." },
+            { word: "PINGUIM", hint: "Ave que não voa, mas nada", fact: "Eles engolem pedras para ajudar na digestão e para mergulhar mais fundo." },
+            { word: "TARTARUGA", hint: "Possui casco nas costas", fact: "Algumas espécies podem viver mais de 150 anos." },
+            { word: "MORCEGO", hint: "Único mamífero que voa", fact: "Existem mais de 1.400 espécies de morcegos no mundo." },
+            { word: "ARARA AZUL", hint: "Ave brasileira ameaçada", fact: "É a maior espécie de arara do mundo." }
+        ],
+        "🔬 Ciências": [
+            { word: "OXIGENIO", hint: "Gás essencial para nossa respiração", fact: "Representa cerca de 21% da atmosfera terrestre." },
+            { word: "ATOMO", hint: "Unidade básica da matéria", fact: "É tão pequeno que um fio de cabelo tem a largura de 1 milhão de átomos de carbono." },
+            { word: "GRAVIDADE", hint: "Força que nos mantém no chão", fact: "Descoberta por Isaac Newton quando, segundo a lenda, uma maçã caiu em sua cabeça." },
+            { word: "DNA", hint: "Molécula da hereditariedade", fact: "Se você desenrolasse todo o DNA do seu corpo, ele iria até o sol e voltaria mais de 300 vezes." },
+            { word: "FOTOSSINTESE", hint: "Processo alimentar das plantas", fact: "As plantas transformam luz solar, água e gás carbônico em energia." },
+            { word: "CELULA", hint: "Unidade básica da vida", fact: "O corpo humano adulto tem cerca de 30 a 40 trilhões de células." },
+            { word: "BACTERIA", hint: "Microrganismo unicelular", fact: "Existem mais bactérias no seu corpo do que células humanas." },
+            { word: "MICROSCOPIO", hint: "Instrumento para ver coisas minúsculas", fact: "Foi inventado no final do século XVI." },
+            { word: "ENERGIA", hint: "Capacidade de realizar trabalho", fact: "A energia não pode ser criada nem destruída, apenas transformada." },
+            { word: "VACINA", hint: "Prevenção contra doenças", fact: "A primeira vacina foi criada por Edward Jenner em 1796, contra a varíola." }
+        ],
+        "🍎 Frutas e Verduras": [
+            { word: "MELANCIA", hint: "Verde por fora, vermelha por dentro", fact: "A melancia é composta por 92% de água." },
+            { word: "BANANA", hint: "Amarela e rica em potássio", fact: "As bananeiras não são árvores, são ervas gigantes." },
+            { word: "CENOURA", hint: "Laranja e faz bem para os olhos", fact: "Originalmente, as cenouras eram roxas, amarelas ou brancas." },
+            { word: "BROCOLIS", hint: "Parece uma mini árvore", fact: "É uma excelente fonte de cálcio e vitamina C." },
+            { word: "TOMATE", hint: "Vermelho, usado em saladas e molhos", fact: "Botanicamente, o tomate é uma fruta, não um legume." },
+            { word: "ABACAXI", hint: "Tem coroa, mas não é rei", fact: "Leva cerca de 2 anos para um abacaxi crescer e ficar pronto para colheita." },
+            { word: "MORANGO", hint: "Vermelho com sementes por fora", fact: "É a única fruta que tem as sementes na parte exterior." },
+            { word: "BATATA", hint: "Raiz muito consumida frita", fact: "Foi o primeiro vegetal a ser cultivado no espaço, em 1995." },
+            { word: "MACA", hint: "Fruta famosa na história de Branca de Neve", fact: "Se você colocar uma maçã na água, ela flutua porque 25% de seu volume é ar." },
+            { word: "ALFACE", hint: "Folha verde muito comum em saladas", fact: "Pode ajudar a acalmar e induzir o sono graças a uma substância chamada lactucário." }
+        ],
+        "🚀 Sistema Solar": [
+            { word: "JUPITER", hint: "Maior planeta", fact: "É tão grande que todos os outros planetas do Sistema Solar caberiam dentro dele." },
+            { word: "MERCURIO", hint: "Planeta mais próximo do Sol", fact: "Apesar de estar mais perto do Sol, Vênus é mais quente que ele." },
+            { word: "TERRA", hint: "O planeta azul", fact: "É o único planeta conhecido que abriga vida." },
+            { word: "MARTE", hint: "O planeta vermelho", fact: "Possui a maior montanha do Sistema Solar, o Monte Olimpo." },
+            { word: "SATURNO", hint: "Famoso por seus anéis", fact: "Seus anéis são feitos principalmente de pedaços de gelo e rocha." },
+            { word: "URANO", hint: "Planeta que gira 'deitado'", fact: "Tem uma coloração azul-esverdeada devido ao gás metano." },
+            { word: "NETUNO", hint: "Planeta mais distante do Sol", fact: "Os ventos em Netuno podem chegar a incríveis 2.000 km/h." },
+            { word: "SOL", hint: "Estrela central", fact: "Corresponde a 99,8% de toda a massa do Sistema Solar." },
+            { word: "LUA", hint: "Nosso satélite natural", fact: "A gravidade na Lua é 1/6 da gravidade da Terra." },
+            { word: "PLUTAO", hint: "Planeta anão", fact: "Foi rebaixado da categoria de planeta principal em 2006." }
+        ],
+        "📚 Língua Portuguesa": [
+            { word: "SUBSTANTIVO", hint: "Dá nome aos seres", fact: "Pode ser próprio (João) ou comum (cadeira)." },
+            { word: "ADJETIVO", hint: "Dá qualidade ou característica", fact: "Flexiona-se em gênero, número e grau." },
+            { word: "VERBO", hint: "Indica ação, estado ou fenômeno", fact: "É a palavra que mais sofre flexões na nossa língua." },
+            { word: "OXITONA", hint: "Sílaba tônica na última", fact: "Exemplos: café, amor, caju." },
+            { word: "PROPAROXITONA", hint: "Sílaba tônica na antepenúltima", fact: "Regra mágica: Todas as proparoxítonas são acentuadas!" },
+            { word: "ALFABETO", hint: "Conjunto de letras", fact: "A língua portuguesa ganhou as letras K, W e Y oficialmente no Acordo Ortográfico de 1990." },
+            { word: "SUJEITO", hint: "Quem pratica a ação na frase", fact: "Pode ser simples, composto, oculto ou indeterminado." },
+            { word: "CONSOANTE", hint: "Letras que não são vogais", fact: "O 'H' no início das palavras não tem som, sendo chamado de consoante muda." },
+            { word: "SINONIMO", hint: "Palavra com sentido semelhante", fact: "Exemplo: feliz e alegre." },
+            { word: "ANTONIMO", hint: "Palavra com sentido oposto", fact: "Exemplo: claro e escuro." }
+        ],
+        "➗ Matemática": [
+            { word: "ADICAO", hint: "Soma de valores", fact: "O símbolo '+' começou a ser usado no século XV." },
+            { word: "FRACAO", hint: "Representa parte de um todo", fact: "O número de cima é o numerador e o de baixo, o denominador." },
+            { word: "GEOMETRIA", hint: "Estuda as formas e o espaço", fact: "A palavra vem do grego e significa 'medir a terra'." },
+            { word: "TRIANGULO", hint: "Polígono de 3 lados", fact: "A soma dos ângulos internos de qualquer triângulo é sempre 180 graus." },
+            { word: "MULTIPLICACAO", hint: "Soma repetida", fact: "O símbolo 'x' foi introduzido pelo matemático William Oughtred em 1631." },
+            { word: "SUBTRACAO", hint: "Tirar ou diminuir", fact: "O sinal de '-' também indicava falta de peso em barris no comércio antigo." },
+            { word: "DIVISAO", hint: "Repartir em partes iguais", fact: "Você não pode dividir nenhum número por zero!" },
+            { word: "ALGEBRA", hint: "Usa letras para representar números", fact: "A palavra vem do árabe 'al-jabr', que significa 'restauração'." },
+            { word: "PORCENTAGEM", hint: "Fração por cem", fact: "O símbolo '%' evoluiu de uma abreviação italiana 'per cento'." },
+            { word: "EQUACAO", hint: "Igualdade matemática com incógnita", fact: "Resolver uma equação é descobrir o valor da letra misteriosa." }
+        ],
+        "🌎 Conhecimentos Gerais": [
+            { word: "OLIMPIADAS", hint: "Maior evento esportivo", fact: "Os anéis olímpicos representam os cinco continentes habitados." },
+            { word: "INTERNET", hint: "Rede mundial de computadores", fact: "Nasceu de um projeto militar americano na década de 60." },
+            { word: "CINEMA", hint: "Sétima arte", fact: "A primeira exibição pública de cinema ocorreu em Paris, em 1895." },
+            { word: "FUTEBOL", hint: "Esporte mais popular do Brasil", fact: "O esporte foi criado na Inglaterra, mas o Brasil é o único pentacampeão mundial." },
+            { word: "TELEVISAO", hint: "Transmite imagem e som a distância", fact: "A primeira TV em cores no Brasil começou a funcionar em 1972." },
+            { word: "MUSICA", hint: "Arte de combinar os sons", fact: "Tocar um instrumento musical estimula o cérebro mais do que quase qualquer outra atividade." },
+            { word: "PINTURA", hint: "Arte feita com tintas", fact: "Monalisa, de Leonardo da Vinci, é o quadro mais famoso do mundo." },
+            { word: "HISTORIA", hint: "Estudo do passado", fact: "A invenção da escrita marca o fim da Pré-História e o início da História." },
+            { word: "FILOSOFIA", hint: "Amor à sabedoria", fact: "Surgiu na Grécia Antiga para explicar o mundo de forma racional." },
+            { word: "RELOGIO", hint: "Mede o tempo", fact: "Os primeiros relógios inventados usavam a sombra do sol." }
+        ]
+    };
+
+    // ==========================================
+    // VARIÁVEIS DE ESTADO DO JOGO
+    // ==========================================
+    let totalPlayers = 1;
+    let currentPlayer = 1;
+    let scores = { 1: 0, 2: 0 };
+    let currentRound = 1;
+    const maxRounds = 10;
+    
+    let currentTheme = "";
+    let wordsQueue = [];
+    let currentWordObj = null;
+    let currentNormalizedWord = "";
+    
+    let guessedLetters = [];
+    let wrongGuesses = 0;
+    const maxErrors = 6;
+    
+    let hintUsed = false;
+    let pointsPerLetter = 2;
+
+
+    // ==========================================
+    // SISTEMA DE SOM — CLIQUE ARCADE
+    // ==========================================
+    let audioCtx = null;
+
+    function playClickSound(type = "normal") {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === "suspended") audioCtx.resume();
+
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            // Pequeno "blip" eletrônico, sem arquivo externo.
+            if (type === "success") {
+                osc.frequency.setValueAtTime(520, now);
+                osc.frequency.exponentialRampToValueAtTime(760, now + 0.07);
+            } else if (type === "wrong") {
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.exponentialRampToValueAtTime(110, now + 0.08);
+            } else {
+                osc.frequency.setValueAtTime(360, now);
+                osc.frequency.exponentialRampToValueAtTime(620, now + 0.045);
+            }
+
+            osc.type = "square";
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(type === "wrong" ? 0.045 : 0.055, now + 0.006);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.075);
+
+            osc.start(now);
+            osc.stop(now + 0.08);
+        } catch (e) {
+            // O jogo continua funcionando mesmo se o navegador bloquear áudio.
+        }
+    }
+
+    // Som em qualquer botão clicável do jogo.
+    document.addEventListener("click", function(event) {
+        const button = event.target.closest("button");
+        if (!button || button.disabled) return;
+
+        if (button.classList.contains("correct")) {
+            playClickSound("success");
+        } else if (button.classList.contains("wrong")) {
+            playClickSound("wrong");
+        } else {
+            playClickSound("normal");
+        }
+    }, true);
+
+    // ==========================================
+    // FUNÇÕES DE NAVEGAÇÃO
+    // ==========================================
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    function setPlayers(num) {
+        totalPlayers = num;
+        scores = { 1: 0, 2: 0 };
+        currentRound = 1;
+        
+        // Popular grid de temas
+        const themeContainer = document.getElementById('theme-container');
+        themeContainer.innerHTML = "";
+        Object.keys(bancoDePalavras).forEach(theme => {
+            let btn = document.createElement('button');
+            btn.className = 'btn-primary theme-btn';
+            btn.innerText = theme;
+            btn.onclick = () => startGame(theme);
+            themeContainer.appendChild(btn);
+        });
+
+        showScreen('screen-themes');
+    }
+
+    // NOVAS FUNÇÕES ADICIONADAS
+    function changeTheme() {
+        if(confirm("Tem certeza que deseja abandonar esta partida e escolher outro tema? A pontuação será zerada.")) {
+            // Reaproveita a função setPlayers para zerar pontos e rodadas, e voltar pros temas
+            setPlayers(totalPlayers);
+        }
+    }
+
+    function quitGame() {
+        if(confirm("Tem certeza que deseja sair e voltar ao menu inicial? O progresso será perdido.")) {
+            showScreen('screen-menu');
+        }
+    }
+
+    // ==========================================
+    // LÓGICA DO JOGO
+    // ==========================================
+    function removeAccents(str) {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+    }
+
+    // Embaralha o array de palavras
+    function shuffle(array) {
+        let currentIndex = array.length, randomIndex;
+        while (currentIndex != 0) {
+            randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
+        return array;
+    }
+
+    function startGame(theme) {
+        currentTheme = theme;
+        // Pega as palavras do tema e embaralha para não repetir na partida
+        wordsQueue = shuffle([...bancoDePalavras[theme]]);
+        initRound();
+    }
+
+    function initRound() {
+        if (currentRound > maxRounds || wordsQueue.length === 0) {
+            endGame();
+            return;
+        }
+
+        currentWordObj = wordsQueue.pop();
+        currentNormalizedWord = removeAccents(currentWordObj.word);
+        
+        guessedLetters = [];
+        wrongGuesses = 0;
+        hintUsed = false;
+        pointsPerLetter = 2;
+        currentPlayer = 1;
+
+        updateUI();
+        generateKeyboard();
+        drawHangman();
+        
+        document.getElementById('btn-hint').style.display = 'inline-block';
+        document.getElementById('hint-display').style.display = 'none';
+
+        showScreen('screen-game');
+    }
+
+    function updateUI() {
+        document.getElementById('round-counter').innerText = `Rodada: ${currentRound}/${maxRounds}`;
+        
+        if (totalPlayers === 1) {
+            document.getElementById('score-display').innerText = `Pts: ${scores[1]}`;
+            document.getElementById('player-turn-display').style.display = 'none';
+        } else {
+            document.getElementById('score-display').innerText = `J1: ${scores[1]} | J2: ${scores[2]}`;
+            document.getElementById('player-turn-display').style.display = 'block';
+            document.getElementById('player-turn-display').innerText = `Vez do Jogador ${currentPlayer}`;
+            document.getElementById('player-turn-display').style.color = currentPlayer === 1 ? 'var(--secondary)' : 'var(--danger)';
+        }
+
+        renderWord();
+    }
+
+    function renderWord() {
+        const container = document.getElementById('word-container');
+        container.innerHTML = "";
+
+        let won = true;
+        
+        for (let i = 0; i < currentWordObj.word.length; i++) {
+            let char = currentWordObj.word[i];
+            let normChar = currentNormalizedWord[i];
+            
+            let box = document.createElement('div');
+            box.className = 'letter-box';
+            
+            if (char === " " || char === "-") {
+                box.innerText = char;
+                box.style.borderBottom = "none";
+            } else {
+                if (guessedLetters.includes(normChar)) {
+                    box.innerText = char; // Mostra a letra original (com acento se tiver)
+                } else {
+                    won = false;
+                }
+            }
+            container.appendChild(box);
+        }
+
+        if (won) {
+            setTimeout(() => endRound(true), 300);
+        }
+    }
+
+    function generateKeyboard() {
+        const keyboard = document.getElementById('keyboard');
+        keyboard.innerHTML = "";
+        const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+        
+        for (let l of letters) {
+            let btn = document.createElement('button');
+            btn.className = 'key';
+            btn.innerText = l;
+            btn.onclick = () => handleGuess(l, btn);
+            keyboard.appendChild(btn);
+        }
+    }
+
+    function handleGuess(letter, btnNode) {
+        if (btnNode.disabled) return;
+        btnNode.disabled = true;
+
+        guessedLetters.push(letter);
+
+        if (currentNormalizedWord.includes(letter)) {
+            // Acertou
+            btnNode.classList.add('correct');
+            
+            // Calcula pontos (quantidade de vezes que a letra aparece)
+            let occurrences = currentNormalizedWord.split(letter).length - 1;
+            scores[currentPlayer] += (occurrences * pointsPerLetter);
+            
+            // Jogador mantém a vez
+        } else {
+            // Errou
+            btnNode.classList.add('wrong');
+            wrongGuesses++;
+            drawHangman();
+
+            // Passa a vez no multiplayer
+            if (totalPlayers === 2) {
+                currentPlayer = currentPlayer === 1 ? 2 : 1;
+            }
+
+            if (wrongGuesses >= maxErrors) {
+                setTimeout(() => endRound(false), 300);
+                return;
+            }
+        }
+        
+        updateUI();
+    }
+
+    function useHint() {
+        hintUsed = true;
+        pointsPerLetter = 1;
+        document.getElementById('btn-hint').style.display = 'none';
+        const hintDisplay = document.getElementById('hint-display');
+        hintDisplay.innerText = `💡 Dica: ${currentWordObj.hint}`;
+        hintDisplay.style.display = 'inline-block';
+    }
+
+    function drawHangman() {
+        for (let i = 0; i < maxErrors; i++) {
+            document.getElementById(`part-${i}`).style.display = i < wrongGuesses ? 'block' : 'none';
+        }
+    }
+
+
+    // ==========================================
+    // MENSAGENS ALTERNATIVAS — FIM POR ERRO
+    // ==========================================
+    const mensagensPalavraNaoDescoberta = [
+        "📖 Palavra Não Descoberta",
+        "🧠 Desafio Concluído",
+        "🔤 Palavra Não Revelada",
+        "🎯 Desafio Não Superado",
+        "💡 Vamos Tentar Novamente!",
+        "📝 Rodada Encerrada",
+        "💥 Fim da Rodada!",
+        "🚫 Tentativas Esgotadas!",
+        "💀 Pego pela forca!"
+    ];
+
+    function mensagemAleatoriaNaoDescoberta() {
+        const indice = Math.floor(Math.random() * mensagensPalavraNaoDescoberta.length);
+        return mensagensPalavraNaoDescoberta[indice];
+    }
+
+    function endRound(won) {
+        const title = document.getElementById('fact-result-title');
+        title.innerText = won ? "Você Acertou! 🎉" : mensagemAleatoriaNaoDescoberta();
+        title.style.color = won ? "var(--primary)" : "var(--danger)";
+
+        document.getElementById('fact-word-reveal').innerText = currentWordObj.word;
+        document.getElementById('fact-text').innerText = currentWordObj.fact;
+
+        showScreen('screen-fact');
+    }
+
+    function nextRound() {
+        currentRound++;
+        initRound();
+    }
+
+    function endGame() {
+        showScreen('screen-end');
+        
+        const fs1 = document.getElementById('fs1');
+        const fs2 = document.getElementById('fs2');
+        const p2Row = document.getElementById('final-score-p2');
+        const winnerText = document.getElementById('winner-announcement');
+
+        fs1.innerText = `${scores[1]} pts`;
+        
+        if (totalPlayers === 1) {
+            p2Row.style.display = 'none';
+            winnerText.innerText = `Você fez ${scores[1]} pontos!`;
+        } else {
+            fs2.innerText = `${scores[2]} pts`;
+            p2Row.style.display = 'flex';
+            
+            if (scores[1] > scores[2]) {
+                winnerText.innerText = "🏆 Jogador 1 Venceu!";
+            } else if (scores[2] > scores[1]) {
+                winnerText.innerText = "🏆 Jogador 2 Venceu!";
+            } else {
+                winnerText.innerText = "🤝 Empate!";
+            }
+        }
+    }
+</script>
+
+</body>
+</html>
