@@ -485,11 +485,10 @@
 
                 <!-- ACESSO CLIENTE -->
                 <a  class="access-button customer-button"
-                    href="https://appsolyxfidelidade.blogspot.com/p/dvsvdsvbggfn1f56n16f51n56f15n1f6n1f65n1.html"
+                    href="#" data-rota="URL_AppCliente" 
                     aria-label="Acesso Cliente" >
                     🎁&nbsp;&nbsp;Acesso Cliente
                 </a>
-
             </nav>
 
 
@@ -586,108 +585,315 @@ document.getElementById("anoAtual").textContent =
     }
   };
 </script>
-   <!--IDENTIDADE VISUAL FIDELIDADE.NET.BR-->
-    <script>
-        // A ÚNICA URL QUE FICA FIXA (A Ponte de Conexão com o Banco de Dados)
-        const API_URL = "https://script.google.com/macros/s/AKfycbySLSbcAqPyq2exmYmUa8vhKZ2nZ1YQ7a3N1q-n2T9Rw48RM-PsufD5Uszok5FA_ZHVJA/exec";
+  <!--  FIDELIDADE.NET.BR IDENTIDADE VISUAL DINÂMINCA 5.2-->
+<script>
+// =========================================================================
+    // FIDELIDADE.NET.BR IDENTIDADE VISUAL DINÂMINCA 5.2
+    // A ÚNICA URL QUE FICA FIXA (A Ponte de Conexão com o Banco de Dados) - ADICIONAR SOMENTE SE NÃO ESTIVER DISPONÍVEL NA PÁGINA
+    const API_URL = "https://script.google.com/macros/s/AKfycbwgFUB1b-yKqzxY7ncvZTywv6NimIM_OiBI7ws09kkU2atTMgN7AiM2uezrh6RTwyvTXA/exec";
+// ==========================================
+// FUNÇÕES DE IDENTIDADE VISUAL
+// Histórico de versões:
+// v.5.2 – Tratamento de Gênero FORMATADO dinamicamente
+// v.5.1 – Número de WhatsApp FORMATADO dinamicamente
+// v.5.0 – Número de WhatsApp oficial adicionado
+// v.4.0 – Nesta versão e anteriores foram adicionados dinamicamente: 
+//  Moeda Oficial, Nome do Programa Oficial, Cores do Background Oficiais
+//  Nome do Cliente e do ChatBot Oficial, Logo Oficial
+// ==========================================
 
-        async function carregarEConfigurarIdentidade() {
-            try {
-                const cache = sessionStorage.getItem('identidadeGlobal');
-                if (cache) {
-                    aplicarIdentidadeVisual(JSON.parse(cache));
-                    return;
-                }
+// FUNÇÃO QUE PREENCHE O FORMULÁRIO (Aba Configurações)
+async function carregarIdentidadeVisual() {
+    try {
+        const res = await (await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'buscar_identidade' })
+        })).json();
 
-                const res = await (await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'buscar_identidade' })
-                })).json();
+        if (res.status === 'success') {
+            const iden = res.identidade;
+            
+            // Preenchendo campos de texto
+            if (document.getElementById('idTratamento')) document.getElementById('idTratamento').value = iden.Tratamento_Genero || '';
+            if (document.getElementById('idLogo')) document.getElementById('idLogo').value = iden.Logo_URL || '';
+            if (document.getElementById('idNome')) document.getElementById('idNome').value = iden.Nome_Programa || '';
+            if (document.getElementById('idMoeda')) document.getElementById('idMoeda').value = iden.Nome_Moeda || '';
+            if (document.getElementById('idCifrao')) document.getElementById('idCifrao').value = iden.Cifrao_Moeda || '';
+            if (document.getElementById('idTelefone')) document.getElementById('idTelefone').value = iden.Telefone_WPP || '';
+            if (document.getElementById('idApi')) document.getElementById('idApi').value = iden.URL_API || '';
+            if (document.getElementById('idAppCliente')) document.getElementById('idAppCliente').value = iden.URL_AppCliente || '';
+            if (document.getElementById('idAppCadastro')) document.getElementById('idAppCadastro').value = iden.URL_Cadastro || '';
+            if (document.getElementById('idAppPlayground')) document.getElementById('idAppPlayground').value = iden.URL_Playground || '';
+            if (document.getElementById('idAppRoleta')) document.getElementById('idAppRoleta').value = iden.URL_Roleta || '';
+            if (document.getElementById('idAppClaw')) document.getElementById('idAppClaw').value = iden.URL_ClawMachine || '';
+            if (document.getElementById('idAppPescaria')) document.getElementById('idAppPescaria').value = iden.URL_Pescaria || '';
+            
+            // --- INÍCIO DA CORREÇÃO DAS PALETAS ---
+            window.BG_COR1 = iden["BG_COR1"] || "#1a1a1a";
+            window.BG_COR2 = iden["BG_COR2"] || "#550000";
 
-                if (res.status === 'success' && res.identidade) {
-                    sessionStorage.setItem('identidadeGlobal', JSON.stringify(res.identidade));
-                    aplicarIdentidadeVisual(res.identidade);
-                }
-            } catch (e) {
-                console.error("Erro ao carregar identidade visual:", e);
+            if (document.getElementById('idBgCor1')) document.getElementById('idBgCor1').value = window.BG_COR1;
+            if (document.getElementById('idBgCor2')) document.getElementById('idBgCor2').value = window.BG_COR2;
+            // --- FIM DA CORREÇÃO DAS PALETAS ---
+        }
+    } catch (e) {
+        console.error("Erro ao carregar Identidade Visual", e);
+    }
+}
+
+// Chame esta função na inicialização do painel ou no botão que abre a aba
+// carregarIdentidadeVisual();
+
+async function salvarIdentidadeVisual() {
+    const btn = event.target;
+    const textoOriginal = btn.innerText;
+    btn.innerText = "Salvando...";
+    btn.disabled = true;
+
+ 
+    const identidadeAtualizada = {
+        Tratamento_Genero: document.getElementById('idTratamento') ? document.getElementById('idTratamento').value : 'a',
+        Logo_URL: document.getElementById('idLogo').value,
+        Nome_Programa: document.getElementById('idNome').value,
+        Nome_Moeda: document.getElementById('idMoeda').value,
+        Cifrao_Moeda: document.getElementById('idCifrao').value,
+        Telefone_WPP: document.getElementById('idTelefone').value,
+        URL_API: document.getElementById('idApi').value,
+        URL_AppCliente: document.getElementById('idAppCliente').value,
+        URL_Cadastro: document.getElementById('idAppCadastro').value,
+        URL_Playground: document.getElementById('idAppPlayground').value,
+        URL_Roleta: document.getElementById('idAppRoleta').value,
+        URL_ClawMachine: document.getElementById('idAppClaw').value,
+        URL_Pescaria: document.getElementById('idAppPescaria').value,
+        // CORES DO BACKGROUND
+        "BG_COR1": document.getElementById('idBgCor1').value,
+        "BG_COR2": document.getElementById('idBgCor2').value
+    };
+
+    try {
+        const res = await (await fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'salvar_identidade', identidade: identidadeAtualizada })
+        })).json();
+
+        if (res.status === 'success') {
+            alert("Identidade Visual salva com sucesso!");
+                 
+        sessionStorage.removeItem('identidadeGlobal'); // Limpa o cache antigo para forçar a nova leitura
+        } else {
+            alert("Erro: " + res.message);
+        }
+    } catch (e) {
+        alert("Erro ao conectar com o servidor.");
+    }
+
+    btn.innerText = textoOriginal;
+    btn.disabled = false;
+}
+
+
+    async function carregarEConfigurarIdentidade() {
+        try {
+            const cache = sessionStorage.getItem('identidadeGlobal');
+            if (cache) {
+                aplicarIdentidadeVisual(JSON.parse(cache));
+                return;
             }
+
+            const res = await (await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'buscar_identidade' })
+            })).json();
+
+            if (res.status === 'success' && res.identidade) {
+                sessionStorage.setItem('identidadeGlobal', JSON.stringify(res.identidade));
+                aplicarIdentidadeVisual(res.identidade);
+            }
+        } catch (e) {
+            console.error("Erro ao carregar identidade visual:", e);
+        }
+    }
+
+    // ==========================================
+    // FUNÇÃO QUE ESPALHA OS DADOS DO CLIENTE NA TELA
+    // ==========================================
+    window.atualizarDadosClienteDinamicos = function() {
+        let saldo = 0;
+        let nomeCli = "Cliente";
+        let apelidoCli = "Cliente";
+        
+        // Tenta capturar os dados do cliente logado na memória do app
+        if (typeof clienteLogado !== 'undefined' && clienteLogado) {
+            saldo = clienteLogado.saldoSXC !== undefined ? clienteLogado.saldoSXC : (clienteLogado.saldo || 0);
+            nomeCli = clienteLogado.nome || "Cliente";
+            apelidoCli = clienteLogado.apelido || nomeCli.split(' ')[0];
+        } else if (typeof dadosCliente !== 'undefined' && dadosCliente) {
+            saldo = dadosCliente.saldo || 0;
+            nomeCli = dadosCliente.nome || "Cliente";
+            apelidoCli = dadosCliente.apelido || nomeCli.split(' ')[0];
         }
 
-        function aplicarIdentidadeVisual(iden) {
-            // 1.1 SALVA AS VARIÁVEIS GLOBAIS - LOGO
-            window.LOGO_URL = iden.Logo_URL || "";
-            // 1.2 SALVA AS VARIÁVEIS GLOBAIS - NOME E MOEDA
-            window.CIFRAO_MOEDA = iden.Cifrao_Moeda || "SFC";
-            window.NOME_PROGRAMA = iden.Nome_Programa || "Fidelity Solyx";
-            window.PRIMEIRO_NOME = iden.Nome_Programa ? iden.Nome_Programa.split(" ")[0] : "Fidelity";
-            window.NOME_MOEDA = iden.Nome_Moeda || "FidelityCoin(s)";
-            // Cria a versão no singular removendo o "(s)" do final do texto
-            window.NOME_MOEDA_SINGULAR = window.NOME_MOEDA.replace(/\(s\)$/i, '');
-            // Pega apenas a primeira letra do Cifrão (Ex: "S" de "SFC")
-            window.PRIMEIRA_LETRA_CIFRAO = window.CIFRAO_MOEDA.charAt(0);
+        // 1. Salva nas Variáveis Globais
+        window.SALDO_CLIENTE = saldo;
+        window.NOME_CLIENTE = nomeCli;
+        window.APELIDO_CLIENTE = apelidoCli;
 
+        // 2. Injeta nas Classes Vazias do HTML
+        document.querySelectorAll('.nome-cliente-dinamico').forEach(el => el.innerText = window.NOME_CLIENTE);
+        document.querySelectorAll('.apelido-cliente-dinamico').forEach(el => el.innerText = window.APELIDO_CLIENTE);
+        document.querySelectorAll('.saldo-dinamico').forEach(el => el.innerText = Number(window.SALDO_CLIENTE).toLocaleString('pt-BR'));
+    };
 
-            // SALVA TODAS AS URLs (ROTAS) NA MEMÓRIA
-            window.ROTAS_FIDELITY = iden;
+    function aplicarIdentidadeVisual(iden) {
+        // 1. SALVA AS VARIÁVEIS GLOBAIS DE MARCA
+        window.TRATAMENTO_MIN = (iden.Tratamento_Genero || "a").toLowerCase();
+        window.TRATAMENTO_MAI = window.TRATAMENTO_MIN.toUpperCase();
+        window.LOGO_URL = iden.Logo_URL || "";
+        window.CIFRAO_MOEDA = iden.Cifrao_Moeda || "";
+        window.NOME_PROGRAMA = iden.Nome_Programa || "";
+        window.PRIMEIRO_NOME = iden.Nome_Programa ? iden.Nome_Programa.split(" ")[0] : "";
+        window.NOME_MOEDA = iden.Nome_Moeda || "FidelityCoin(s)";
+        window.NOME_MOEDA_SINGULAR = window.NOME_MOEDA.replace(/\(s\)$/i, '');
+        window.PRIMEIRA_LETRA_CIFRAO = window.CIFRAO_MOEDA.charAt(0);
+       // v.5.0_variável Global do Telefone Oficial 
+       window.TELEFONE_OFICIAL = iden.Telefone_WPP || "";    
 
-            // 2. APLICA O BACKGROUND (Gradiente Dinâmico)
-            if (iden.BG_COR1 && iden.BG_COR2) {
-                document.body.style.background = `linear-gradient(335deg, ${iden.BG_COR1} 0%, ${iden.BG_COR2} 150%)`;
-                document.body.style.minHeight = "100vh";
-                document.body.style.backgroundRepeat = "no-repeat";
-                document.body.style.backgroundAttachment = "fixed";
-            }
+      //  VARIÁVEIS DO BOT 
+        window.NOME_BOT = iden.Nome_Bot || "Assistente Virtual";
+        window.AVATAR_BOT = iden.Avatar_Bot || "🤖"; // Puxa o avatar da planilha (Emoji ou Link)
+        window.ROTAS_FIDELITY = iden;
 
-            // 3. ATUALIZA A LOGO E TEXTOS NAS CLASSES VAZIAS
-            if (window.LOGO_URL) {
-                        document.querySelectorAll('.logo-dinamica').forEach(logo => {
-                            logo.src = window.LOGO_URL;
-                            logo.alt = window.NOME_PROGRAMA; // ✨ A MÁGICA AQUI: Injeta o nome no alt!
-                        });
-                    }
-            document.querySelectorAll('.nome-dinamico').forEach(el => el.innerText = window.NOME_PROGRAMA);
-            document.querySelectorAll('.primeiro-nome-dinamico').forEach(el => el.innerText = window.PRIMEIRO_NOME);
-            document.querySelectorAll('.moeda-dinamica').forEach(el => el.innerText = window.CIFRAO_MOEDA);
-                  // Aplica o nome da Moeda no Singular nas classes corretas
-            document.querySelectorAll('.nome-moeda-singular').forEach(el => {
-                el.innerText = window.NOME_MOEDA_SINGULAR;
-            });
-            document.querySelectorAll('.nome-moeda-dinamico').forEach(el => {
-                el.innerText = window.NOME_MOEDA;
-            });
-                    // Aplica a primeira letra do Cifrão nas classes corretas
-            document.querySelectorAll('.letra-moeda-dinamica').forEach(el => {
-                el.innerText = window.PRIMEIRA_LETRA_CIFRAO;
-            });
-
-            // 4. INJEÇÃO AUTOMÁTICA DE URLs NOS LINKS (Tags <a>)
-            document.querySelectorAll('[data-rota]').forEach(link => {
-                const rotaAlvo = link.getAttribute('data-rota');
-                if (window.ROTAS_FIDELITY[rotaAlvo]) {
-                    link.href = window.ROTAS_FIDELITY[rotaAlvo];
-                }
-            });
-      // Injeta o nome do programa no atributo ALT das imagens
-            document.querySelectorAll('.alt-dinamico').forEach(img => img.alt = window.NOME_PROGRAMA);
-
-            // 5. ATUALIZA O TÍTULO DA ABA DO NAVEGADOR
-            document.title = window.NOME_PROGRAMA;
+        // 2. APLICA O BACKGROUND (Gradiente Dinâmico)
+        if (iden.BG_COR1 && iden.BG_COR2) {
+            document.body.style.background = `linear-gradient(335deg, ${iden.BG_COR1} 0%, ${iden.BG_COR2} 150%)`;
+            document.body.style.minHeight = "100vh";
+            document.body.style.backgroundRepeat = "no-repeat";
+            document.body.style.backgroundAttachment = "fixed";
         }
 
+        // 3. ATUALIZA A LOGO E TEXTOS NAS CLASSES VAZIAS
+        if (window.LOGO_URL) {
+            document.querySelectorAll('.logo-dinamica').forEach(logo => {
+                logo.src = window.LOGO_URL;
+                logo.alt = window.NOME_PROGRAMA;
+            });
+        }
+		// v.5.2 Injeta o tratamento de gênero em classes HTML vazias
+        document.querySelectorAll('.tratamento-minusculo').forEach(el => el.innerText = window.TRATAMENTO_MIN);
+        document.querySelectorAll('.tratamento-maiusculo').forEach(el => el.innerText = window.TRATAMENTO_MAI);     
+        document.querySelectorAll('.nome-dinamico').forEach(el => el.innerText = window.NOME_PROGRAMA);
+        document.querySelectorAll('.primeiro-nome-dinamico').forEach(el => el.innerText = window.PRIMEIRO_NOME);
+        document.querySelectorAll('.moeda-dinamica').forEach(el => el.innerText = window.CIFRAO_MOEDA);
+        document.querySelectorAll('.nome-moeda-singular').forEach(el => el.innerText = window.NOME_MOEDA_SINGULAR);
+        document.querySelectorAll('.nome-moeda-dinamico').forEach(el => el.innerText = window.NOME_MOEDA);
+        document.querySelectorAll('.letra-moeda-dinamica').forEach(el => el.innerText = window.PRIMEIRA_LETRA_CIFRAO);
+        // v.5.0-  Injeta o número de celular em classes HTML vazias 
+        document.querySelectorAll('.telefone-dinamico').forEach(el => el.innerText = window.TELEFONE_OFICIAL); 
+        
+        // Aplica o Nome do Bot
+        document.querySelectorAll('.nome-bot-dinamico').forEach(el => el.innerText = window.NOME_BOT);
+		//  Dispara a sua função do cabeçalho do FAQ!
+        if (typeof aplicarIdentidadeBotFaq === "function") {
+            aplicarIdentidadeBotFaq(window.NOME_BOT, window.AVATAR_BOT);
+        }
+      
+        // 4. ATUALIZA OS DADOS DO CLIENTE
+        window.atualizarDadosClienteDinamicos();
+
+        // 5. INJEÇÃO AUTOMÁTICA DE URLs NOS LINKS (Tags <a>)
+        document.querySelectorAll('[data-rota]').forEach(link => {
+            const rotaAlvo = link.getAttribute('data-rota');
+            if (window.ROTAS_FIDELITY[rotaAlvo]) {
+                link.href = window.ROTAS_FIDELITY[rotaAlvo];
+            }
+        });
+        document.querySelectorAll('.alt-dinamico').forEach(img => img.alt = window.NOME_PROGRAMA);
+      
+      	 // 6. BACKGROUNDS DINAMICOS
+
+              // Injeta a cor de fundo primária nos elementos com a classe bg-dinamico
+        document.querySelectorAll('.bg-dinamico').forEach(el => {
+            el.style.background = window.BG_COR1; 
+        });
+
+    	    // Injeta o gradiente completo nos elementos com a classe bg-dinamico
+        document.querySelectorAll('.bg-dinamico').forEach(el => {
+            el.style.background = `linear-gradient(335deg, ${window.BG_COR1} 0%, ${window.BG_COR2} 150%)`;
+        });
+      
+      // Atualiza as variáveis do CSS :root com as cores do banco de dados
+          document.documentElement.style.setProperty('--bg-cor1', iden.BG_COR1 || '#1a1a1a');
+          document.documentElement.style.setProperty('--bg-cor2', iden.BG_COR2 || '#550000');
+      
+      // ==========================================
+        // MOTOR UNIVERSAL DE PLACEHOLDERS DINÂMICOS
         // ==========================================
-        // FUNÇÃO UNIVERSAL DE NAVEGAÇÃO
-        // ==========================================
-        function irParaRota(rotaAlvo) {
-            if (window.ROTAS_FIDELITY && window.ROTAS_FIDELITY[rotaAlvo]) {
-                window.location.href = window.ROTAS_FIDELITY[rotaAlvo];
-            } else {
-                alert("Carregando o link de destino, tente novamente em 1 segundo...");
-            }
+        document.querySelectorAll('[data-placeholder]').forEach(el => {
+            // 1. Lê a frase curinga original que você escreveu no HTML
+            let texto = el.getAttribute('data-placeholder');
+          
+          	// NOVOS Curingas de Tratamento (v.5.2)
+            texto = texto.replace(/\[TRATAMENTO_MINUSCULO\]/gi, window.TRATAMENTO_MIN || 'a');
+            texto = texto.replace(/\[TRATAMENTO_MAIUSCULO\]/gi, window.TRATAMENTO_MAI || 'A');
+            
+            // 2. Substitui as tags pelas Variáveis Globais reais
+            texto = texto.replace(/\[NOME_PROGRAMA\]/gi, window.NOME_PROGRAMA || '');
+            texto = texto.replace(/\[PRIMEIRO_NOME\]/gi, window.PRIMEIRO_NOME || '');
+            texto = texto.replace(/\[MOEDA\]/gi, window.CIFRAO_MOEDA || '');
+            texto = texto.replace(/\[NOME_MOEDA_SINGULAR\]/gi, window.NOME_MOEDA_SINGULAR || '');
+            texto = texto.replace(/\[NOME_MOEDA\]/gi, window.NOME_MOEDA || '');          
+            texto = texto.replace(/\[NOME_BOT\]/gi, window.NOME_BOT || 'Assistente');
+            // v.5.0 - Adiciona suporte ao placeholder do telefone! 
+            texto = texto.replace(/\[TELEFONE_OFICIAL\]/gi, window.TELEFONE_OFICIAL || '');
+            
+            // 3. Injeta o texto final e perfeito no placeholder do navegador!
+            el.placeholder = texto;
+        });
+      
+        // 6. ATUALIZA O TÍTULO DA ABA E META DESCRIPTION
+        document.title = window.NOME_PROGRAMA;
+        const metaDesc = document.getElementById('metaDescription');
+        if (metaDesc && window.NOME_PROGRAMA) {
+            metaDesc.setAttribute("content", `${window.NOME_PROGRAMA} - Escolha seu tipo de acesso.`);
         }
+    }
 
-        // Dispara a mágica assim que a página é lida
-        document.addEventListener("DOMContentLoaded", carregarEConfigurarIdentidade);
-    </script>
+    // ==========================================
+    // FUNÇÃO UNIVERSAL DE NAVEGAÇÃO
+    // ==========================================
+    function irParaRota(rotaAlvo) {
+        if (window.ROTAS_FIDELITY && window.ROTAS_FIDELITY[rotaAlvo]) {
+            window.location.href = window.ROTAS_FIDELITY[rotaAlvo];
+        } else {
+            alert("Carregando o link de destino, tente novamente em 1 segundo...");
+        }
+    }
+
+    // Dispara a mágica assim que a página é lida
+    document.addEventListener("DOMContentLoaded", carregarEConfigurarIdentidade);
+
+   // Transforma Telefone (por exemplo: 5581999999999 fica: (81) 9 9999-9999)
+   // Para usar a função abaixo, chame ela quando necessário usando: aplicarTelefoneDinamico();
+function aplicarTelefoneDinamico() {
+    // 1. Pega o valor bruto da variável global e limpa
+    let telBruto = String(window.TELEFONE_OFICIAL || '');
+    let numCru = telBruto.replace(/\D/g, '');
+    let telFormatado = telBruto;
+
+    // 2. Aplica a máscara inteligente (13 dígitos com DDI 55 ou 11 dígitos padrão)
+    if (numCru.length === 13 && numCru.startsWith('55')) {
+        telFormatado = `(${numCru.substring(2, 4)}) ${numCru.substring(4, 5)} ${numCru.substring(5, 9)}-${numCru.substring(9, 13)}`;
+    } else if (numCru.length === 11) {
+        telFormatado = `(${numCru.substring(0, 2)}) ${numCru.substring(2, 3)} ${numCru.substring(3, 7)}-${numCru.substring(7, 11)}`;
+    }
+
+    // 3. Varre a página inteira e preenche todas as tags com a classe .telefone-dinamico
+    document.querySelectorAll('.telefone-dinamico').forEach(el => {
+        el.innerText = telFormatado;
+    });
+}
+</script>
+
 
 <script>
   if ('serviceWorker' in navigator) {
