@@ -31,7 +31,7 @@
    1. CONFIGURAÇÃO
    ============================================================ */
 
-const CACHE_NAME = "Fidelidade_Admin-v48";
+const CACHE_NAME = "Fidelidade_Admin-v49";
 
 const OFFLINE_PAGE = "./offline.html";
 
