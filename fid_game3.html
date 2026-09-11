@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#07111f">
 <title>Memória Educativa</title>
+
+
 <style>
 :root{--bg:#07111f;--panel:#0d1b2e;--panel2:#10243b;--line:#24435f;--text:#f5f8fc;--muted:#9eb2c8;--green:#35e6a3;--blue:#50a8ff;--gold:#ffd166;--red:#ff6680;--shadow:0 18px 50px #0008}
 *{box-sizing:border-box}
@@ -48,9 +50,58 @@ h1{font-size:clamp(29px,6vw,50px);margin:4px 0 10px}h2{font-size:clamp(23px,5vw,
 @media(max-width:850px){.options{grid-template-columns:1fr}.themeGrid{grid-template-columns:repeat(2,1fr)}.preview{grid-template-columns:1fr}.gameArea{grid-template-columns:1fr}.side{order:2}.gameHeader{grid-template-columns:1fr 1fr}.turn{grid-column:1/-1;order:-1}}
 @media(max-width:520px){body{padding:8px}.panel{border-radius:18px;padding:14px}.board{gap:6px}.card{aspect-ratio:1/.92}.front .emoji{font-size:34px}.face{border-radius:12px}.gameHeader{gap:6px}.stat{padding:7px 8px}.themeGrid{gap:8px}.theme{min-height:125px}}
 </style>
+<!-- Início do Botão de Sair Oculto -->
+<div id="btn-sair-oculto" onclick="window.location.href='offline.html'">
+    <span>Sair</span>
+</div>
+
+<style>
+    #btn-sair-oculto {
+        position: fixed;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 12px; /* Super discreto inicialmente */
+        background-color: rgba(255, 255, 255, 0.2); /* Fundo claro e transparente */
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        cursor: pointer;
+        z-index: 99999; /* Garante que fique acima de todos os elementos do jogo */
+        transition: all 0.3s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        backdrop-filter: blur(2px); /* Dá um leve desfoque no fundo */
+    }
+
+    /* Expansão ao passar o mouse ou tocar */
+    #btn-sair-oculto:hover, #btn-sair-oculto:active {
+        height: 40px;
+        width: 100px;
+        background-color: #8B0000; /* Cor vermelha do seu painel offline */
+        box-shadow: 0 4px 15px rgba(139, 0, 0, 0.4);
+    }
+
+    #btn-sair-oculto span {
+        color: white;
+        font-weight: bold;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        font-size: 14px;
+        opacity: 0; /* O texto começa invisível */
+        transition: opacity 0.3s ease;
+    }
+
+    #btn-sair-oculto:hover span, #btn-sair-oculto:active span {
+        opacity: 1; /* O texto aparece na expansão */
+    }
+</style>
+<!-- Fim do Botão de Sair Oculto -->
 </head>
 <body>
-<div class="app">
+
+
 <header class="top"><div class="logo">🧠 MEMÓRIA <span>EDUCATIVA</span></div><button class="sound" id="soundBtn">🔊 Som</button></header>
 
 <section class="screen active" id="s1">
