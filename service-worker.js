@@ -31,7 +31,7 @@
    1. CONFIGURAÇÃO
    ============================================================ */
 
-const CACHE_NAME = "Fidelidade_Admin-v49";
+const CACHE_NAME = "Fidelidade_Admin-v50";
 
 const OFFLINE_PAGE = "./offline.html";
 
@@ -142,7 +142,7 @@ self.addEventListener("activate", event => {
                         if (
 
                             cacheName.startsWith(
-                                "SolyxLojista-"
+                                "Fidelidade_Admin-"
                             )
 
                             &&
